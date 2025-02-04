@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "pentamana",
+	"version": "${version}",
+	"name": "Pentamana",
+	"description": "Scoreboard-based mana mod providing mana modifying and damage calculation hooks.",
+	"authors": [
+		{
+			"name": "CharcoalWhite",
+			"contact": {
+				"homepage": "https://github.com/CharcoalWhite"
+			}
+		}
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/Pentamana",
+		"sources": "https://github.com/CharcoalWhite/Pentamana"
+	},
+	"license": "GNU-GPL-3.0",
+	"icon": "assets/pentamana/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"org.charcoalwhite.pentamana.Pentamana"
+		]
+	},
+	"mixins": [
+		"pentamana.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "1.21.4",
+		"java": ">=21",
+		"fabric-api": "*",
+		"candywrapper": ">=0.3.0"
+	},
+	"suggests": {
+		"another-mod": "*"
+	},
+	"accessWidener": "pentamana.accesswidener"
+}
