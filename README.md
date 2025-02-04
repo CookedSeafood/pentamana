@@ -10,9 +10,7 @@ Pentamana introduces mana as a base stat into Minecraft. A row of aqua stars uti
 
 `/mana disable` to disable THIS mod for YOURSELF completely.
 
-YOURSELF: This mod is disbled for every player by default.
-
-THIS: If someone has created a weapon mod/datapack that depends on pentamana that do not check whether pentamana is enabled, ATM if you have enough amount of mana left in pentamana's data before you disable pentamana, the weapon will WORK when using.
+This mod is disbled for every player by default.
 
 ## Mana Mechanic
 
@@ -80,20 +78,34 @@ Below is a template config file `config/pentamana.json` filled with default valu
 
 ```json
 {
-  "manaScale": 16777216
-  "manaCapacityBase": 33554431
-  "manaCapacityIncrementBase": 33554432
-  "manaRegenBase": 1048576
-  "manaRegenIncrementBase": 65536
-  "maxManabarLife": 40
-  "manaCharFull": "★"
-  "manaCharHalf": "⯪"
-  "manaCharZero": "☆"
-  "manaColor": "aqua"
+  "manaScale": 16777216 // Amount of mana be considered as 1 point mana.
+  "manaCapacityBase": 33554431 // Initial mana capacity, should be odd.
+  "manaCapacityIncrementBase": 33554432 // eg. using for capacity enchantment, should be even.
+  "manaRegenBase": 1048576 // Initial mana regen amount per tick.
+  "manaRegenIncrementBase": 65536 // eg. using for stream enchantment
+  "maxManabarLife": 40 // Ticks of actionbar updating suppression when interrupted
+  "manaCharFull": "★" // 2 point mana
+  "manaCharHalf": "⯪" // 1 point mana
+  "manaCharZero": "☆" // 0 point mana
+  "manaColor": "aqua" // The color of mana in actionbar
 }
 ```
 
 Enchantments are registed using datapack. You can open mod jar and edit it.
+
+## Scoreboard
+
+`pentamana.mana` Mana supply at last tick
+
+`pentamana.mana_capacity` Mana capacity at last tick
+
+`pentamana.mana_regen` Amount of mana regened at last tick
+
+`pentamana.mana_consume` Amount of mana to consume
+
+`pentamana.manabar_life` Ticks left till next update if idle
+
+`pentamana.enabled` 1 if enabled.
 
 ## Events
 
