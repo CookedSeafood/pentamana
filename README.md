@@ -2,7 +2,9 @@
 
 Pentamana is a scoreboard-based mana mod that runs server-side providing mana modification and damage calculation hooks.
 
-Pentamana introduces mana as a base stat into Minecraft. A row of aqua stars utilizing the actionbar respresents the player's current mana supply and capacity.
+## What is this?
+
+Pentamana acts as a mana system, handling tasks such as mana regeneration and mana consumption. The goal is to reduce the time and effort required to add a server-side mana-consuming weapon. It use actionbar to display manabar.
 
 ## Enable this Mod for Yourself
 
@@ -74,7 +76,7 @@ Utilization reduces the mana cost of casting by 10% per level.
 
 ## Configuration
 
-Below is a template config file `config/pentamana.json` filled with default values.
+Below is a template config file `config/pentamana.json` filled with default values. Create the file yourself if you need config.
 
 ```json
 {
@@ -93,7 +95,7 @@ Below is a template config file `config/pentamana.json` filled with default valu
 
 Enchantments are registed using datapack. You can open mod jar and edit it.
 
-## Scoreboard
+## Objectives
 
 `pentamana.mana` Mana supply at last tick
 
@@ -114,3 +116,43 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 - `RegenManaCallback` Called when a player is regenerating mana. After the mana regeneration calculation, before regenerating mana.
 
 - `ConsumeManaCallback` Called when a player is consuming mana. After the mana consumption calculation, before consuming mana.
+
+## Tutorial: Create your very own magic weapon
+
+This tutorial assumes that you already have a method that will be called when the weapon is used.
+
+First, set the mana the weapon consumes. For example, 2000.
+
+```java
+ServerCommandSource source = player.getServerCommandSource();
+ManaCommand.executeSetManaConsume(source, 2000)
+```
+
+Second, consume the mana and fire your weapon if successful consumed.
+
+```java
+if (ManaCommand.executeConsume(source) == 0) {
+  return;
+}
+
+// Your code here
+```
+
+The result code will look like this:
+
+```java
+public void UseExampleWeapon(ServerPlayerEntity player) {
+  ServerCommandSource source = player.getServerCommandSource();
+  ManaCommand.executeSetManaConsume(source, 2000)
+
+  if (ManaCommand.executeConsume(source) == 0) {
+    return;
+  }
+
+  // Your code here
+}
+```
+
+## License
+
+You are free to port it to any mod loader other than fabric.
