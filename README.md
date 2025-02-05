@@ -4,14 +4,6 @@ Pentamana is a scoreboard-based mana mod that runs server-side providing mana mo
 
 Pentamana acts as a mana system, handling tasks such as mana regeneration and mana consumption. It display manabar in actionbar.
 
-## Enable this Mod for Yourself
-
-`/mana enbale` to enable this mod for YOURSELF.
-
-`/mana disable` to disable THIS mod for YOURSELF completely.
-
-This mod is disbled for every player by default.
-
 ## Mana Mechanic
 
 Each player starts with 33,554,431 mana capacity (1 star in the manabar). Mana capacity is maxed out at 2,147,483,647 mana, or 64 stars total. The mana capacity would be calculated by the formula below:
@@ -72,32 +64,52 @@ Potency adds 1 extra casting magic damage for the first level and 0.5 for all su
 
 Utilization reduces the mana cost of casting by 10% per level.
 
+## Commands
+
+`/mana enbale` Enable this mod for yourself.
+
+`/mana disable` Disable this mod for yourself completely.
+
+`/mana character full <full>` Set mana character for 2 point mana.
+
+`/mana character full <half>` Set mana character for 1 point mana.
+
+`/mana character full <zero>` Set mana character for 0 point mana.
+
+`/mana color <value>` Set mana color which is used in manabar.
+
+`/mana reset` Reset mana character and color settings.
+
+This mod is disbled for every player by default.
+
 ## Configuration
 
-Below is a template config file `config/pentamana.json` filled with default values. Create the file yourself if you need config. You only need to write the lines you would like to modify.
+The config file is not shipped along with the mod. Below is a template config file `config/pentamana.json` filled with default values. You may only write the lines you would like to modify.
 
 ```json
 {
   // Amount of mana be considered as 1 point mana.
-  "manaScale": 16777216
+  "manaScale": 16777216,
   // Initial mana capacity, should be odd.
-  "manaCapacityBase": 33554431
+  "manaCapacityBase": 33554431,
   // Used in capacity enchantment, should be even.
-  "manaCapacityIncrementBase": 33554432
+  "manaCapacityIncrementBase": 33554432,
   // Initial mana regen amount per tick.
-  "manaRegenBase": 1048576
+  "manaRegenBase": 1048576,
   // Used in stream enchantment
-  "manaRegenIncrementBase": 65536
+  "manaRegenIncrementBase": 65536,
   // Ticks of actionbar updating suppression when interrupted
-  "maxManabarLife": 40
-  // 2 point mana
-  "manaCharFull": "★"
-  // 1 point mana
-  "manaCharHalf": "⯪"
-  // 0 point mana
-  "manaCharZero": "☆"
+  "maxManabarLife": 40,
+  // Mana character for 2 point mana.
+  "manaCharFull": "★",
+  // Mana character for 1 point mana.
+  "manaCharHalf": "⯪",
+  // Mana character for 0 point mana.
+  "manaCharZero": "☆",
   // Used in manabar
-  "manaColor": "aqua"
+  "manaColor": "aqua",
+  // Make the mod enabled for every player when setting to ture, do not modify their own preference.
+  "forceEnabled": false
 }
 ```
 
@@ -115,7 +127,15 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 `pentamana.manabar_life` Ticks left till next update if idle
 
-`pentamana.enabled` 1 if enabled.
+`pentamana.mana_char_full` The complement of mana character for 2 point mana.
+
+`pentamana.mana_char_half` The complement of mana character for 1 point mana.
+
+`pentamana.mana_char_zero` The complement of mana character for 0 point mana.
+
+`pentamana.color` The mana color which is used in manabar.
+
+`pentamana.enabled` 1 if enabled, otherwise not.
 
 ## Events
 
@@ -129,11 +149,11 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 This tutorial assumes that you already have a method that will be called when the weapon is used.
 
-First, set the mana the weapon consumes. For example, 2000.
+First, set the mana the weapon consumes. For example, 2,000,000.
 
 ```java
 ServerCommandSource source = player.getServerCommandSource();
-ManaCommand.executeSetManaConsume(source, 2000)
+ManaCommand.executeSetManaConsume(source, 2000000)
 ```
 
 Second, consume the mana and fire your weapon if successful consumed.
@@ -151,7 +171,7 @@ The result code will look like this:
 ```java
 public void UseExampleWeapon(ServerPlayerEntity player) {
   ServerCommandSource source = player.getServerCommandSource();
-  ManaCommand.executeSetManaConsume(source, 2000)
+  ManaCommand.executeSetManaConsume(source, 2000000)
 
   if (ManaCommand.executeConsume(source) == 0) {
     return;
