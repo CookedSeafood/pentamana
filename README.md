@@ -2,9 +2,7 @@
 
 Pentamana is a scoreboard-based mana mod that runs server-side providing mana modification and damage calculation hooks.
 
-## What is this?
-
-Pentamana acts as a mana system, handling tasks such as mana regeneration and mana consumption. The goal is to reduce the time and effort required to add a server-side mana-consuming weapon. It use actionbar to display manabar.
+Pentamana acts as a mana system, handling tasks such as mana regeneration and mana consumption. It display manabar in actionbar.
 
 ## Enable this Mod for Yourself
 
@@ -76,20 +74,30 @@ Utilization reduces the mana cost of casting by 10% per level.
 
 ## Configuration
 
-Below is a template config file `config/pentamana.json` filled with default values. Create the file yourself if you need config.
+Below is a template config file `config/pentamana.json` filled with default values. Create the file yourself if you need config. You only need to write the lines you would like to modify.
 
 ```json
 {
-  "manaScale": 16777216 // Amount of mana be considered as 1 point mana.
-  "manaCapacityBase": 33554431 // Initial mana capacity, should be odd.
-  "manaCapacityIncrementBase": 33554432 // eg. using for capacity enchantment, should be even.
-  "manaRegenBase": 1048576 // Initial mana regen amount per tick.
-  "manaRegenIncrementBase": 65536 // eg. using for stream enchantment
-  "maxManabarLife": 40 // Ticks of actionbar updating suppression when interrupted
-  "manaCharFull": "★" // 2 point mana
-  "manaCharHalf": "⯪" // 1 point mana
-  "manaCharZero": "☆" // 0 point mana
-  "manaColor": "aqua" // The color of mana in actionbar
+  // Amount of mana be considered as 1 point mana.
+  "manaScale": 16777216
+  // Initial mana capacity, should be odd.
+  "manaCapacityBase": 33554431
+  // Used in capacity enchantment, should be even.
+  "manaCapacityIncrementBase": 33554432
+  // Initial mana regen amount per tick.
+  "manaRegenBase": 1048576
+  // Used in stream enchantment
+  "manaRegenIncrementBase": 65536
+  // Ticks of actionbar updating suppression when interrupted
+  "maxManabarLife": 40
+  // 2 point mana
+  "manaCharFull": "★"
+  // 1 point mana
+  "manaCharHalf": "⯪"
+  // 0 point mana
+  "manaCharZero": "☆"
+  // Used in manabar
+  "manaColor": "aqua"
 }
 ```
 
@@ -155,4 +163,4 @@ public void UseExampleWeapon(ServerPlayerEntity player) {
 
 ## License
 
-You are free to port it to any mod loader other than fabric.
+You are free to port it to any mod loader other than fabric as long as you credit the origin version.
