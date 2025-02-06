@@ -131,7 +131,7 @@ if (ManaCommand.executeConsume(source) == 0) {
 The result code will look like this:
 
 ```java
-public void UseExampleWeapon(ServerPlayerEntity player) {
+public void useExampleWeapon(ServerPlayerEntity player) {
   ServerCommandSource source = player.getServerCommandSource();
   ManaCommand.executeSetManaConsume(source, 2000000)
 
