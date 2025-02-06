@@ -38,21 +38,11 @@ public class ManaCommand {
             CommandManager.literal("mana")
             .then(
                 CommandManager.literal("enable")
-                .requires(source -> {
-                    return !Pentamana.forceEnabled;
-                })
-                .executes(context -> {
-                    return executeEnable((ServerCommandSource)context.getSource());
-                })
+                .executes(context -> executeEnable((ServerCommandSource)context.getSource()))
             )
             .then(
                 CommandManager.literal("disable")
-                .requires(source -> {
-                    return !Pentamana.forceEnabled;
-                })
-                .executes(context -> {
-                    return executeDisable((ServerCommandSource)context.getSource());
-                })
+                .executes(context -> executeDisable((ServerCommandSource)context.getSource()))
             )
             .then(
                 CommandManager.literal("character")
@@ -60,27 +50,21 @@ public class ManaCommand {
                     CommandManager.literal("full")
                     .then(
                         CommandManager.argument("full", TextArgumentType.text(registryAccess))
-                        .executes(context -> {
-                            return executeCharacterFull((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "full"));
-                        })
+                        .executes(context -> executeCharacterFull((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "full")))
                     )
                 )
                 .then(
                     CommandManager.literal("half")
                     .then(
                         CommandManager.argument("half", TextArgumentType.text(registryAccess))
-                        .executes(context -> {
-                            return executeCharacterHalf((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "half"));
-                        })
+                        .executes(context -> executeCharacterHalf((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "half")))
                     )
                 )
                 .then(
                     CommandManager.literal("zero")
                     .then(
                         CommandManager.argument("zero", TextArgumentType.text(registryAccess))
-                        .executes(context -> {
-                            return executeCharacterZero((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "zero"));
-                        })
+                        .executes(context -> executeCharacterZero((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "zero")))
                     )
                 )
             )
@@ -88,27 +72,17 @@ public class ManaCommand {
                 CommandManager.literal("color")
                 .then(
                     CommandManager.argument("value", ColorArgumentType.color())
-                    .executes(context -> {
-                        return executeColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"));
-                    })
+                    .executes(context -> executeColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value")))
                 )
             )
             .then(
                 CommandManager.literal("reset")
-                .executes(context -> {
-                    return executeReset((ServerCommandSource)context.getSource());
-                })
+                .executes(context -> executeReset((ServerCommandSource)context.getSource()))
             )
             .then(
                 CommandManager.literal("reload")
-                .requires(source -> {
-                    return source.hasPermissionLevel(2);
-                })
-                .executes(context -> {
-                    ServerCommandSource source = context.getSource();
-                    source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
-                    return executeReload(source);
-                })
+                .requires(source -> source.hasPermissionLevel(2))
+                .executes(context -> executeReload((ServerCommandSource)context.getSource()))
             )
         );
     }
@@ -127,30 +101,82 @@ public class ManaCommand {
     };
 
     public static int executeEnable(ServerCommandSource source) throws CommandSyntaxException {
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        if (executeGetEnabled(source) != 1) {
+            source.sendFeedback(() -> Text.literal("Enabled mana calculation for player " + playerNameForScoreboard + "."), false);
+        } else {
+            source.sendFeedback(() -> Text.literal("Nothing changed. Mana calculation is already enabled for that player."), false);
+        }
+
         return executeSetEnabled(source, 1);
     }
 
     public static int executeDisable(ServerCommandSource source) throws CommandSyntaxException {
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        if (executeGetEnabled(source) == 1) {
+            source.sendFeedback(() -> Text.literal("Disabled mana calculation for player " + playerNameForScoreboard + "."), false);
+        } else {
+            source.sendFeedback(() -> Text.literal("Nothing changed. Mana calculation is already disbaled for that player."), false);
+        }
+
+        if (Pentamana.forceEnabled) {
+            source.sendFeedback(() -> Text.literal("Can not stop Mana calculation due to the force enabled mode is turned on in server."), false);
+        }
+
         return executeSetEnabled(source, 0);
     }
 
-    public static int executeCharacterFull(ServerCommandSource source, Text text) throws CommandSyntaxException {
-        return executeSetManaCharFull(source, getAsInt(text));
+    public static int executeCharacterFull(ServerCommandSource source, Text full) throws CommandSyntaxException {
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        int manaCharFull = getAsInt(full);
+        if (executeGetManaCharFull(source) != manaCharFull) {
+            source.sendFeedback(() -> Text.literal("Updated the mana character of 2 point mana for player " + playerNameForScoreboard + " to " + full.getLiteralString() + "."), false);
+        } else {
+            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana character of 2 point mana."), false);
+        }
+
+        return executeSetManaCharFull(source, manaCharFull);
     }
 
-    public static int executeCharacterHalf(ServerCommandSource source, Text text) throws CommandSyntaxException {
-        return executeSetManaCharHalf(source, getAsInt(text));
+    public static int executeCharacterHalf(ServerCommandSource source, Text half) throws CommandSyntaxException {
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        int manaCharHalf = getAsInt(half);
+        if (executeGetManaCharHalf(source) != manaCharHalf) {
+            source.sendFeedback(() -> Text.literal("Updated the mana character of 1 point mana for player " + playerNameForScoreboard + " to " + half.getLiteralString() + "."), false);
+        } else {
+            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana character of 1 point mana."), false);
+        }
+
+        return executeSetManaCharHalf(source, manaCharHalf);
     }
 
-    public static int executeCharacterZero(ServerCommandSource source, Text text) throws CommandSyntaxException {
-        return executeSetManaCharZero(source, getAsInt(text));
+    public static int executeCharacterZero(ServerCommandSource source, Text zero) throws CommandSyntaxException {
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        int manaCharZero = getAsInt(zero);
+        if (executeGetManaCharZero(source) != manaCharZero) {
+            source.sendFeedback(() -> Text.literal("Updated the mana character of 0 point mana for player " + playerNameForScoreboard + " to " + zero.getLiteralString() + "."), false);
+        } else {
+            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana character of 0 point mana."), false);
+        }
+
+        return executeSetManaCharZero(source, manaCharZero);
     }
 
     public static int executeColor(ServerCommandSource source, Formatting color) throws CommandSyntaxException {
-        return executeSetManaColor(source, color.getColorIndex() + 1);
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        int manaColor = color.getColorIndex() + 1;
+        if (executeGetManaColor(source) != manaColor) {
+            source.sendFeedback(() -> Text.literal("Updated the mana color for player " + playerNameForScoreboard + " to " + color.getName() + "."), false);
+        } else {
+            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana color."), false);
+        }
+
+        return executeSetManaColor(source, manaColor);
     }
 
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
+        String playerNameForScoreboard = source.getPlayerOrThrow().getNameForScoreboard();
+        source.sendFeedback(() -> Text.literal("Reset mana options for player " + playerNameForScoreboard + "."), false);
         executeResetManaCharFull(source);
         executeResetManaCharHalf(source);
         executeResetManaCharZero(source);
@@ -159,6 +185,8 @@ public class ManaCommand {
     }
 
     public static int executeReload(ServerCommandSource source) {
+        source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
+
 		String configString = null;
 		try {
 			configString = FileUtils.readFileToString(new File("./config/pentamana.json"), StandardCharsets.UTF_16);

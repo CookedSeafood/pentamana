@@ -24,67 +24,29 @@ The output magic damage from casting would be calculated by the formula below: (
 Magic Damage = amount * (Mana Capacity / Mana Scale) + [0.5 + Potency Enchantment Level * 0.5](if potency presented)
 ```
 
-## Enchantments
-
-Enchantment damage for custom weapons would need additional apply.
-
-### Capacity
-
-- Maximum level: II
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 2
-
-Capacity adds extra mana capacity 33,554,432 per level.
-
-### Stream
-
-- Maximum level: III
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 5
-
-Stream adds extra mana regeneration 65,536 per level.
-
-### Potency
-
-- Maximum level: V
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 10
-
-Potency adds 1 extra casting magic damage for the first level and 0.5 for all subsequent levels.
-
-### Utilization
-
-- Maximum level: V
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 5
-
-Utilization reduces the mana cost of casting by 10% per level.
-
 ## Commands
 
 `/mana enbale` Enable this mod for yourself.
 
 `/mana disable` Disable this mod for yourself completely.
 
-`/mana character full <full>` Set mana character for 2 point mana.
+`/mana character full <full>` Set the mana character of 2 point mana for yourself.
 
-`/mana character full <half>` Set mana character for 1 point mana.
+`/mana character full <half>` Set the mana character of 1 point mana for yourself.
 
-`/mana character full <zero>` Set mana character for 0 point mana.
+`/mana character full <zero>` Set the mana character of 0 point mana for yourself.
 
-`/mana color <value>` Set mana color which is used in manabar.
+`/mana color <value>` Set mana the color which is used in manabar for yourself.
 
-`/mana reset` Reset mana character and color settings.
+`/mana reset` Reset mana options for yourself.
+
+`/mana reload` Reload config file. (Require premission level 2)
 
 This mod is disbled for every player by default.
 
 ## Configuration
 
-The config file is not shipped along with the mod. Below is a template config file `config/pentamana.json` filled with default values. You may only write the lines you would like to modify.
+The config file is not shipped along with the mod. Below is a template config file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify. (and braces)
 
 ```json
 {
@@ -100,11 +62,11 @@ The config file is not shipped along with the mod. Below is a template config fi
   "manaRegenIncrementBase": 65536,
   // Ticks of actionbar updating suppression when interrupted
   "maxManabarLife": 40,
-  // Mana character for 2 point mana.
+  // Mana character of 2 point mana.
   "manaCharFull": "★",
-  // Mana character for 1 point mana.
+  // Mana character of 1 point mana.
   "manaCharHalf": "⯪",
-  // Mana character for 0 point mana.
+  // Mana character of 0 point mana.
   "manaCharZero": "☆",
   // Used in manabar
   "manaColor": "aqua",
@@ -127,11 +89,11 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 `pentamana.manabar_life` Ticks left till next update if idle
 
-`pentamana.mana_char_full` The complement of mana character for 2 point mana.
+`pentamana.mana_char_full` The complement of mana character of 2 point mana.
 
-`pentamana.mana_char_half` The complement of mana character for 1 point mana.
+`pentamana.mana_char_half` The complement of mana character of 1 point mana.
 
-`pentamana.mana_char_zero` The complement of mana character for 0 point mana.
+`pentamana.mana_char_zero` The complement of mana character of 0 point mana.
 
 `pentamana.color` The mana color which is used in manabar.
 
@@ -180,6 +142,46 @@ public void UseExampleWeapon(ServerPlayerEntity player) {
   // Your code here
 }
 ```
+
+## Enchantments
+
+Enchantment damage for custom weapons would need additional apply.
+
+### Capacity
+
+- Maximum level: II
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 2
+
+Capacity adds extra mana capacity 33,554,432 per level.
+
+### Stream
+
+- Maximum level: III
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 5
+
+Stream adds extra mana regeneration 65,536 per level.
+
+### Potency
+
+- Maximum level: V
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 10
+
+Potency adds 1 extra casting magic damage for the first level and 0.5 for all subsequent levels.
+
+### Utilization
+
+- Maximum level: V
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 5
+
+Utilization reduces the mana cost of casting by 10% per level.
 
 ## License
 
