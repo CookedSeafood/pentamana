@@ -30,7 +30,7 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana disable` Disable this mod for yourself completely.
 
-`/mana character full <full>` Set the mana character of 2 point mana for yourself.
+`/mana character full <full>` Set the mana character of 2 points mana for yourself.
 
 `/mana character full <half>` Set the mana character of 1 point mana for yourself.
 
@@ -64,7 +64,7 @@ The config file is not shipped along with the mod. Below is a template config fi
   "manaRegenIncrementBase": 65536,
   // Ticks of actionbar updating suppression when interrupted
   "maxManabarLife": 40,
-  // Mana character of 2 point mana.
+  // Mana character of 2 points mana.
   "manaCharFull": "★",
   // Mana character of 1 point mana.
   "manaCharHalf": "⯪",
@@ -81,7 +81,7 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 ## Modifiers
 
-Modifiers can be used in item component.
+Modifiers can be added or removed from items using custom data components. They are active while equipped in the weapon slot.
 
 ```txt
 [List] attributes
@@ -119,7 +119,7 @@ Below is an example modifier which increase mana capacity by 33,554,432.
 
 `pentamana.manabar_life` Ticks left till next display update if idle
 
-`pentamana.mana_char_full` The complement of mana character of 2 point mana.
+`pentamana.mana_char_full` The complement of mana character of 2 points mana.
 
 `pentamana.mana_char_half` The complement of mana character of 1 point mana.
 
