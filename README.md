@@ -113,9 +113,9 @@ Below is an example modifier which increase mana capacity by 33,554,432.
 
 `pentamana.mana_capacity` Mana capacity at last tick
 
-`pentamana.mana_regen` Amount of mana regened at last tick
+`pentamana.mana_regeneration` Amount of mana regened at last tick
 
-`pentamana.mana_consume` Amount of mana to consume
+`pentamana.mana_consumption` Amount of mana to consume
 
 `pentamana.manabar_life` Ticks left till next display update if idle
 
