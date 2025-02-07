@@ -355,12 +355,12 @@ public class ManaCommand {
         int manaCharHalf = executeGetManaCharHalf(source);
         char half =
             manaCharHalf == 0 ?
-            Pentamana.manaCharFull :
+            Pentamana.manaCharHalf :
             ByteBuffer.allocate(4).putInt(manaCharHalf).getChar(2);
         int manaCharZero = executeGetManaCharZero(source);
         char zero =
             manaCharZero == 0 ?
-            Pentamana.manaCharFull :
+            Pentamana.manaCharZero :
             ByteBuffer.allocate(4).putInt(manaCharZero).getChar(2);
         int manaColor = executeGetManaColor(source);
         Formatting color =
