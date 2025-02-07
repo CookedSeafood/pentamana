@@ -1,14 +1,14 @@
-package org.charcoalwhite.pentamana.api;
+package net.cookedseafood.pentamana.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 
-public interface TickManaCallback {
-    Event<TickManaCallback> EVENT = EventFactory.createArrayBacked(TickManaCallback.class,
+public interface ConsumeManaCallback {
+    Event<ConsumeManaCallback> EVENT = EventFactory.createArrayBacked(ConsumeManaCallback.class,
         (callbacks) -> (player) -> {
-            for (TickManaCallback callback : callbacks) {
+            for (ConsumeManaCallback callback : callbacks) {
                 ActionResult result = callback.interact(player);
  
                 if(result != ActionResult.PASS) {

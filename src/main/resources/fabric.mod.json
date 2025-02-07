@@ -6,22 +6,22 @@
 	"description": "Scoreboard-based mana mod providing mana modifying and damage calculation hooks.",
 	"authors": [
 		{
-			"name": "CharcoalWhite",
+			"name": "CookedSeafood",
 			"contact": {
-				"homepage": "https://github.com/CharcoalWhite"
+				"homepage": "https://github.com/CookedSeafood"
 			}
 		}
 	],
 	"contact": {
 		"homepage": "https://modrinth.com/mod/Pentamana",
-		"sources": "https://github.com/CharcoalWhite/Pentamana"
+		"sources": "https://github.com/CookedSeafood/Pentamana"
 	},
 	"license": "GNU-GPL-3.0",
 	"icon": "assets/pentamana/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"org.charcoalwhite.pentamana.Pentamana"
+			"net.cookedseafood.pentamana.Pentamana"
 		]
 	},
 	"mixins": [
@@ -36,6 +36,13 @@
 	},
 	"suggests": {
 		"another-mod": "*"
+	},
+	"custom": {
+		"loom:injected_interfaces": {
+			"net/minecraft/class_3222": [
+				"net/cookedseafood/pentamana/api/ServerPlayerEntityApi"
+			]
+		}
 	},
 	"accessWidener": "pentamana.accesswidener"
 }

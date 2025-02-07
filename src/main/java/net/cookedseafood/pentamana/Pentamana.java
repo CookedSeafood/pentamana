@@ -1,10 +1,10 @@
-package org.charcoalwhite.pentamana;
+package net.cookedseafood.pentamana;
 
+import net.cookedseafood.pentamana.command.ManaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.util.Formatting;
-import org.charcoalwhite.pentamana.command.ManaCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
