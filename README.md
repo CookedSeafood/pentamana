@@ -9,19 +9,19 @@ Pentamana acts as a mana system, handling tasks such as mana regeneration and ma
 Each player starts with 33,554,431 mana capacity (1 star in the manabar). Mana capacity is maxed out at 2,147,483,647 mana, or 64 stars total. The mana capacity would be calculated by the formula below:
 
 ``` txt
-Mana Capacity = 33554431 + Capacity Enchantment Level * 33554432
+Mana Capacity = AttributeModify(33554431) + CapacityEnchantmentLevel * 33554432
 ```
 
 A player basicly regenerate 1,048,576 mana every tick (32 ticks per star). The mana regeneration amount per tick would be calculated by the formula below:
 
 ``` txt
-Mana Regen = 1048576 + Stream Enchantment Level * 65536
+Mana Regen = AttributeModify(1048576) + StreamEnchantmentLevel * 65536
 ```
 
-The output magic damage from casting would be calculated by the formula below: (Needs self-implementation)
+The output damage from casting would be calculated by the formula below: (Can be got via `(ServerPlayerEntity)player.getCastingDamageAgainst(Entity entity, float baseDamage)`)
 
 ``` txt
-Magic Damage = amount * (Mana Capacity / Mana Scale) + [0.5 + Potency Enchantment Level * 0.5](if potency presented)
+Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel > 0 ? ++PotencyEnchantmentLevel * 0.5 : 0
 ```
 
 ## Commands
@@ -41,6 +41,8 @@ Magic Damage = amount * (Mana Capacity / Mana Scale) + [0.5 + Potency Enchantmen
 `/mana reset` Reset mana options for yourself.
 
 `/mana reload` Reload config file. (Require premission level 2)
+
+`/mana version` Print mod version.
 
 This mod is disbled for every player by default.
 
@@ -77,6 +79,34 @@ The config file is not shipped along with the mod. Below is a template config fi
 
 Enchantments are registed using datapack. You can open mod jar and edit it.
 
+## Modifiers
+
+Modifiers can be used in item component.
+
+```txt
+[List] attributes
+|- [Compound]
+   |- [String] attribute: Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration` and `pentamana:mana_consumption`.
+   |- [Double] base: value.
+   \- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
+```
+
+Below is an example modifier which increase mana capacity by 33,554,432.
+
+```component
+[
+  "minecraft:custom_data":{
+    attributes: [
+      {
+        attribute: "pentamana:mana_capacity",
+        base: 33554432.0d,
+        operation: "add_value"
+      }
+    ]
+  }
+]
+```
+
 ## Objectives
 
 `pentamana.mana` Mana supply at last tick
@@ -87,7 +117,7 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 `pentamana.mana_consume` Amount of mana to consume
 
-`pentamana.manabar_life` Ticks left till next update if idle
+`pentamana.manabar_life` Ticks left till next display update if idle
 
 `pentamana.mana_char_full` The complement of mana character of 2 point mana.
 
@@ -111,14 +141,14 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 This tutorial assumes that you already have a method that will be called when the weapon is used.
 
-First, set the mana the weapon consumes. For example, 2,000,000.
+First, set the amount of mana the weapon consumes per use. For example, 2,000,000.
 
 ```java
 ServerCommandSource source = player.getServerCommandSource();
 ManaCommand.executeSetManaConsume(source, 2000000)
 ```
 
-Second, consume the mana and fire your weapon if successful consumed.
+Second, consume the mana and fire your weapon if the consumption is successful. Consumption will succeed if the player has enough mana.
 
 ```java
 if (ManaCommand.executeConsume(source) == 0) {
