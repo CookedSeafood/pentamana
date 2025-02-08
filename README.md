@@ -99,7 +99,7 @@ Modifiers can be added or removed from items using custom data components. They 
    \- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
 ```
 
-Below is an example modifier which increase mana capacity by 33,554,432.
+Below is an example modifier which increase mana capacity by 301,989,888(18 points mana).
 
 ```component
 [
@@ -107,7 +107,7 @@ Below is an example modifier which increase mana capacity by 33,554,432.
     attributes: [
       {
         attribute: "pentamana:mana_capacity",
-        base: 33554432.0d,
+        base: 301989888.0d,
         operation: "add_value"
       }
     ]
@@ -153,11 +153,11 @@ Below is an example modifier which increase mana capacity by 33,554,432.
 
 This tutorial assumes that you already have a method that will be called when the weapon is used.
 
-First, set the amount of mana the weapon consumes per use. For example, 2,000,000.
+First, set the amount of mana the weapon consumes per use. For example, 16,777,216(1 point mana).
 
 ```java
 ServerCommandSource source = player.getServerCommandSource();
-ManaCommand.executeSetManaConsume(source, 2000000)
+ManaCommand.executeSetManaConsume(source, 16777216)
 ```
 
 Second, consume the mana and fire your weapon if the consumption is successful. Consumption will succeed if the player has enough mana.
@@ -224,5 +224,3 @@ Potency adds 1 extra casting magic damage for the first level and 0.5 for all su
 Utilization reduces the mana cost of casting by 10% per level.
 
 ## License
-
-You are free to port it to any mod loader other than fabric as long as you credit the origin version.
