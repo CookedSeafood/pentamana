@@ -30,13 +30,17 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana disable` Disable this mod for yourself completely.
 
-`/mana character full <full>` Set the mana character of 2 points mana for yourself.
+`/mana set character full <value>` Set the mana character of 2 points mana for yourself.
 
-`/mana character full <half>` Set the mana character of 1 point mana for yourself.
+`/mana set character full <value>` Set the mana character of 1 point mana for yourself.
 
-`/mana character full <zero>` Set the mana character of 0 point mana for yourself.
+`/mana set character full <value>` Set the mana character of 0 point mana for yourself.
 
-`/mana color <value>` Set mana the color which is used in manabar for yourself.
+`/mana set color full <value>` Set mana the color of 2 points mana for yourself.
+
+`/mana set color half <value>` Set mana the color of 1 point mana for yourself.
+
+`/mana set color zero <value>` Set mana the color of 0 point mana for yourself.
 
 `/mana reset` Reset mana options for yourself.
 
@@ -84,7 +88,7 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 Modifiers can be added or removed from items using custom data components. They are active while equipped in the weapon slot.
 
 ```txt
-[List] attributes
+[List] modifiers
 |- [Compound]
    |- [String] attribute: Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration` and `pentamana:mana_consumption`.
    |- [Double] base: value.
@@ -125,7 +129,11 @@ Below is an example modifier which increase mana capacity by 33,554,432.
 
 `pentamana.mana_char_zero` The complement of mana character of 0 point mana.
 
-`pentamana.color` The mana color which is used in manabar.
+`pentamana.mana_color_full` The mana color which is used in manabar.
+
+`pentamana.mana_color_half` The mana color which is used in manabar.
+
+`pentamana.mana_color_zero` The mana color which is used in manabar.
 
 `pentamana.enabled` 1 if enabled, otherwise not.
 
