@@ -175,8 +175,6 @@ public void useExampleWeapon(ServerPlayerEntity player) {
 
 ## Enchantments
 
-Enchantment damage for custom weapons would need additional apply.
-
 ### Capacity
 
 - Maximum level: II
