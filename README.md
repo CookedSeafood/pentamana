@@ -79,7 +79,7 @@ The config file is not shipped along with the mod. Below is a template config fi
   // Default mana color of 1 point mana.
   "manaColorHalf": "aqua",
   // Default mana color of 0 point mana.
-  "manaColorZero": "aqua",
+  "manaColorZero": "black",
   // Make the mod enabled for every player when setting to ture, do not modify their own preference.
   "forceEnabled": false
 }
