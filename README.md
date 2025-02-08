@@ -104,7 +104,7 @@ Below is an example modifier which increase mana capacity by 301,989,888(18 poin
 ```component
 [
   "minecraft:custom_data":{
-    attributes: [
+    modifiers: [
       {
         attribute: "pentamana:mana_capacity",
         base: 301989888.0d,
@@ -224,3 +224,5 @@ Potency adds 1 extra casting magic damage for the first level and 0.5 for all su
 Utilization reduces the mana cost of casting by 10% per level.
 
 ## License
+
+You are free to port it to any mod loader other than fabric as long as you credit the origin version.
