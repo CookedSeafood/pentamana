@@ -32,9 +32,9 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana set character full <value>` Set the mana character of 2 points mana for yourself.
 
-`/mana set character full <value>` Set the mana character of 1 point mana for yourself.
+`/mana set character half <value>` Set the mana character of 1 point mana for yourself.
 
-`/mana set character full <value>` Set the mana character of 0 point mana for yourself.
+`/mana set character zero <value>` Set the mana character of 0 point mana for yourself.
 
 `/mana set color full <value>` Set mana the color of 2 points mana for yourself.
 
@@ -121,7 +121,7 @@ Below is an example modifier which increase mana capacity by 301,989,888(18 poin
 
 `pentamana.mana_capacity` Mana capacity at last tick
 
-`pentamana.mana_regeneration` Amount of mana regened at last tick
+`pentamana.mana_regeneration` Amount of mana regenerated at last tick
 
 `pentamana.mana_consumption` Amount of mana to consume
 
@@ -133,11 +133,11 @@ Below is an example modifier which increase mana capacity by 301,989,888(18 poin
 
 `pentamana.mana_char_zero` The complement of mana character of 0 point mana.
 
-`pentamana.mana_color_full` The mana color which is used in manabar.
+`pentamana.mana_color_full` The index of mana color of 2 points mana + 1.
 
-`pentamana.mana_color_half` The mana color which is used in manabar.
+`pentamana.mana_color_half` The index of mana color of 1 point mana + 1.
 
-`pentamana.mana_color_zero` The mana color which is used in manabar.
+`pentamana.mana_color_zero` The index of mana color of 0 point mana + 1.
 
 `pentamana.enabled` 1 if enabled, otherwise not.
 
