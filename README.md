@@ -127,11 +127,11 @@ Below is an example modifier which increase mana capacity by 301,989,888(18 poin
 
 `pentamana.manabar_life` Ticks left till next display update if idle
 
-`pentamana.mana_char_full` The complement of mana character of 2 points mana.
+`pentamana.mana_char_full` The code point of mana character of 2 points mana.
 
-`pentamana.mana_char_half` The complement of mana character of 1 point mana.
+`pentamana.mana_char_half` The code point of mana character of 1 point mana.
 
-`pentamana.mana_char_zero` The complement of mana character of 0 point mana.
+`pentamana.mana_char_zero` The code point of mana character of 0 point mana.
 
 `pentamana.mana_color_full` The index of mana color of 2 points mana + 1.
 
@@ -175,7 +175,7 @@ The result code will look like this:
 ```java
 public void useExampleWeapon(ServerPlayerEntity player) {
   ServerCommandSource source = player.getServerCommandSource();
-  ManaCommand.executeSetManaConsume(source, 2000000)
+  ManaCommand.executeSetManaConsume(source, 16777216)
 
   if (ManaCommand.executeConsume(source) == 0) {
     return;
