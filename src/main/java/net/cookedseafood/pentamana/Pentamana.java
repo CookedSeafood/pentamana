@@ -21,14 +21,16 @@ public class Pentamana implements ModInitializer {
 	public static int manaRegenBase = 1048576/* 2^20 */;
 	public static int manaRegenIncrementBase = 65536/* 2^16 */;
 	public static int maxManabarLife = 40/* 20*2 */;
-	public static char manaCharFull = '\u2605';
-	public static char manaCharHalf = '\u2bea';
-	public static char manaCharZero = '\u2606';
-	public static Formatting manaColor = Formatting.AQUA;
+	public static char[] manaCharFull = {'\u2605'};
+	public static char[] manaCharHalf = {'\u2bea'};
+	public static char[] manaCharZero = {'\u2606'};
+	public static Formatting manaColorFull = Formatting.AQUA;
+	public static Formatting manaColorHalf = Formatting.AQUA;
+	public static Formatting manaColorZero = Formatting.AQUA;
 	public static boolean forceEnabled = false;
 	public static final byte versionMajor = 0;
 	public static final byte versionMinor = 2;
-	public static final byte versionPatch = 9;
+	public static final byte versionPatch = 10;
 
 	@Override
 	public void onInitialize() {
