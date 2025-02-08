@@ -68,14 +68,18 @@ The config file is not shipped along with the mod. Below is a template config fi
   "manaRegenIncrementBase": 65536,
   // Ticks of actionbar updating suppression when interrupted
   "maxManabarLife": 40,
-  // Mana character of 2 points mana.
+  // Default mana character of 2 points mana.
   "manaCharFull": "★",
-  // Mana character of 1 point mana.
+  // Default mana character of 1 point mana.
   "manaCharHalf": "⯪",
-  // Mana character of 0 point mana.
+  // Default mana character of 0 point mana.
   "manaCharZero": "☆",
-  // Used in manabar
-  "manaColor": "aqua",
+  // Default mana color of 2 points mana.
+  "manaColorFull": "aqua",
+  // Default mana color of 1 point mana.
+  "manaColorHalf": "aqua",
+  // Default mana color of 0 point mana.
+  "manaColorZero": "aqua",
   // Make the mod enabled for every player when setting to ture, do not modify their own preference.
   "forceEnabled": false
 }
