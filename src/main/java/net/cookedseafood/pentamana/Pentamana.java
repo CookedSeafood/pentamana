@@ -26,11 +26,11 @@ public class Pentamana implements ModInitializer {
 	public static char[] manaCharZero = {'\u2606'};
 	public static Formatting manaColorFull = Formatting.AQUA;
 	public static Formatting manaColorHalf = Formatting.AQUA;
-	public static Formatting manaColorZero = Formatting.AQUA;
+	public static Formatting manaColorZero = Formatting.BLACK;
 	public static boolean forceEnabled = false;
 	public static final byte versionMajor = 0;
 	public static final byte versionMinor = 2;
-	public static final byte versionPatch = 10;
+	public static final byte versionPatch = 11;
 
 	@Override
 	public void onInitialize() {

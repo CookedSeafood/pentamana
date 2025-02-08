@@ -307,7 +307,7 @@ public class ManaCommand {
         Pentamana.manaColorZero =
             configObject.has("manaColorZero") ?
             Formatting.byName(configObject.get("manaColorZero").getAsString()) :
-            Formatting.AQUA;
+            Formatting.BLACK;
         Pentamana.forceEnabled =
             configObject.has("forceEnabled") ?
             configObject.get("forceEnabled").getAsBoolean() :
@@ -427,12 +427,12 @@ public class ManaCommand {
             manaColorFull == 0 ?
             Pentamana.manaColorFull :
             Formatting.byColorIndex(manaColorFull - 1);
-        int manaColorHalf = executeGetManaColorFull(source);
+        int manaColorHalf = executeGetManaColorHalf(source);
         Formatting colorHalf =
             manaColorHalf == 0 ?
             Pentamana.manaColorHalf :
             Formatting.byColorIndex(manaColorHalf - 1);
-        int manaColorZero = executeGetManaColorFull(source);
+        int manaColorZero = executeGetManaColorZero(source);
         Formatting colorZero =
             manaColorZero == 0 ?
             Pentamana.manaColorZero :
@@ -461,7 +461,7 @@ public class ManaCommand {
             manabar.append(Text.literal(partialManabar.toString()).formatted(colorZero));
         }
 
-		source.getPlayerOrThrow().sendMessage((Text)manabar, true);
+		source.getPlayerOrThrow().sendMessage(manabar, true);
         return manabarLife;
     }
 
