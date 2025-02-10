@@ -30,6 +30,8 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana disable` Disable this mod for yourself completely.
 
+`/mana set display <true|false>` Set the visibility of manabar.
+
 `/mana set character full <value>` Set the mana character of 2 points mana for yourself.
 
 `/mana set character half <value>` Set the mana character of 1 point mana for yourself.
@@ -49,6 +51,8 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 `/mana version` Print mod version.
 
 This mod is disbled for every player by default.
+
+The visibility is false for every player by default.
 
 ## Configuration
 
@@ -140,6 +144,8 @@ Below is an example modifier which increase mana capacity by 301,989,888(18 poin
 `pentamana.mana_color_zero` The index of mana color of 0 point mana + 1.
 
 `pentamana.enabled` 1 if enabled, otherwise not.
+
+`pentamana.display` 1 if visible, otherwise not.
 
 ## Events
 
