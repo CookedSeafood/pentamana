@@ -231,4 +231,4 @@ Utilization reduces the mana cost of casting by 10% per level.
 
 ## License
 
-You are free to port it to any mod loader other than fabric as long as you credit the origin version.
+You are free to back port this mod, or port it to any mod loader other than fabric, as long as you credit the origin version.
