@@ -48,8 +48,6 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana reload` Reload config file. (Require premission level 2)
 
-`/mana version` Print mod version.
-
 This mod is disbled for every player by default.
 
 The visibility is false for every player by default.
