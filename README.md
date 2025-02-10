@@ -30,7 +30,7 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana disable` Disable this mod for yourself completely.
 
-`/mana set display <true|false>` Set the visibility of manabar.
+`/mana set display <false|true>` Set the visibility of manabar.
 
 `/mana set character full <value>` Set the mana character of 2 points mana for yourself.
 
