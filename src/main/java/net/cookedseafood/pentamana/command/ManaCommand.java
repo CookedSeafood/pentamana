@@ -1,13 +1,8 @@
 package net.cookedseafood.pentamana.command;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +25,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.jetbrains.annotations.Nullable;
 
@@ -130,19 +124,6 @@ public class ManaCommand {
         );
     }
 
-    private static int getAsInt(Text text) throws CommandSyntaxException {
-        String string = text.getLiteralString();
-        if (string == null) {
-            throw NOT_PLAIN_TEXT_EXCEPTION.create();
-        }
-
-        if (string.codePointCount(0, string.length()) != 1) {
-            throw NOT_SINGLE_CHARACTER_EXCEPTION.create();
-        }
-
-        return string.codePointAt(0);
-    };
-
     public static int executeEnable(ServerCommandSource source) throws CommandSyntaxException {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetEnabled(source) != 1) {
@@ -190,6 +171,19 @@ public class ManaCommand {
 
         return executeSetDisplay(source, 0);
     }
+
+    private static int getAsInt(Text text) throws CommandSyntaxException {
+        String string = text.getLiteralString();
+        if (string == null) {
+            throw NOT_PLAIN_TEXT_EXCEPTION.create();
+        }
+
+        if (string.codePointCount(0, string.length()) != 1) {
+            throw NOT_SINGLE_CHARACTER_EXCEPTION.create();
+        }
+
+        return string.codePointAt(0);
+    };
 
     public static int executeSetCharacterFull(ServerCommandSource source, Text full) throws CommandSyntaxException {
         int manaCharFull = getAsInt(full);
@@ -283,74 +277,11 @@ public class ManaCommand {
 
     public static int executeReload(ServerCommandSource source) {
         source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
-
-		String configString = null;
-		try {
-			configString = FileUtils.readFileToString(new File("./config/pentamana.json"), StandardCharsets.UTF_16);
-		} catch (IOException e) {
-			return 0;
-		}
-
-		JsonObject configObject = new Gson().fromJson(configString, JsonObject.class);
-
-        Pentamana.manaScale =
-            configObject.has("manaScale") ? 
-            configObject.get("manaScale").getAsInt() :
-            16777216/* 2^24 */;
-        Pentamana.manaCapacityBase =
-            configObject.has("manaCapacityBase") ?
-            configObject.get("manaCapacityBase").getAsInt() :
-            33554431/* 2^24*2-1 */;
-        Pentamana.manaCapacityIncrementBase =
-            configObject.has("manaCapacityIncrementBase") ?
-            configObject.get("manaCapacityIncrementBase").getAsInt() :
-            33554432/* 2^24*2 */;
-        Pentamana.manaRegenBase =
-            configObject.has("manaRegenBase") ?
-            configObject.get("manaRegenBase").getAsInt() :
-            1048576/* 2^20 */;
-        Pentamana.manaRegenIncrementBase =
-            configObject.has("manaRegenIncrementBase") ?
-            configObject.get("manaRegenIncrementBase").getAsInt() :
-            65536/* 2^16 */;
-        Pentamana.maxManabarLife =
-            configObject.has("maxManabarLife") ?
-            configObject.get("maxManabarLife").getAsInt() :
-            40/* 20*2 */;
-        Pentamana.manaCharFull =
-            configObject.has("manaCharFull") ?
-            Character.toChars(configObject.get("manaCharFull").getAsString().codePointAt(0)) :
-            new char[] {'\u2605'};
-        Pentamana.manaCharHalf =
-            configObject.has("manaCharHalf") ?
-            Character.toChars(configObject.get("manaCharHalf").getAsString().codePointAt(0)) :
-            new char[] {'\u2bea'};
-        Pentamana.manaCharZero =
-            configObject.has("manaCharZero") ?
-            Character.toChars(configObject.get("manaCharZero").getAsString().codePointAt(0)) :
-            new char[] {'\u2606'};
-        Pentamana.manaColorFull =
-            configObject.has("manaColorFull") ?
-            Formatting.byName(configObject.get("manaColorFull").getAsString()) :
-            Formatting.AQUA;
-        Pentamana.manaColorHalf =
-            configObject.has("manaColorHalf") ?
-            Formatting.byName(configObject.get("manaColorHalf").getAsString()) :
-            Formatting.AQUA;
-        Pentamana.manaColorZero =
-            configObject.has("manaColorZero") ?
-            Formatting.byName(configObject.get("manaColorZero").getAsString()) :
-            Formatting.BLACK;
-        Pentamana.forceEnabled =
-            configObject.has("forceEnabled") ?
-            configObject.get("forceEnabled").getAsBoolean() :
-            false;
-
-		return 1;
+        return Pentamana.reload();
 	}
 
     public static int executeVersion(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("Pentamana " + Pentamana.versionMajor + "." + Pentamana.versionMinor + "." + Pentamana.versionPatch + (Pentamana.forceEnabled ? " (Force Enabled Mode)" : "")), false);
+        source.sendFeedback(() -> Text.literal("Pentamana " + Pentamana.VERSION_MAJOR + "." + Pentamana.VERSION_MINOR + "." + Pentamana.VERSION_PATCH + (Pentamana.forceEnabled ? " (Force Enabled Mode)" : "")), false);
         return 0;
     }
 
