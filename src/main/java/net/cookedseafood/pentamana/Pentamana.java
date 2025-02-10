@@ -30,7 +30,7 @@ public class Pentamana implements ModInitializer {
 	public static boolean forceEnabled = false;
 	public static final byte versionMajor = 0;
 	public static final byte versionMinor = 2;
-	public static final byte versionPatch = 11;
+	public static final byte versionPatch = 12;
 
 	@Override
 	public void onInitialize() {
