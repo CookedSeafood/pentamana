@@ -38,11 +38,11 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana set character zero <value>` Set the mana character of 0 point mana for yourself.
 
-`/mana set color full <value>` Set mana the color of 2 points mana for yourself.
+`/mana set color full <value>` Set the mana color of 2 points mana for yourself.
 
-`/mana set color half <value>` Set mana the color of 1 point mana for yourself.
+`/mana set color half <value>` Set the mana color of 1 point mana for yourself.
 
-`/mana set color zero <value>` Set mana the color of 0 point mana for yourself.
+`/mana set color zero <value>` Set the mana color of 0 point mana for yourself.
 
 `/mana reset` Reset mana options for yourself.
 
@@ -103,7 +103,7 @@ Modifiers can be added or removed from items using custom data components. They 
    \- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
 ```
 
-Below is an example modifier which increase mana capacity by 301,989,888(18 points mana).
+Below is an example modifier which increase mana capacity by 1,275,068,416(38 points mana).
 
 ```component
 [
@@ -111,7 +111,7 @@ Below is an example modifier which increase mana capacity by 301,989,888(18 poin
     modifiers: [
       {
         attribute: "pentamana:mana_capacity",
-        base: 301989888.0d,
+        base: 1275068416.0d,
         operation: "add_value"
       }
     ]
