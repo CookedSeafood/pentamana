@@ -29,8 +29,30 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 import org.jetbrains.annotations.Nullable;
 
 public class ManaCommand {
-    private static final SimpleCommandExceptionType NOT_PLAIN_TEXT_EXCEPTION = new SimpleCommandExceptionType(Text.literal("Not a plain text."));
-    private static final SimpleCommandExceptionType NOT_SINGLE_CHARACTER_EXCEPTION = new SimpleCommandExceptionType(Text.literal("Not a single character."));
+    private static final SimpleCommandExceptionType NOT_PLAIN_TEXT_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Not a plain text."));
+    private static final SimpleCommandExceptionType MULTIPLE_CHARACTER_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Not a single character."));
+    private static final SimpleCommandExceptionType OPTION_ALREADY_ENABLED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already enabled for that player."));
+    private static final SimpleCommandExceptionType OPTION_ALREADY_DISABLED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
+    private static final SimpleCommandExceptionType OPTION_DISPLAY_ALREADY_TRUE_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana Display is already set to true for that player"));
+    private static final SimpleCommandExceptionType OPTION_DISPLAY_ALREADY_FALSE_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana Display is already set to false for that player"));
+    private static final SimpleCommandExceptionType OPTION_CHARACTER_FULL_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana character of 2 points mana."));
+    private static final SimpleCommandExceptionType OPTION_CHARACTER_HALF_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana character of 1 point mana."));
+    private static final SimpleCommandExceptionType OPTION_CHARACTER_ZERO_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana character of 0 point mana."));
+    private static final SimpleCommandExceptionType OPTION_COLOR_FULL_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana color of 2 points mana."));
+    private static final SimpleCommandExceptionType OPTION_COLOR_HALF_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana color of 1 point mana."));
+    private static final SimpleCommandExceptionType OPTION_COLOR_ZERO_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana color of 0 point mana."));
 
     public ManaCommand() {
     }
@@ -129,7 +151,7 @@ public class ManaCommand {
         if (executeGetEnabled(source) != 1) {
             source.sendFeedback(() -> Text.literal("Enabled mana for player " + name + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. Mana is already enabled for that player."), false);
+            throw OPTION_ALREADY_ENABLED_EXCEPTION.create();
         }
 
         return executeSetEnabled(source, 1);
@@ -140,7 +162,7 @@ public class ManaCommand {
         if (executeGetEnabled(source) == 1) {
             source.sendFeedback(() -> Text.literal("Disabled mana for player " + name + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. Mana is already disbaled for that player."), false);
+            throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
         }
 
         if (Pentamana.forceEnabled) {
@@ -155,7 +177,7 @@ public class ManaCommand {
         if (executeGetDisplay(source) != 1) {
             source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to True."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that value."), false);
+            throw OPTION_DISPLAY_ALREADY_TRUE_EXCEPTION.create();
         }
 
         return executeSetDisplay(source, 1);
@@ -166,7 +188,7 @@ public class ManaCommand {
         if (executeGetDisplay(source) == 1) {
             source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to False."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that value."), false);
+            throw OPTION_DISPLAY_ALREADY_FALSE_EXCEPTION.create();
         }
 
         return executeSetDisplay(source, 0);
@@ -179,7 +201,7 @@ public class ManaCommand {
         }
 
         if (string.codePointCount(0, string.length()) != 1) {
-            throw NOT_SINGLE_CHARACTER_EXCEPTION.create();
+            throw MULTIPLE_CHARACTER_EXCEPTION.create();
         }
 
         return string.codePointAt(0);
@@ -192,7 +214,7 @@ public class ManaCommand {
         if (executeGetManaCharFull(source) != manaCharFull) {
             source.sendFeedback(() -> Text.literal("Updated the mana character of 2 point mana for player " + name + " to " + full.getLiteralString() + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana character of 2 point mana."), false);
+            throw OPTION_CHARACTER_FULL_UNCHANGED_EXCEPTION.create();
         }
 
         return executeSetManaCharFull(source, manaCharFull);
@@ -205,7 +227,7 @@ public class ManaCommand {
         if (executeGetManaCharHalf(source) != manaCharHalf) {
             source.sendFeedback(() -> Text.literal("Updated the mana character of 1 point mana for player " + name + " to " + half.getLiteralString() + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana character of 1 point mana."), false);
+            throw OPTION_CHARACTER_HALF_UNCHANGED_EXCEPTION.create();
         }
 
         return executeSetManaCharHalf(source, manaCharHalf);
@@ -218,7 +240,7 @@ public class ManaCommand {
         if (executeGetManaCharZero(source) != manaCharZero) {
             source.sendFeedback(() -> Text.literal("Updated the mana character of 0 point mana for player " + name + " to " + zero.getLiteralString() + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana character of 0 point mana."), false);
+            throw OPTION_CHARACTER_ZERO_UNCHANGED_EXCEPTION.create();
         }
 
         return executeSetManaCharZero(source, manaCharZero);
@@ -231,7 +253,7 @@ public class ManaCommand {
         if (executeGetManaColorFull(source) != manaColorFull) {
             source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorFull.getName() + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana color."), false);
+            throw OPTION_COLOR_FULL_UNCHANGED_EXCEPTION.create();
         }
 
         return executeSetManaColorFull(source, manaColorFull);
@@ -244,7 +266,7 @@ public class ManaCommand {
         if (executeGetManaColorHalf(source) != manaColorHalf) {
             source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorHalf.getName() + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana color."), false);
+            throw OPTION_COLOR_HALF_UNCHANGED_EXCEPTION.create();
         }
 
         return executeSetManaColorHalf(source, manaColorHalf);
@@ -257,7 +279,7 @@ public class ManaCommand {
         if (executeGetManaColorZero(source) != manaColorZero) {
             source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorZero.getName() + "."), false);
         } else {
-            source.sendFeedback(() -> Text.literal("Nothing changed. That player already has that mana color."), false);
+            throw OPTION_COLOR_ZERO_UNCHANGED_EXCEPTION.create();
         }
 
         return executeSetManaColorZero(source, manaColorZero);
