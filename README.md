@@ -91,7 +91,7 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 ## Modifiers
 
-Modifiers can be added or removed from items using custom data components. They are active while equipped in the weapon slot.
+Modifiers can be added or removed from items using custom data components. They are active while equipped.
 
 ```txt
 [List] modifiers
@@ -161,13 +161,13 @@ First, set the amount of mana the weapon consumes per use. For example, 16,777,2
 
 ```java
 ServerCommandSource source = player.getServerCommandSource();
-ManaCommand.executeSetManaConsume(source, 16777216)
+ManaCommand.executeSetManaConsum(source, 16777216)
 ```
 
 Second, consume the mana and fire your weapon if the consumption is successful. Consumption will succeed if the player has enough mana.
 
 ```java
-if (ManaCommand.executeConsume(source) == 0) {
+if (ManaCommand.executeConsum(source) == 0) {
   return;
 }
 
@@ -179,9 +179,9 @@ The result code will look like this:
 ```java
 public void useExampleWeapon(ServerPlayerEntity player) {
   ServerCommandSource source = player.getServerCommandSource();
-  ManaCommand.executeSetManaConsume(source, 16777216)
+  ManaCommand.executeSetManaConsum(source, 16777216)
 
-  if (ManaCommand.executeConsume(source) == 0) {
+  if (ManaCommand.executeConsum(source) == 0) {
     return;
   }
 
