@@ -28,11 +28,11 @@
 		"pentamana.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.9",
+		"fabricloader": ">=0.16.10",
 		"minecraft": "1.21.4",
 		"java": ">=21",
 		"fabric-api": "*",
-		"candywrapper": ">=0.3.0"
+		"candywrapper": ">=0.4.2"
 	},
 	"suggests": {
 		"another-mod": "*"

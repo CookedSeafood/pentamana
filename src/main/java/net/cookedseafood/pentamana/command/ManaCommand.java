@@ -5,7 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.ConsumeManaCallback;
 import net.cookedseafood.pentamana.api.RegenManaCallback;
@@ -13,20 +12,18 @@ import net.cookedseafood.pentamana.api.TickManaCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.ColorArgumentType;
 import net.minecraft.command.argument.TextArgumentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.mutable.MutableDouble;
-import org.jetbrains.annotations.Nullable;
 
 public class ManaCommand {
     private static final SimpleCommandExceptionType NOT_PLAIN_TEXT_EXCEPTION =
@@ -150,48 +147,44 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetEnabled(source) != 1) {
             source.sendFeedback(() -> Text.literal("Enabled mana for player " + name + "."), false);
-        } else {
-            throw OPTION_ALREADY_ENABLED_EXCEPTION.create();
+            return executeSetEnabled(source, 1);
         }
 
-        return executeSetEnabled(source, 1);
+        throw OPTION_ALREADY_ENABLED_EXCEPTION.create();
     }
 
     public static int executeDisable(ServerCommandSource source) throws CommandSyntaxException {
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetEnabled(source) == 1) {
-            source.sendFeedback(() -> Text.literal("Disabled mana for player " + name + "."), false);
-        } else {
-            throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
-        }
-
         if (Pentamana.forceEnabled) {
             source.sendFeedback(() -> Text.literal("Mana calculation will continue due to the force enabled mode is turned on in server."), false);
         }
 
-        return executeSetEnabled(source, 0);
+        String name = source.getPlayerOrThrow().getNameForScoreboard();
+        if (executeGetEnabled(source) == 1) {
+            source.sendFeedback(() -> Text.literal("Disabled mana for player " + name + "."), false);
+            return executeSetEnabled(source, 0);
+        }
+
+        throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
     }
 
     public static int executeSetDisplayTrue(ServerCommandSource source) throws CommandSyntaxException {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetDisplay(source) != 1) {
             source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to True."), false);
-        } else {
-            throw OPTION_DISPLAY_ALREADY_TRUE_EXCEPTION.create();
+            return executeSetDisplay(source, 1);
         }
 
-        return executeSetDisplay(source, 1);
+        throw OPTION_DISPLAY_ALREADY_TRUE_EXCEPTION.create();
     }
 
     public static int executeSetDisplayFalse(ServerCommandSource source) throws CommandSyntaxException {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetDisplay(source) == 1) {
             source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to False."), false);
-        } else {
-            throw OPTION_DISPLAY_ALREADY_FALSE_EXCEPTION.create();
+            return executeSetDisplay(source, 0);
         }
 
-        return executeSetDisplay(source, 0);
+        throw OPTION_DISPLAY_ALREADY_FALSE_EXCEPTION.create();
     }
 
     private static int getAsInt(Text text) throws CommandSyntaxException {
@@ -213,11 +206,10 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetManaCharFull(source) != manaCharFull) {
             source.sendFeedback(() -> Text.literal("Updated the mana character of 2 point mana for player " + name + " to " + full.getLiteralString() + "."), false);
-        } else {
-            throw OPTION_CHARACTER_FULL_UNCHANGED_EXCEPTION.create();
+            return executeSetManaCharFull(source, manaCharFull);
         }
 
-        return executeSetManaCharFull(source, manaCharFull);
+        throw OPTION_CHARACTER_FULL_UNCHANGED_EXCEPTION.create();
     }
 
     public static int executeSetCharacterHalf(ServerCommandSource source, Text half) throws CommandSyntaxException {
@@ -226,11 +218,10 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetManaCharHalf(source) != manaCharHalf) {
             source.sendFeedback(() -> Text.literal("Updated the mana character of 1 point mana for player " + name + " to " + half.getLiteralString() + "."), false);
-        } else {
-            throw OPTION_CHARACTER_HALF_UNCHANGED_EXCEPTION.create();
+            return executeSetManaCharHalf(source, manaCharHalf);
         }
 
-        return executeSetManaCharHalf(source, manaCharHalf);
+        throw OPTION_CHARACTER_HALF_UNCHANGED_EXCEPTION.create();
     }
 
     public static int executeSetCharacterZero(ServerCommandSource source, Text zero) throws CommandSyntaxException {
@@ -239,11 +230,10 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetManaCharZero(source) != manaCharZero) {
             source.sendFeedback(() -> Text.literal("Updated the mana character of 0 point mana for player " + name + " to " + zero.getLiteralString() + "."), false);
-        } else {
-            throw OPTION_CHARACTER_ZERO_UNCHANGED_EXCEPTION.create();
+            return executeSetManaCharZero(source, manaCharZero);
         }
 
-        return executeSetManaCharZero(source, manaCharZero);
+        throw OPTION_CHARACTER_ZERO_UNCHANGED_EXCEPTION.create();
     }
 
     public static int executeSetColorFull(ServerCommandSource source, Formatting colorFull) throws CommandSyntaxException {
@@ -252,11 +242,10 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetManaColorFull(source) != manaColorFull) {
             source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorFull.getName() + "."), false);
-        } else {
-            throw OPTION_COLOR_FULL_UNCHANGED_EXCEPTION.create();
+            return executeSetManaColorFull(source, manaColorFull);
         }
 
-        return executeSetManaColorFull(source, manaColorFull);
+        throw OPTION_COLOR_FULL_UNCHANGED_EXCEPTION.create();
     }
 
     public static int executeSetColorHalf(ServerCommandSource source, Formatting colorHalf) throws CommandSyntaxException {
@@ -265,11 +254,10 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetManaColorHalf(source) != manaColorHalf) {
             source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorHalf.getName() + "."), false);
-        } else {
-            throw OPTION_COLOR_HALF_UNCHANGED_EXCEPTION.create();
+            return executeSetManaColorHalf(source, manaColorHalf);
         }
 
-        return executeSetManaColorHalf(source, manaColorHalf);
+        throw OPTION_COLOR_HALF_UNCHANGED_EXCEPTION.create();
     }
 
     public static int executeSetColorZero(ServerCommandSource source, Formatting colorZero) throws CommandSyntaxException {
@@ -278,11 +266,10 @@ public class ManaCommand {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         if (executeGetManaColorZero(source) != manaColorZero) {
             source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorZero.getName() + "."), false);
-        } else {
-            throw OPTION_COLOR_ZERO_UNCHANGED_EXCEPTION.create();
+            return executeSetManaColorZero(source, manaColorZero);
         }
 
-        return executeSetManaColorZero(source, manaColorZero);
+        throw OPTION_COLOR_ZERO_UNCHANGED_EXCEPTION.create();
     }
 
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
@@ -373,7 +360,6 @@ public class ManaCommand {
 		mana -= manaConsume;
 		if (mana >= 0) {
 			executeSetMana(source, mana);
-			executeDisplay(source);
 			return 1;
 		}
 
@@ -389,8 +375,6 @@ public class ManaCommand {
         if (manabarLife > 0 && manabarLife < Pentamana.maxManabarLife) {
             return 0;
         }
-
-		executeSetManabarLife(source, -Pentamana.maxManabarLife);
 		
 		int mana = executeGetMana(source);
 		int manaCapacity = executeGetManaCapacity(source);
@@ -398,6 +382,9 @@ public class ManaCommand {
 		byte manaCapacityPoint = (byte)((-manaCapacity - 1) / -Pentamana.manaScale);
         byte manaPointTrimmed = (byte)(manaPoint - manaPoint % 2);
         byte manaCapacityPointTrimmed = (byte)(manaCapacityPoint - manaCapacityPoint % 2);
+
+
+        executeSetManabarLife(source, -Pentamana.maxManabarLife);
 
         int manaCharFull = executeGetManaCharFull(source);
         char[] charFull =
@@ -445,23 +432,14 @@ public class ManaCommand {
         return manabarLife;
     }
 
-    @Nullable
-    private static Stream<NbtCompound> getModifiers(ServerCommandSource source) throws CommandSyntaxException {
-        ItemStack weaponStack = source.getPlayerOrThrow().getWeaponStack();
-        if (!weaponStack.contains(DataComponentTypes.CUSTOM_DATA)) {
-            return null;
-        }
-
-        NbtCompound customData = weaponStack.get(DataComponentTypes.CUSTOM_DATA).copyNbt();
-        if (!customData.contains("modifiers", NbtElement.LIST_TYPE)) {
-            return null;
-        }
-
-        return customData.getList("modifiers", NbtElement.COMPOUND_TYPE).stream().map(element -> (NbtCompound)element);
+    private static NbtList getModifiers(ServerPlayerEntity player) {
+        NbtList modifiers = new NbtList();
+        player.getEquippedItems().forEach(stack -> modifiers.addAll(stack.getCustomModifiers()));
+        return modifiers;
     }
 
-    private static int getModified(Set<NbtCompound> modifiers) {
-        MutableDouble modified = new MutableDouble(Pentamana.manaCapacityBase);
+    private static int getModified(int base, Set<NbtCompound> modifiers) {
+        MutableDouble modified = new MutableDouble(base);
 
         modifiers.stream()
             .filter(modifier -> "add_value".equals(modifier.getString("operation")))
@@ -483,45 +461,24 @@ public class ManaCommand {
     }
 
     public static int executeCalcManaCapacityModified(ServerCommandSource source) throws CommandSyntaxException {
-        Stream<NbtCompound> modifiers = getModifiers(source);
-        if (modifiers == null) {
-            return Pentamana.manaCapacityBase;
-        }
-
-        Set<NbtCompound> manaCapacityModifiers = modifiers.filter(modifier -> "pentamana:mana_capacity".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet());
-        if (manaCapacityModifiers.isEmpty()) {
-            return Pentamana.manaCapacityBase;
-        }
-
-        return getModified(manaCapacityModifiers);
+        NbtList modifiers = getModifiers(source.getPlayerOrThrow());
+        return modifiers.isEmpty() ?
+            Pentamana.manaCapacityBase :
+            getModified(Pentamana.manaCapacityBase, modifiers.stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "pentamana:mana_capacity".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
     }
 
     public static int executeCalcManaRegenModified(ServerCommandSource source) throws CommandSyntaxException {
-        Stream<NbtCompound> modifiers = getModifiers(source);
-        if (modifiers == null) {
-            return Pentamana.manaRegenBase;
-        }
-
-        Set<NbtCompound> manaRegenModifiers = modifiers.filter(modifier -> "pentamana:mana_regeneration".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet());
-        if (manaRegenModifiers.isEmpty()) {
-            return Pentamana.manaRegenBase;
-        }
-
-        return getModified(manaRegenModifiers);
+        NbtList modifiers = getModifiers(source.getPlayerOrThrow());
+        return modifiers.isEmpty() ?
+            Pentamana.manaRegenBase :
+            getModified(Pentamana.manaRegenBase, modifiers.stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "pentamana:mana_regeneration".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
     }
 
     public static int executeCalcManaConsumModified(ServerCommandSource source) throws CommandSyntaxException {
-        Stream<NbtCompound> modifiers = getModifiers(source);
-        if (modifiers == null) {
-            return executeGetManaConsum(source);
-        }
-
-        Set<NbtCompound> manaConsumModifiers = modifiers.filter(modifier -> "pentamana:mana_consumption".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet());
-        if (manaConsumModifiers.isEmpty()) {
-            return executeGetManaConsum(source);
-        }
-
-        return getModified(manaConsumModifiers);
+        NbtList modifiers = getModifiers(source.getPlayerOrThrow());
+        return modifiers.isEmpty() ?
+            executeGetManaConsum(source) :
+            getModified(executeGetManaConsum(source), modifiers.stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "pentamana:mana_consumption".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
     }
 
     public static int executeCalcManaCapacitySettled(ServerCommandSource source) throws CommandSyntaxException {
