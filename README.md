@@ -91,14 +91,16 @@ Enchantments are registed using datapack. You can open mod jar and edit it.
 
 ## Modifiers
 
-Modifiers can be added or removed from items using custom data components. They are active while equipped.
+Modifiers can be added or removed from items using custom data components. They are active when equipped in the written slot.
 
 ```txt
 [List] modifiers
 |- [Compound]
    |- [String] attribute: Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration` and `pentamana:mana_consumption`.
-   |- [Double] base: value.
-   \- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
+   |- [Double] base: Any.
+   |- [String] id: Any. Used to distinguish the same.
+   |- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
+   \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest`, `head`.
 ```
 
 Below is an example modifier which increase mana capacity by 1,275,068,416(38 points mana).
