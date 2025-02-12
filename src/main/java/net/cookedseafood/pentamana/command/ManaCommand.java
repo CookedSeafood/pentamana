@@ -3,6 +3,8 @@ package net.cookedseafood.pentamana.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.cookedseafood.pentamana.Pentamana;
@@ -12,8 +14,8 @@ import net.cookedseafood.pentamana.api.TickManaCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.ColorArgumentType;
 import net.minecraft.command.argument.TextArgumentType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.server.command.CommandManager;
@@ -432,9 +434,14 @@ public class ManaCommand {
         return manabarLife;
     }
 
-    private static NbtList getModifiers(ServerPlayerEntity player) {
-        NbtList modifiers = new NbtList();
-        player.getEquippedItems().forEach(stack -> modifiers.addAll(stack.getCustomModifiers()));
+    private static Set<NbtCompound> getModifiers(ServerPlayerEntity player) {
+        Set<NbtCompound> modifiers = new HashSet<NbtCompound>();
+        modifiers.addAll(player.getEquippedStack(EquipmentSlot.MAINHAND).getCustomModifiers().stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "mainhand".equals(modifier.getString("slot"))).collect(Collectors.toUnmodifiableSet()));
+        modifiers.addAll(player.getEquippedStack(EquipmentSlot.OFFHAND).getCustomModifiers().stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "offhand".equals(modifier.getString("slot"))).collect(Collectors.toUnmodifiableSet()));
+        modifiers.addAll(player.getEquippedStack(EquipmentSlot.FEET).getCustomModifiers().stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "feet".equals(modifier.getString("slot"))).collect(Collectors.toUnmodifiableSet()));
+        modifiers.addAll(player.getEquippedStack(EquipmentSlot.LEGS).getCustomModifiers().stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "legs".equals(modifier.getString("slot"))).collect(Collectors.toUnmodifiableSet()));
+        modifiers.addAll(player.getEquippedStack(EquipmentSlot.CHEST).getCustomModifiers().stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "chest".equals(modifier.getString("slot"))).collect(Collectors.toUnmodifiableSet()));
+        modifiers.addAll(player.getEquippedStack(EquipmentSlot.HEAD).getCustomModifiers().stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "head".equals(modifier.getString("slot"))).collect(Collectors.toUnmodifiableSet()));
         return modifiers;
     }
 
@@ -455,30 +462,30 @@ public class ManaCommand {
 
         modifiers.stream()
             .filter(modifier -> "add_multiplied_total".equals(modifier.getString("operation")))
-            .forEach(modifier -> modified.setValue(modifier.getDouble("base") * modified.getValue()));
+            .forEach(modifier -> modified.setValue((1 + modifier.getDouble("base")) * modified.getValue()));
 
         return modified.getValue().intValue();
     }
 
     public static int executeCalcManaCapacityModified(ServerCommandSource source) throws CommandSyntaxException {
-        NbtList modifiers = getModifiers(source.getPlayerOrThrow());
+        Set<NbtCompound> modifiers = getModifiers(source.getPlayerOrThrow());
         return modifiers.isEmpty() ?
             Pentamana.manaCapacityBase :
-            getModified(Pentamana.manaCapacityBase, modifiers.stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "pentamana:mana_capacity".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
+            getModified(Pentamana.manaCapacityBase, modifiers.stream().filter(modifier -> "pentamana:mana_capacity".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
     }
 
     public static int executeCalcManaRegenModified(ServerCommandSource source) throws CommandSyntaxException {
-        NbtList modifiers = getModifiers(source.getPlayerOrThrow());
+        Set<NbtCompound> modifiers = getModifiers(source.getPlayerOrThrow());
         return modifiers.isEmpty() ?
             Pentamana.manaRegenBase :
-            getModified(Pentamana.manaRegenBase, modifiers.stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "pentamana:mana_regeneration".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
+            getModified(Pentamana.manaRegenBase, modifiers.stream().filter(modifier -> "pentamana:mana_regeneration".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
     }
 
     public static int executeCalcManaConsumModified(ServerCommandSource source) throws CommandSyntaxException {
-        NbtList modifiers = getModifiers(source.getPlayerOrThrow());
+        Set<NbtCompound> modifiers = getModifiers(source.getPlayerOrThrow());
         return modifiers.isEmpty() ?
             executeGetManaConsum(source) :
-            getModified(executeGetManaConsum(source), modifiers.stream().map(nbtElement -> (NbtCompound)nbtElement).filter(modifier -> "pentamana:mana_consumption".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
+            getModified(executeGetManaConsum(source), modifiers.stream().filter(modifier -> "pentamana:mana_consumption".equals(modifier.getString("attribute"))).collect(Collectors.toUnmodifiableSet()));
     }
 
     public static int executeCalcManaCapacitySettled(ServerCommandSource source) throws CommandSyntaxException {
