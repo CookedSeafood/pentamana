@@ -97,7 +97,7 @@ Modifiers can be added or removed from items using custom data components. They 
    \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest`, `head`.
 ```
 
-Below is an example modifier which increase mana capacity by 1,275,068,416(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19).
+Below is an example modifier which increase mana capacity by 1,275,068,416(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19) when held in offhand.
 
 ```component
 [
@@ -106,7 +106,8 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
       {
         attribute: "pentamana:mana_capacity",
         base: 1275068416.0d,
-        operation: "add_value"
+        operation: "add_value",
+        slot: "offhand"
       }
     ]
   }
