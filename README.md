@@ -36,7 +36,7 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana set character <text> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana character for yourself.
 
-`/mana set color <value> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana character for yourself.
+`/mana set color <value> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana color for yourself.
 
 `/mana reset` Reset mana character and color for yourself.
 
