@@ -1,9 +1,11 @@
 package net.cookedseafood.pentamana.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +27,9 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableDouble;
+import org.jetbrains.annotations.Nullable;
 
 public class ManaCommand {
     private static final SimpleCommandExceptionType NOT_PLAIN_TEXT_EXCEPTION =
@@ -36,22 +40,14 @@ public class ManaCommand {
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already enabled for that player."));
     private static final SimpleCommandExceptionType OPTION_ALREADY_DISABLED_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
-    private static final SimpleCommandExceptionType OPTION_DISPLAY_ALREADY_TRUE_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana Display is already set to true for that player"));
-    private static final SimpleCommandExceptionType OPTION_DISPLAY_ALREADY_FALSE_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana Display is already set to false for that player"));
-    private static final SimpleCommandExceptionType OPTION_CHARACTER_FULL_UNCHANGED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana character of 2 points mana."));
-    private static final SimpleCommandExceptionType OPTION_CHARACTER_HALF_UNCHANGED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana character of 1 point mana."));
-    private static final SimpleCommandExceptionType OPTION_CHARACTER_ZERO_UNCHANGED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana character of 0 point mana."));
-    private static final SimpleCommandExceptionType OPTION_COLOR_FULL_UNCHANGED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana color of 2 points mana."));
-    private static final SimpleCommandExceptionType OPTION_COLOR_HALF_UNCHANGED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana color of 1 point mana."));
-    private static final SimpleCommandExceptionType OPTION_COLOR_ZERO_UNCHANGED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. That player already has that mana color of 0 point mana."));
+    private static final DynamicCommandExceptionType OPTION_DISPLAY_UNCHANGED_EXCEPTION =
+        new DynamicCommandExceptionType((displayBoolean) -> Text.literal("Nothing changed. Mana display is already set to " + (boolean)displayBoolean + " for that player."));
+        private static final DynamicCommandExceptionType OPTION_FORMAT_UNCHANGED_EXCEPTION =
+        new DynamicCommandExceptionType((formatString) -> Text.literal("Nothing changed. Mana format is already set to " + (String)formatString + " for that player."));
+    private static final Dynamic2CommandExceptionType OPTION_CHARACTER_UNCHANGED_EXCEPTION =
+        new Dynamic2CommandExceptionType((type, ordinal) -> Text.literal("Nothing changed. That player already has that" + ((int)ordinal == 0 ? "" : (" #" + ordinal)) + (type == null ? "" : (" " + (String)type + " point")) + " mana character."));
+    private static final Dynamic2CommandExceptionType OPTION_COLOR_UNCHANGED_EXCEPTION =
+        new Dynamic2CommandExceptionType((type, ordinal) -> Text.literal("Nothing changed. That player already has that" + ((int)ordinal == 0 ? "" : (" #" + ordinal)) + (type == null ? "" : (" " + (String)type + " point")) + " mana color."));
 
     public ManaCommand() {
     }
@@ -73,58 +69,83 @@ public class ManaCommand {
                     CommandManager.literal("display")
                     .then(
                         CommandManager.literal("true")
-                        .executes(context -> executeSetDisplayTrue((ServerCommandSource)context.getSource()))
+                        .executes(context -> executeSetDisplay((ServerCommandSource)context.getSource(), true))
                     )
                     .then(
                         CommandManager.literal("false")
-                        .executes(context -> executeSetDisplayFalse((ServerCommandSource)context.getSource()))
+                        .executes(context -> executeSetDisplay((ServerCommandSource)context.getSource(), false))
+                    )
+                )
+                .then(
+                    CommandManager.literal("format")
+                    .then(
+                        CommandManager.literal("graphic")
+                        .executes(context -> executeSetFormat((ServerCommandSource)context.getSource(), "graphic"))
+                    )
+                    .then(
+                        CommandManager.literal("numberic")
+                        .executes(context -> executeSetFormat((ServerCommandSource)context.getSource(), "numberic"))
                     )
                 )
                 .then(
                     CommandManager.literal("character")
                     .then(
-                        CommandManager.literal("full")
+                        CommandManager.argument("text", TextArgumentType.text(registryAccess))
+                        .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text")))
                         .then(
-                            CommandManager.argument("text", TextArgumentType.text(registryAccess))
-                            .executes(context -> executeSetCharacterFull((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text")))
+                            CommandManager.literal("full")
+                            .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text"), "full"))
+                            .then(
+                                CommandManager.argument("ordinal", IntegerArgumentType.integer(0, Integer.MAX_VALUE))
+                                .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text"), "full", IntegerArgumentType.getInteger(context, "ordinal")))
+                            )
                         )
-                    )
-                    .then(
-                        CommandManager.literal("half")
                         .then(
-                            CommandManager.argument("text", TextArgumentType.text(registryAccess))
-                            .executes(context -> executeSetCharacterHalf((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text")))
+                            CommandManager.literal("half")
+                            .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text"), "half"))
+                            .then(
+                                CommandManager.argument("ordinal", IntegerArgumentType.integer(0, Integer.MAX_VALUE))
+                                .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text"), "half", IntegerArgumentType.getInteger(context, "ordinal")))
+                            )
                         )
-                    )
-                    .then(
-                        CommandManager.literal("zero")
                         .then(
-                            CommandManager.argument("text", TextArgumentType.text(registryAccess))
-                            .executes(context -> executeSetCharacterZero((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text")))
+                            CommandManager.literal("zero")
+                            .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text"), "zero"))
+                            .then(
+                                CommandManager.argument("ordinal", IntegerArgumentType.integer(0, Integer.MAX_VALUE))
+                                .executes(context -> executeSetCharacter((ServerCommandSource)context.getSource(), TextArgumentType.getTextArgument(context, "text"), "zero", IntegerArgumentType.getInteger(context, "ordinal")))
+                            )
                         )
                     )
                 )
                 .then(
                     CommandManager.literal("color")
                     .then(
-                        CommandManager.literal("full")
+                        CommandManager.argument("value", ColorArgumentType.color())
+                        .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value")))
                         .then(
-                            CommandManager.argument("value", ColorArgumentType.color())
-                            .executes(context -> executeSetColorFull((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value")))
+                            CommandManager.literal("full")
+                            .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"), "full"))
+                            .then(
+                                CommandManager.argument("ordinal", IntegerArgumentType.integer(0, Integer.MAX_VALUE))
+                                .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"), "full", IntegerArgumentType.getInteger(context, "ordinal")))
+                            )
                         )
-                    )
-                    .then(
-                        CommandManager.literal("half")
                         .then(
-                            CommandManager.argument("value", ColorArgumentType.color())
-                            .executes(context -> executeSetColorHalf((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value")))
+                            CommandManager.literal("half")
+                            .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"), "half"))
+                            .then(
+                                CommandManager.argument("ordinal", IntegerArgumentType.integer(0, Integer.MAX_VALUE))
+                                .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"), "half", IntegerArgumentType.getInteger(context, "ordinal")))
+                            )
                         )
-                    )
-                    .then(
-                        CommandManager.literal("zero")
                         .then(
-                            CommandManager.argument("value", ColorArgumentType.color())
-                            .executes(context -> executeSetColorZero((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value")))
+                            CommandManager.literal("zero")
+                            .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"), "zero"))
+                            .then(
+                                CommandManager.argument("ordinal", IntegerArgumentType.integer(0, Integer.MAX_VALUE))
+                                .executes(context -> executeSetColor((ServerCommandSource)context.getSource(), ColorArgumentType.getColor(context, "value"), "zero", IntegerArgumentType.getInteger(context, "ordinal")))
+                            )
                         )
                     )
                 )
@@ -169,24 +190,28 @@ public class ManaCommand {
         throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
     }
 
-    public static int executeSetDisplayTrue(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeSetDisplay(ServerCommandSource source, boolean displayBoolean) throws CommandSyntaxException {
+        int display = displayBoolean ? 1 : 0;
+
         String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetDisplay(source) != 1) {
-            source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to True."), false);
-            return executeSetDisplay(source, 1);
+        if (executeGetDisplay(source) != display) {
+            source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to " + displayBoolean + "."), false);
+            return executeSetDisplay(source, display);
         }
 
-        throw OPTION_DISPLAY_ALREADY_TRUE_EXCEPTION.create();
+        throw OPTION_DISPLAY_UNCHANGED_EXCEPTION.create(displayBoolean);
     }
 
-    public static int executeSetDisplayFalse(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeSetFormat(ServerCommandSource source, String formatString) throws CommandSyntaxException {
+        int format = "numberic".equals(formatString) ? 1 : 0;
+
         String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetDisplay(source) == 1) {
-            source.sendFeedback(() -> Text.literal("Updated the mana display for player " + name + " to False."), false);
-            return executeSetDisplay(source, 0);
+        if (executeGetFormat(source) != format) {
+            source.sendFeedback(() -> Text.literal("Updated the mana format for player " + name + " to " + formatString + "."), false);
+            return executeSetFormat(source, format);
         }
 
-        throw OPTION_DISPLAY_ALREADY_FALSE_EXCEPTION.create();
+        throw OPTION_FORMAT_UNCHANGED_EXCEPTION.create(formatString);
     }
 
     private static int getAsInt(Text text) throws CommandSyntaxException {
@@ -202,87 +227,117 @@ public class ManaCommand {
         return string.codePointAt(0);
     };
 
-    public static int executeSetCharacterFull(ServerCommandSource source, Text full) throws CommandSyntaxException {
-        int manaCharFull = getAsInt(full);
+    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText, @Nullable String type, int ordinal) throws CommandSyntaxException {
+        int manaChar = getAsInt(manaCharText);
 
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetManaCharFull(source) != manaCharFull) {
-            source.sendFeedback(() -> Text.literal("Updated the mana character of 2 point mana for player " + name + " to " + full.getLiteralString() + "."), false);
-            return executeSetManaCharFull(source, manaCharFull);
+        int miss = 0;
+        if (type == null) {
+            for (int o = 1; o <= 64; ++o) {
+                if (executeGetManaChar(source, "full", o) != manaChar) {
+                    ++miss;
+                    executeSetManaChar(source, manaChar, "full", o);
+                }
+                if (executeGetManaChar(source, "half", o) != manaChar) {
+                    ++miss;
+                    executeSetManaChar(source, manaChar, "half", o);
+                }
+                if (executeGetManaChar(source, "zero", o) != manaChar) {
+                    ++miss;
+                    executeSetManaChar(source, manaChar, "zero", o);
+                }
+            }
+        } else if (ordinal == 0) {
+            for (int o = 1; o <= 64; ++o) {
+                if (executeGetManaChar(source, type, o) != manaChar) {
+                    ++miss;
+                    executeSetManaChar(source, manaChar, type, o);
+                }
+            }
+        } else {
+            if (executeGetManaChar(source, type, ordinal) != manaChar) {
+                ++miss;
+                executeSetManaChar(source, manaChar, type, ordinal);
+            }
         }
 
-        throw OPTION_CHARACTER_FULL_UNCHANGED_EXCEPTION.create();
+        if (miss > 0) {
+            String name = source.getPlayerOrThrow().getNameForScoreboard();
+            source.sendFeedback(() -> Text.literal("Updated the" + (ordinal == 0 ? "" : (" #" + ordinal)) + (type == null ? "" : (" " + type + " point")) + " mana character for player " + name + " to " + manaCharText.getLiteralString() + "."), false);
+            return 1;
+        }
+
+        throw OPTION_CHARACTER_UNCHANGED_EXCEPTION.create(type, ordinal);
     }
 
-    public static int executeSetCharacterHalf(ServerCommandSource source, Text half) throws CommandSyntaxException {
-        int manaCharHalf = getAsInt(half);
-
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetManaCharHalf(source) != manaCharHalf) {
-            source.sendFeedback(() -> Text.literal("Updated the mana character of 1 point mana for player " + name + " to " + half.getLiteralString() + "."), false);
-            return executeSetManaCharHalf(source, manaCharHalf);
-        }
-
-        throw OPTION_CHARACTER_HALF_UNCHANGED_EXCEPTION.create();
+    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText, @Nullable String type) throws CommandSyntaxException {
+        return executeSetCharacter(source, manaCharText, type, 0);
     }
 
-    public static int executeSetCharacterZero(ServerCommandSource source, Text zero) throws CommandSyntaxException {
-        int manaCharZero = getAsInt(zero);
-
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetManaCharZero(source) != manaCharZero) {
-            source.sendFeedback(() -> Text.literal("Updated the mana character of 0 point mana for player " + name + " to " + zero.getLiteralString() + "."), false);
-            return executeSetManaCharZero(source, manaCharZero);
-        }
-
-        throw OPTION_CHARACTER_ZERO_UNCHANGED_EXCEPTION.create();
+    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText) throws CommandSyntaxException {
+        return executeSetCharacter(source, manaCharText, null);
     }
 
-    public static int executeSetColorFull(ServerCommandSource source, Formatting colorFull) throws CommandSyntaxException {
-        int manaColorFull = colorFull.getColorIndex() + 1;
+    public static int executeSetColor(ServerCommandSource source, Formatting manaColorFormatting, @Nullable String type, int ordinal) throws CommandSyntaxException {
+        int manaColor = manaColorFormatting.getColorIndex() + 1;
 
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetManaColorFull(source) != manaColorFull) {
-            source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorFull.getName() + "."), false);
-            return executeSetManaColorFull(source, manaColorFull);
+        int miss = 0;
+        if (type == null) {
+            for (int o = 1; o <= 64; ++o) {
+                if (executeGetManaColor(source, "full", o) != manaColor) {
+                    ++miss;
+                    executeSetManaColor(source, manaColor, "full", o);
+                }
+                if (executeGetManaColor(source, "half", o) != manaColor) {
+                    ++miss;
+                    executeSetManaColor(source, manaColor, "half", o);
+                }
+                if (executeGetManaColor(source, "zero", o) != manaColor) {
+                    ++miss;
+                    executeSetManaColor(source, manaColor, "zero", o);
+                }
+            }
+        } else if (ordinal == 0) {
+            for (int o = 1; o <= 64; ++o) {
+                if (executeGetManaColor(source, type, o) != manaColor) {
+                    ++miss;
+                    executeSetManaColor(source, manaColor, type, o);
+                }
+            }
+        } else {
+            if (executeGetManaColor(source, type, ordinal) != manaColor) {
+                ++miss;
+                executeSetManaColor(source, manaColor, type, ordinal);
+            }
         }
 
-        throw OPTION_COLOR_FULL_UNCHANGED_EXCEPTION.create();
+        if (miss > 0) {
+            String name = source.getPlayerOrThrow().getNameForScoreboard();
+            source.sendFeedback(() -> Text.literal("Updated the" + (ordinal == 0 ? "" : (" #" + ordinal)) + (type == null ? "" : (" " + type + " point")) + " mana character for player " + name + " to " + manaColorFormatting.getName() + "."), false);
+            return 1;
+        }
+
+        throw OPTION_COLOR_UNCHANGED_EXCEPTION.create(type, ordinal);
     }
 
-    public static int executeSetColorHalf(ServerCommandSource source, Formatting colorHalf) throws CommandSyntaxException {
-        int manaColorHalf = colorHalf.getColorIndex() + 1;
-
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetManaColorHalf(source) != manaColorHalf) {
-            source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorHalf.getName() + "."), false);
-            return executeSetManaColorHalf(source, manaColorHalf);
-        }
-
-        throw OPTION_COLOR_HALF_UNCHANGED_EXCEPTION.create();
+    public static int executeSetColor(ServerCommandSource source, Formatting manaColorFormatting, @Nullable String type) throws CommandSyntaxException {
+        return executeSetColor(source, manaColorFormatting, type, 0);
     }
 
-    public static int executeSetColorZero(ServerCommandSource source, Formatting colorZero) throws CommandSyntaxException {
-        int manaColorZero = colorZero.getColorIndex() + 1;
-
-        String name = source.getPlayerOrThrow().getNameForScoreboard();
-        if (executeGetManaColorZero(source) != manaColorZero) {
-            source.sendFeedback(() -> Text.literal("Updated the mana color for player " + name + " to " + colorZero.getName() + "."), false);
-            return executeSetManaColorZero(source, manaColorZero);
-        }
-
-        throw OPTION_COLOR_ZERO_UNCHANGED_EXCEPTION.create();
+    public static int executeSetColor(ServerCommandSource source, Formatting manaColorFormatting) throws CommandSyntaxException {
+        return executeSetColor(source, manaColorFormatting, null);
     }
 
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         source.sendFeedback(() -> Text.literal("Reset mana options for player " + name + "."), false);
-        executeResetManaCharFull(source);
-        executeResetManaCharHalf(source);
-        executeResetManaCharZero(source);
-        executeResetManaColorFull(source);
-        executeResetManaColorHalf(source);
-        executeResetManaColorZero(source);
+        for (int o = 1; o <= 64; ++o) {
+            executeResetManaChar(source, "full", o);
+            executeResetManaChar(source, "half", o);
+            executeResetManaChar(source, "zero", o);
+            executeResetManaColor(source, "full", o);
+            executeResetManaColor(source, "half", o);
+            executeResetManaColor(source, "zero", o);
+        }
         return 0;
     }
 
@@ -390,49 +445,41 @@ public class ManaCommand {
         executeSetManaCapacityPoint(source, manaCapacityPoint);
         executeSetManabarLife(source, -Pentamana.maxManabarLife);
 
+        if (executeGetFormat(source) == 1) {
+            int manaColor = executeGetManaColor(source, "full", 1);
+            Formatting manaFormatting = manaColor == 0 ? Pentamana.manaColorFull : Formatting.byColorIndex(manaColor - 1);
+            source.getPlayerOrThrow().sendMessage(Text.literal(manaPoint + "/" + manaCapacityPoint).formatted(manaFormatting), true);
+            return 4;
+        }
+
         int manaPointTrimmed = manaPoint - manaPoint % 2;
         int manaCapacityPointTrimmed = manaCapacityPoint - manaCapacityPoint % 2;
 
-        int manaCharFull = executeGetManaCharFull(source);
-        char[] charFull =
-            manaCharFull == 0 ?
-            Pentamana.manaCharFull :
-            Character.toChars(manaCharFull);
-        int manaCharHalf = executeGetManaCharHalf(source);
-        char[] charHalf =
-            manaCharHalf == 0 ?
-            Pentamana.manaCharHalf :
-            Character.toChars(manaCharHalf);
-        int manaCharZero = executeGetManaCharZero(source);
-        char[] charZero =
-            manaCharZero == 0 ?
-            Pentamana.manaCharZero :
-            Character.toChars(manaCharZero);
-        int manaColorFull = executeGetManaColorFull(source);
-        Formatting colorFull =
-            manaColorFull == 0 ?
-            Pentamana.manaColorFull :
-            Formatting.byColorIndex(manaColorFull - 1);
-        int manaColorHalf = executeGetManaColorHalf(source);
-        Formatting colorHalf =
-            manaColorHalf == 0 ?
-            Pentamana.manaColorHalf :
-            Formatting.byColorIndex(manaColorHalf - 1);
-        int manaColorZero = executeGetManaColorZero(source);
-        Formatting colorZero =
-            manaColorZero == 0 ?
-            Pentamana.manaColorZero :
-            Formatting.byColorIndex(manaColorZero - 1);
-
         MutableText manabar = MutableText.of(PlainTextContent.EMPTY);
         for (int i = 0; i < manaCapacityPointTrimmed; i += 2) {
-            char[] manaChar = i < manaPointTrimmed ?
-                charFull : i < manaPoint ?
-                    charHalf : charZero;
-            Formatting manaColor = i < manaPointTrimmed ?
-                colorFull : i < manaPoint ?
-                    colorHalf : colorZero;
-            manabar.append(Text.literal(String.valueOf(manaChar)).formatted(manaColor));
+            String type =
+                i < manaPointTrimmed ?
+                    "full" : i < manaPoint ?
+                        "half" : "zero";
+            int o = i / 2 + 1;
+
+            int manaChar = executeGetManaChar(source, type, o);
+            char[] manaCharPair =
+                manaChar == 0 ?
+                    "full".equals(type) ?
+                        Pentamana.manaCharFull : "half".equals(type) ?
+                            Pentamana.manaCharHalf : Pentamana.manaCharZero :
+                    Character.toChars(manaChar);
+
+            int manaColor = executeGetManaColor(source, type, o);
+            Formatting manaFormatting =
+                manaColor == 0 ?
+                    "full".equals(type) ?
+                        Pentamana.manaColorFull : "half".equals(type) ?
+                            Pentamana.manaColorHalf : Pentamana.manaColorZero :
+                    Formatting.byColorIndex(manaColor - 1);
+
+            manabar.append(Text.literal(String.valueOf(manaCharPair)).formatted(manaFormatting));
         }
 
 		source.getPlayerOrThrow().sendMessage(manabar, true);
@@ -687,159 +734,55 @@ public class ManaCommand {
         return 0;
     }
 
-    public static int executeGetManaCharFull(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeGetManaChar(ServerCommandSource source, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_full", ScoreboardCriterion.DUMMY, Text.of("Mana Char Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Character " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
     }
 
-    public static int executeIncrementManaCharFull(ServerCommandSource source, int amount) throws CommandSyntaxException {
+    public static int executeIncrementManaChar(ServerCommandSource source, int amount, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_full", ScoreboardCriterion.DUMMY, Text.of("Mana Char Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Character " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
     }
 
-    public static int executeIncrementManaCharFull(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManaCharFull(source, 1);
+    public static int executeIncrementManaChar(ServerCommandSource source, String type, int ordinal) throws CommandSyntaxException {
+        return executeIncrementManaChar(source, 1, type, ordinal);
     }
 
-    public static int executeSetManaCharFull(ServerCommandSource source, int amount) throws CommandSyntaxException {
+    public static int executeSetManaChar(ServerCommandSource source, int amount, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_full", ScoreboardCriterion.DUMMY, Text.of("Mana Char Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Character " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
         return 0;
     }
 
-    public static int executeResetManaCharFull(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeResetManaChar(ServerCommandSource source, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_full", ScoreboardCriterion.DUMMY, Text.of("Mana Char Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Character " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
         return 0;
     }
 
-    public static int executeGetManaCharHalf(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeGetManaColor(ServerCommandSource source, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_half", ScoreboardCriterion.DUMMY, Text.of("Mana Char Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Color " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
     }
 
-    public static int executeIncrementManaCharHalf(ServerCommandSource source, int amount) throws CommandSyntaxException {
+    public static int executeIncrementManaColor(ServerCommandSource source, int amount, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_half", ScoreboardCriterion.DUMMY, Text.of("Mana Char Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Color " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
     }
 
-    public static int executeIncrementManaCharHalf(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManaCharHalf(source, 1);
+    public static int executeIncrementManaColor(ServerCommandSource source, String type, int ordinal) throws CommandSyntaxException {
+        return executeIncrementManaColor(source, 1, type, ordinal);
     }
 
-    public static int executeSetManaCharHalf(ServerCommandSource source, int amount) throws CommandSyntaxException {
+    public static int executeSetManaColor(ServerCommandSource source, int amount, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_half", ScoreboardCriterion.DUMMY, Text.of("Mana Char Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Color " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
         return 0;
     }
 
-    public static int executeResetManaCharHalf(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeResetManaColor(ServerCommandSource source, String type, int ordinal) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_half", ScoreboardCriterion.DUMMY, Text.of("Mana Char Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
-        return 0;
-    }
-
-    public static int executeGetManaCharZero(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Char Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
-    }
-
-    public static int executeIncrementManaCharZero(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Char Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
-    }
-
-    public static int executeIncrementManaCharZero(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManaCharZero(source, 1);
-    }
-
-    public static int executeSetManaCharZero(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Char Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
-        return 0;
-    }
-
-    public static int executeResetManaCharZero(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_char_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Char Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
-        return 0;
-    }
-
-    public static int executeGetManaColorFull(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_full", ScoreboardCriterion.DUMMY, Text.of("Mana Color Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
-    }
-
-    public static int executeIncrementManaColorFull(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_full", ScoreboardCriterion.DUMMY, Text.of("Mana Color Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
-    }
-
-    public static int executeIncrementManaColorFull(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManaColorFull(source, 1);
-    }
-
-    public static int executeSetManaColorFull(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_full", ScoreboardCriterion.DUMMY, Text.of("Mana Color Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
-        return 0;
-    }
-
-    public static int executeResetManaColorFull(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_full", ScoreboardCriterion.DUMMY, Text.of("Mana Color Full"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
-        return 0;
-    }
-
-    public static int executeGetManaColorHalf(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_half", ScoreboardCriterion.DUMMY, Text.of("Mana Color Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
-    }
-
-    public static int executeIncrementManaColorHalf(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_half", ScoreboardCriterion.DUMMY, Text.of("Mana Color Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
-    }
-
-    public static int executeIncrementManaColorHalf(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManaColorHalf(source, 1);
-    }
-
-    public static int executeSetManaColorHalf(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_half", ScoreboardCriterion.DUMMY, Text.of("Mana Color Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
-        return 0;
-    }
-
-    public static int executeResetManaColorHalf(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_half", ScoreboardCriterion.DUMMY, Text.of("Mana Color Half"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
-        return 0;
-    }
-
-    public static int executeGetManaColorZero(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Color Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
-    }
-
-    public static int executeIncrementManaColorZero(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Color Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
-    }
-
-    public static int executeIncrementManaColorZero(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManaColorZero(source, 1);
-    }
-
-    public static int executeSetManaColorZero(ServerCommandSource source, int amount) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Color Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
-        return 0;
-    }
-
-    public static int executeResetManaColorZero(ServerCommandSource source) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_zero", ScoreboardCriterion.DUMMY, Text.of("Mana Color Zero"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_color_" + type + "_" + ordinal, ScoreboardCriterion.DUMMY, Text.of("Mana Color " + StringUtils.capitalize(type) + " " + ordinal), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
         return 0;
     }
 
@@ -892,6 +835,32 @@ public class ManaCommand {
     public static int executeResetDisplay(ServerCommandSource source) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
         scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.display", ScoreboardCriterion.DUMMY, Text.of("Display"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        return 0;
+    }
+
+    public static int executeGetFormat(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.format", ScoreboardCriterion.DUMMY, Text.of("Format"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+    }
+
+    public static int executeIncrementFormat(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.format", ScoreboardCriterion.DUMMY, Text.of("Format"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+    }
+
+    public static int executeIncrementFormat(ServerCommandSource source) throws CommandSyntaxException {
+        return executeIncrementFormat(source, 1);
+    }
+
+    public static int executeSetFormat(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.format", ScoreboardCriterion.DUMMY, Text.of("Format"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        return 0;
+    }
+
+    public static int executeResetFormat(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.format", ScoreboardCriterion.DUMMY, Text.of("Format"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
         return 0;
     }
 }
