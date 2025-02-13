@@ -34,9 +34,9 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana format <graphic|numberic>` Set the manabar format for yourself.
 
-`/mana set character <text> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana character for yourself.
+`/mana set character <text> [full|half|zero] [ordinal]` Set the #`[ordinal]` `[full|half|zero]` point mana character for yourself.
 
-`/mana set color <value> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana color for yourself.
+`/mana set color <value> [full|half|zero] [ordinal]` Set the #`[ordinal]` `[full|half|zero]` point mana color for yourself.
 
 `/mana reset` Reset mana character and color for yourself.
 
@@ -64,17 +64,17 @@ The config file is not shipped along with the mod. Below is a template config fi
   "manaRegenIncrementBase": 65536,
   // Ticks of actionbar updating suppression when interrupted
   "maxManabarLife": 40,
-  // Default mana character of 2 points mana.
+  // Default full point mana character.
   "manaCharFull": "★",
-  // Default mana character of 1 point mana.
+  // Default half point mana character.
   "manaCharHalf": "⯪",
-  // Default mana character of 0 point mana.
+  // Default zero point mana character.
   "manaCharZero": "☆",
-  // Default mana color of 2 points mana.
+  // Default full point mana color.
   "manaColorFull": "aqua",
-  // Default mana color of 1 point mana.
+  // Default half point mana color.
   "manaColorHalf": "aqua",
-  // Default mana color of 0 point mana.
+  // Default zero point mana color.
   "manaColorZero": "black",
   // Make the mod enabled for every player when setting to ture, do not modify their own preference.
   "forceEnabled": false
@@ -94,7 +94,7 @@ Modifiers can be added or removed from items using custom data components. They 
    |- [Double] base: Any.
    |- [String] id: Any. Used to distinguish the same.
    |- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
-   \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest`, `head`.
+   \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest` and `head`.
 ```
 
 Below is an example modifier which increase mana capacity by 1,275,068,416(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19) when held in offhand.
@@ -126,21 +126,15 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 
 `pentamana.manabar_life` Ticks left till next display update if idle.
 
-`pentamana.mana_char_full` The code point of mana character of 2 points mana.
+`pentamana.mana_char_<full|half|zero>_<ordinal>` The code point of #`[ordinal]` `[full|half|zero]` point mana character.
 
-`pentamana.mana_char_half` The code point of mana character of 1 point mana.
-
-`pentamana.mana_char_zero` The code point of mana character of 0 point mana.
-
-`pentamana.mana_color_full` The index of mana color of 2 points mana + 1.
-
-`pentamana.mana_color_half` The index of mana color of 1 point mana + 1.
-
-`pentamana.mana_color_zero` The index of mana color of 0 point mana + 1.
+`pentamana.mana_color_<full|half|zero>_<ordinal>` The index of #`[ordinal]` `[full|half|zero]` point mana color + 1.
 
 `pentamana.enabled` 1 if enabled, otherwise not.
 
 `pentamana.display` 1 if visible, otherwise not.
+
+`pentamana.format` 1 if numberic, otherwise graphic.
 
 `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
 
@@ -158,7 +152,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 
 This tutorial assumes that you already have a method that will be called when the weapon is used.
 
-First, set the amount of mana the weapon consumes per use. For example, 16,777,216(1 point mana).
+First, set the amount of mana the weapon consumes per use. For example, 16,777,216(![manaCharHalf](https://cdn.modrinth.com/data/UgFKzdOy/images/d943f1772f350c1645aef349b1c0dcd86a90296c.png)).
 
 ```java
 ServerCommandSource source = player.getServerCommandSource();
