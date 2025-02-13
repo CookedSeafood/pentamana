@@ -121,15 +121,15 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(38 po
 
 ## Objectives
 
-`pentamana.mana` Mana supply at last tick
+`pentamana.mana` Mana supply at last tick.
 
-`pentamana.mana_capacity` Mana capacity at last tick
+`pentamana.mana_capacity` Mana capacity at last tick.
 
-`pentamana.mana_regeneration` Amount of mana regenerated at last tick
+`pentamana.mana_regeneration` Amount of mana regenerated at last tick.
 
-`pentamana.mana_consumption` Amount of mana to consume
+`pentamana.mana_consumption` Amount of mana to consume.
 
-`pentamana.manabar_life` Ticks left till next display update if idle
+`pentamana.manabar_life` Ticks left till next display update if idle.
 
 `pentamana.mana_char_full` The code point of mana character of 2 points mana.
 
@@ -146,6 +146,10 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(38 po
 `pentamana.enabled` 1 if enabled, otherwise not.
 
 `pentamana.display` 1 if visible, otherwise not.
+
+`pentamana.mana_point` Mana supply in point at last tick. Used only in display.
+
+`pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
 
 ## Events
 
