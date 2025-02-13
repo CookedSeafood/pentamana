@@ -2,17 +2,17 @@
 
 Pentamana is a scoreboard-based mana mod that runs server-side providing mana modification and damage calculation hooks.
 
-Pentamana acts as a mana system, handling tasks such as mana regeneration and mana consumption. It display manabar in actionbar.
+![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
 ## Mana Mechanic
 
-Each player starts with 33,554,431 mana capacity (1 star in the manabar). Mana capacity is maxed out at 2,147,483,647 mana, or 64 stars total. The mana capacity would be calculated by the formula below:
+Each player starts with 33,554,431(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)) mana capacity. Mana capacity is maxed out at 2,147,483,647(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×64) mana. The mana capacity would be calculated by the formula below:
 
 ``` txt
 Mana Capacity = AttributeModify(33554431) + CapacityEnchantmentLevel * 33554432
 ```
 
-A player basicly regenerate 1,048,576 mana every tick (32 ticks per star). The mana regeneration amount per tick would be calculated by the formula below:
+A player basicly regenerate 1,048,576 mana every tick (32 ticks per ![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)). The mana regeneration amount per tick would be calculated by the formula below:
 
 ``` txt
 Mana Regen = AttributeModify(1048576) + StreamEnchantmentLevel * 65536
@@ -30,21 +30,15 @@ Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel
 
 `/mana disable` Disable this mod for yourself completely.
 
-`/mana set display <false|true>` Set the visibility of manabar.
+`/mana format <graphic|numberic>` Set the manabar format for yourself
 
-`/mana set character full <value>` Set the mana character of 2 points mana for yourself.
+`/mana set display <false|true>` Set the manabar visibility for yourself.
 
-`/mana set character half <value>` Set the mana character of 1 point mana for yourself.
+`/mana set character <text> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana character for yourself.
 
-`/mana set character zero <value>` Set the mana character of 0 point mana for yourself.
+`/mana set color <value> [full|half|zero] [ordinal]` Set the #`ordinal` `full|half|zero` point mana character for yourself.
 
-`/mana set color full <value>` Set the mana color of 2 points mana for yourself.
-
-`/mana set color half <value>` Set the mana color of 1 point mana for yourself.
-
-`/mana set color zero <value>` Set the mana color of 0 point mana for yourself.
-
-`/mana reset` Reset mana options for yourself.
+`/mana reset` Reset mana character and color for yourself.
 
 `/mana reload` Reload config file. (Require premission level 2)
 
@@ -103,7 +97,7 @@ Modifiers can be added or removed from items using custom data components. They 
    \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest`, `head`.
 ```
 
-Below is an example modifier which increase mana capacity by 1,275,068,416(38 points mana).
+Below is an example modifier which increase mana capacity by 1,275,068,416(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19).
 
 ```component
 [
