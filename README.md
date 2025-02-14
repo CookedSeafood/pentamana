@@ -1,6 +1,6 @@
 # Pentamana
 
-Pentamana is a scoreboard-based mana mod that runs server-side providing mana modification and damage calculation hooks.
+Pentamana is a scoreboard-based and most customizable mana system that runs server-side providing mana modification and damage calculation hooks.
 
 ![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
@@ -32,13 +32,11 @@ Magic Damage = baseDamage * (ManaCapacity / manaPerPoint) + PotencyEnchantmentLe
 
 `/mana set display <false|true>` Set the manabar visibility for yourself.
 
-`/mana format <graphic|numberic>` Set the manabar format for yourself.
+`/mana set render_type <graphic|numberic>` Set the manabar render type for yourself.
 
-`/mana set character <text> [full|half|zero] [ordinal]` Set the #`[ordinal]` `[full|half|zero]` point mana character for yourself.
+`/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
 
-`/mana set color <value> [full|half|zero] [ordinal]` Set the #`[ordinal]` `[full|half|zero]` point mana color for yourself.
-
-`/mana reset` Reset mana character and color for yourself.
+`/mana reset` Reset mana character for yourself.
 
 `/mana reload` Reload config file. (Require premission level 2)
 
@@ -52,30 +50,32 @@ The config file is not shipped along with the mod. Below is a template config fi
 
 ```json
 {
-  // Amount of mana be considered as 1 point mana.
-  "manaPerPoint": 16777216,
+  // Amount of mana to be considered as 1 mana point.
+  "manaPerPoint": 0x100_0000,
   // Initial mana capacity, should be odd.
-  "manaCapacityBase": 33554431,
+  "manaCapacityBase": 0x1ff_ffff,
   // Used in capacity enchantment, should be even.
-  "manaCapacityIncrementBase": 33554432,
+  "manaCapacityIncrementBase": 0x200_0000,
   // Initial mana regen amount per tick.
-  "manaRegenBase": 1048576,
+  "manaRegenBase": 0x10_0000,
   // Used in stream enchantment
-  "manaRegenIncrementBase": 65536,
+  "manaRegenIncrementBase": 0x1_0000,
   // Ticks of actionbar updating suppression when interrupted
   "maxManabarLife": 40,
-  // Default full point mana character.
-  "manaCharFull": "★",
-  // Default half point mana character.
-  "manaCharHalf": "⯪",
-  // Default zero point mana character.
-  "manaCharZero": "☆",
-  // Default full point mana color.
-  "manaColorFull": "aqua",
-  // Default half point mana color.
-  "manaColorHalf": "aqua",
-  // Default zero point mana color.
-  "manaColorZero": "black",
+  // Default mana characters, from 0% to 100% point. The count of its elements determines the amount of mana points to be considered as 1 mana character.
+  "manaChars": [0x2605, 0x2bea, 0x2606],
+  // Deafult color of characters, from 0% to 100% point.
+  "manaColors": [0x55ffff, 0x55ffff, 0x0],
+  // Default bold of characters, from 0% to 100% point.
+  "manaBolds": [false, false, false],
+  // Default italic of characters, from 0% to 100% point.
+  "manaItalics": [false, false, false],
+  // Default underlined of characters, from 0% to 100% point.
+  "manaUnderlineds": [false, false, false],
+  // Default strikethrough of characters, from 0% to 100% point.
+  "manaStrikethroughs": [false, false, false],
+  // Default obfuscated of characters, from 0% to 100% point.
+  "manaObfuscateds": [false, false, false],
   // Make the mod enabled for every player when setting to ture, do not modify their own preference.
   "forceEnabled": false
 }
@@ -126,15 +126,25 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 
 `pentamana.manabar_life` Ticks left till next display update if idle.
 
-`pentamana.mana_char_<full|half|zero>_<ordinal>` The code point of #`[ordinal]` `[full|half|zero]` point mana character.
+`pentamana.mana_char_<type_index>_<character_index>` The code point of #`character_index` `type_index` point mana character.
 
-`pentamana.mana_color_<full|half|zero>_<ordinal>` The index of #`[ordinal]` `[full|half|zero]` point mana color + 1.
+`pentamana.mana_color_<type_index>_<character_index>` The index of #`character_index` `type_index` point mana character's color + 1.
+
+`pentamana.mana_bold_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's bold.
+
+`pentamana.mana_italic_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's italic.
+
+`pentamana.mana_underlined_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's underlined.
+
+`pentamana.mana_strikethrough_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's strikethrough.
+
+`pentamana.mana_obfuscated_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's obfuscated.
 
 `pentamana.enabled` 1 if enabled, otherwise not.
 
 `pentamana.display` 1 if visible, otherwise not.
 
-`pentamana.format` 1 if numberic, otherwise graphic.
+`pentamana.render_type` 1 if numberic, otherwise graphic.
 
 `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
 
