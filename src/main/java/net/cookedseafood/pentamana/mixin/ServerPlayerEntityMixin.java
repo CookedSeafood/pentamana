@@ -33,7 +33,7 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 		ServerPlayerEntity player = ((ServerPlayerEntity)(Object)this);
 		int level = player.getWeaponStack().getEnchantments().getLevel("pentamana:potency");
 		try {
-			return (ManaCommand.executeGetManaCapacity(player.getCommandSource()) / Pentamana.manaScale * baseDamage + level > 0 ? ++level * (float)0.5 : 0) * (entity instanceof WitchEntity ? (float)0.15 : 1);
+			return (ManaCommand.executeGetManaCapacity(player.getCommandSource()) / Pentamana.manaPerPoint * baseDamage + level > 0 ? ++level * (float)0.5 : 0) * (entity instanceof WitchEntity ? (float)0.15 : 1);
 		} catch (CommandSyntaxException e) {
 			e.printStackTrace();
 			return 0;

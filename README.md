@@ -21,7 +21,7 @@ Mana Regen = AttributeModify(1048576) + StreamEnchantmentLevel * 65536
 The output damage from casting would be calculated by the formula below: (Can be got via `(ServerPlayerEntity)player.getCastingDamageAgainst(Entity entity, float baseDamage)`)
 
 ``` txt
-Magic Damage = baseDamage * (ManaCapacity / ManaScale) + PotencyEnchantmentLevel > 0 ? ++PotencyEnchantmentLevel * 0.5 : 0
+Magic Damage = baseDamage * (ManaCapacity / manaPerPoint) + PotencyEnchantmentLevel > 0 ? ++PotencyEnchantmentLevel * 0.5 : 0
 ```
 
 ## Commands
@@ -53,7 +53,7 @@ The config file is not shipped along with the mod. Below is a template config fi
 ```json
 {
   // Amount of mana be considered as 1 point mana.
-  "manaScale": 16777216,
+  "manaPerPoint": 16777216,
   // Initial mana capacity, should be odd.
   "manaCapacityBase": 33554431,
   // Used in capacity enchantment, should be even.

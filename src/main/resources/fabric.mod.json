@@ -3,7 +3,7 @@
 	"id": "pentamana",
 	"version": "${version}",
 	"name": "Pentamana",
-	"description": "Scoreboard-based mana mod providing mana modifying and damage calculation hooks.",
+	"description": "Scoreboard-based and most customizable mana system providing mana modification and damage calculation hooks.",
 	"authors": [
 		{
 			"name": "CookedSeafood",
