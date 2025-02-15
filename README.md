@@ -4,9 +4,9 @@ Pentamana is a scoreboard-based and most customizable mana system that runs serv
 
 ![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
-## Formula
+## Formulas
 
-These formula are calculated using int except for the `AttributeModify()`, which using double.
+These formulas are calculated using int except for the `AttributeModify()`, which using double.
 
 ![{\color[RGB]{176,186,197} {\color[RGB]{0,255,255} ManaCapacity} = AttributeModify({\color[RGB]{0,255,255} ManaCapacityBase} ) + {\color{Yellow} CapacityEnchantmentLevel}\times {\color[RGB] {0,255,255}ManaCapacityIncrementBase}}.png](https://cdn.modrinth.com/data/UgFKzdOy/images/79b37c549ca65479b4ec7a41505487f5dfe33b64.png)
 
@@ -203,7 +203,7 @@ public void useExampleWeapon(ServerPlayerEntity player) {
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 2
 
-Capacity adds extra mana capacity 33,554,432 per level.
+Capacity adds extra mana capacity `ManaCapacityIncrementBase` per level.
 
 ### Stream
 
@@ -212,7 +212,7 @@ Capacity adds extra mana capacity 33,554,432 per level.
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 5
 
-Stream adds extra mana regeneration 65,536 per level.
+Stream adds extra mana regeneration `ManaRegenIncrementBase` per level.
 
 ### Potency
 
