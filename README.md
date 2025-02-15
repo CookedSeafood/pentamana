@@ -4,25 +4,64 @@ Pentamana is a scoreboard-based and most customizable mana system that runs serv
 
 ![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
-## Mana Mechanic
+## Formula
 
-Each player starts with 33,554,431(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)) mana capacity. Mana capacity is maxed out at 2,147,483,647(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×64) mana. The mana capacity would be calculated by the formula below:
+These formula are calculated using int except for the `AttributeModify()`, which using double.
 
-``` txt
-Mana Capacity = AttributeModify(33554431) + CapacityEnchantmentLevel * 33554432
+![{\color[RGB]{176,186,197} {\color[RGB]{0,255,255} ManaCapacity} = AttributeModify({\color[RGB]{0,255,255} ManaCapacityBase} ) + {\color{Yellow} CapacityEnchantmentLevel}\times {\color[RGB] {0,255,255}ManaCapacityIncrementBase}}.png](https://cdn.modrinth.com/data/UgFKzdOy/images/79b37c549ca65479b4ec7a41505487f5dfe33b64.png)
+
+![{\color[RGB]{176,186,197} {\color[RGB]{0,255,255} ManaRegen} = AttributeModify({\color[RGB]{0,255,255} ManaRegenBase} ) + {\color{Yellow} SteamEnchantmentLevel}\times {\color[RGB] {0,255,255}ManaRegenIncrementBase}}.png](https://cdn.modrinth.com/data/UgFKzdOy/images/e631bc048b9c619ffa08a0158b7b9509dc2fe68a.png)
+
+![{\color[RGB]{176,186,197} {\color[RGB]{0,255,255} ManaConsumption} =  AttributeModify({\color[RGB]{0,255,255} ManaConsumptionBase} )\times \frac{10 - {\color{Yellow} UtilizationEnchantmentLevel}}{10}}.png](https://cdn.modrinth.com/data/UgFKzdOy/images/df41d9afd3ef70ff131bced2a45b4ec67a98f9fc.png)
+
+```txt
+ManaCapacity = AttributeModify(manaCapacityBase) + CapacityEnchantmentLevel * ManaCapacityIncrementBase
+
+ManaRegen = AttributeModify(ManaRegenBase) + StreamEnchantmentLevel * ManaRegenIncrementBase
+
+ManaConsumption = AttributeModify(ManaConsumptionBase) * (10 - UtilizationEnchantmentLevel) / 10
+
+CastingDamage = baseDamage * (ManaCapacity / ManaPerPoint) + PotencyEnchantmentLevel > 0 ? ++PotencyEnchantmentLevel * 0.5 : 0
 ```
 
-A player basicly regenerate 1,048,576 mana every tick (32 ticks per ![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)). The mana regeneration amount per tick would be calculated by the formula below:
+## Configuration
 
-``` txt
-Mana Regen = AttributeModify(1048576) + StreamEnchantmentLevel * 65536
+The config file is not shipped along with the mod. Below is a template config file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify. (and braces)
+
+```json
+{
+  // Amount of mana to be considered as 1 mana point.
+  "manaPerPoint": 0x1000000,
+  // Initial mana capacity, should be odd.
+  "manaCapacityBase": 0x1ffffff,
+  // Used in capacity enchantment, should be even.
+  "manaCapacityIncrementBase": 0x2000000,
+  // Initial mana regen amount per tick.
+  "manaRegenBase": 0x100000,
+  // Used in stream enchantment
+  "manaRegenIncrementBase": 0x10000,
+  // Ticks of actionbar updating suppression when interrupted
+  "maxManabarLife": 40,
+  // Default mana characters, from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
+  "manaChars": [0x2605, 0x2bea, 0x2606],
+  // Deafult color of characters, from 0% to 100% character.
+  "manaColors": [0x55ffff, 0x55ffff, 0x0],
+  // Default bold of characters, from 0% to 100% character.
+  "manaBolds": [false, false, false],
+  // Default italic of characters, from 0% to 100% character.
+  "manaItalics": [false, false, false],
+  // Default underlined of characters, from 0% to 100% character.
+  "manaUnderlineds": [false, false, false],
+  // Default strikethrough of characters, from 0% to 100% character.
+  "manaStrikethroughs": [false, false, false],
+  // Default obfuscated of characters, from 0% to 100% character.
+  "manaObfuscateds": [false, false, false],
+  // Make the mod enabled for every player when setting to ture, do not modify their own preference.
+  "forceEnabled": false
+}
 ```
 
-The output damage from casting would be calculated by the formula below: (Can be got via `(ServerPlayerEntity)player.getCastingDamageAgainst(Entity entity, float baseDamage)`)
-
-``` txt
-Magic Damage = baseDamage * (ManaCapacity / manaPerPoint) + PotencyEnchantmentLevel > 0 ? ++PotencyEnchantmentLevel * 0.5 : 0
-```
+Enchantments are registed using datapack. You can open mod jar and edit it.
 
 ## Commands
 
@@ -43,45 +82,6 @@ Magic Damage = baseDamage * (ManaCapacity / manaPerPoint) + PotencyEnchantmentLe
 This mod is disbled for every player by default.
 
 The visibility is false for every player by default.
-
-## Configuration
-
-The config file is not shipped along with the mod. Below is a template config file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify. (and braces)
-
-```json
-{
-  // Amount of mana to be considered as 1 mana point.
-  "manaPerPoint": 0x100_0000,
-  // Initial mana capacity, should be odd.
-  "manaCapacityBase": 0x1ff_ffff,
-  // Used in capacity enchantment, should be even.
-  "manaCapacityIncrementBase": 0x200_0000,
-  // Initial mana regen amount per tick.
-  "manaRegenBase": 0x10_0000,
-  // Used in stream enchantment
-  "manaRegenIncrementBase": 0x1_0000,
-  // Ticks of actionbar updating suppression when interrupted
-  "maxManabarLife": 40,
-  // Default mana characters, from 0% to 100% point. The count of its elements determines the amount of mana points to be considered as 1 mana character.
-  "manaChars": [0x2605, 0x2bea, 0x2606],
-  // Deafult color of characters, from 0% to 100% point.
-  "manaColors": [0x55ffff, 0x55ffff, 0x0],
-  // Default bold of characters, from 0% to 100% point.
-  "manaBolds": [false, false, false],
-  // Default italic of characters, from 0% to 100% point.
-  "manaItalics": [false, false, false],
-  // Default underlined of characters, from 0% to 100% point.
-  "manaUnderlineds": [false, false, false],
-  // Default strikethrough of characters, from 0% to 100% point.
-  "manaStrikethroughs": [false, false, false],
-  // Default obfuscated of characters, from 0% to 100% point.
-  "manaObfuscateds": [false, false, false],
-  // Make the mod enabled for every player when setting to ture, do not modify their own preference.
-  "forceEnabled": false
-}
-```
-
-Enchantments are registed using datapack. You can open mod jar and edit it.
 
 ## Modifiers
 
