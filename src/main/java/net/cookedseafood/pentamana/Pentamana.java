@@ -29,7 +29,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 3;
-	public static final byte VERSION_PATCH = 0;
+	public static final byte VERSION_PATCH = 1;
 
 	public static final int MANA_PER_POINT = 0x100_0000/* 2^24 */;
 	public static final int MANA_CAPACITY_BASE = 0x1ff_ffff/* 2^24*2-1 */;

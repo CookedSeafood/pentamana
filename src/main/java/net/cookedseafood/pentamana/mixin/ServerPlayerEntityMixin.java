@@ -30,10 +30,9 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 
 	@Override
 	public float getCastingDamageAgainst(Entity entity, float baseDamage) {
-		ServerPlayerEntity player = ((ServerPlayerEntity)(Object)this);
-		int level = player.getWeaponStack().getEnchantments().getLevel("pentamana:potency");
+		int level = ((ServerPlayerEntity)(Object)this).getWeaponStack().getEnchantments().getLevel("pentamana:potency");
 		try {
-			return (ManaCommand.executeGetManaCapacity(player.getCommandSource()) / Pentamana.manaPerPoint * baseDamage + level > 0 ? ++level * (float)0.5 : 0) * (entity instanceof WitchEntity ? (float)0.15 : 1);
+			return ((float)ManaCommand.executeGetManaCapacity(this.getCommandSource()) / Pentamana.manaPerPoint * (float)((ServerPlayerEntity)(Object)this).getCustomModifiedValue("pentamana:casting_damage", baseDamage) + level > 0 ? ++level * (float)0.5 : 0) * (entity instanceof WitchEntity ? (float)0.15 : 1);
 		} catch (CommandSyntaxException e) {
 			e.printStackTrace();
 			return 0;
