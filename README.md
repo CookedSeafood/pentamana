@@ -8,21 +8,16 @@ Pentamana is a scoreboard-based and most customizable mana system that runs serv
 
 These formulas are calculated using int except for the `AttributeModify()`, which using double.
 
-![formula.png](https://cdn.modrinth.com/data/UgFKzdOy/images/79b37c549ca65479b4ec7a41505487f5dfe33b64.png)
+```txt
+ManaCapacity = Modify(manaCapacityBase) + CapacityLevel * ManaCapacityIncrementBase
+ManaRegen = Modify(ManaRegenBase) + StreamLevel * ManaRegenIncrementBase
+ManaConsumption = Modify(ManaConsumptionBase) * (10 - UtilizationLevel) / 10
+```
 
-![fomula.png](https://cdn.modrinth.com/data/UgFKzdOy/images/e631bc048b9c619ffa08a0158b7b9509dc2fe68a.png)
-
-![formula.png](https://cdn.modrinth.com/data/UgFKzdOy/images/df41d9afd3ef70ff131bced2a45b4ec67a98f9fc.png)
-
-This formula is calculated using float except for the `AttributeModify()`, which using double.
-
-![formula.png](https://cdn.modrinth.com/data/UgFKzdOy/images/3fcb505cc7f4014836a6434bfde665379678a9e1.png)
+This formula is calculated using float except for the `AttributeModify()`, which using double. Casting damage can be got via `player.getCastingDamageAgainst(Entity entity, float baseDamage)`
 
 ```txt
-ManaCapacity = AttributeModify(manaCapacityBase) + CapacityEnchantmentLevel * ManaCapacityIncrementBase
-ManaRegen = AttributeModify(ManaRegenBase) + StreamEnchantmentLevel * ManaRegenIncrementBase
-ManaConsumption = AttributeModify(ManaConsumptionBase) * (10 - UtilizationEnchantmentLevel) / 10
-CastingDamage = AttributeModify(BaseDamage) * (ManaCapacity / ManaPerPoint) + PotencyEnchantmentLevel > 0 ? ++PotencyEnchantmentLevel * 0.5 : 0
+CastingDamage = Math.max(0, AttributeModify(BaseDamage) * (ManaCapacity / ManaCapacityBase) + PotencyLevel == 0 ? 0 : ++PotencyEnchantmentLevel * 0.5 + ManaPowerDuration == 0 ? 0 : (ManaPowerAmplifier + 1) * 3 - ManaSicknessDuration == 0 ? 0 : (ManaSicknessAmplifier + 1) * 4) * entity instanceof WitchEntity ? 0.15 : 1
 ```
 
 ## Configuration
@@ -63,7 +58,7 @@ Below is a template config file `config/pentamana.json` filled with default valu
 - `manaObfuscateds`: Default obfuscated of characters, from 0% to 100% character.
 - `forceEnabled`: Make the mod enabled for every player when setting to ture, do not modify their own preference.
 
-Enchantments are registed using datapack. You can open mod jar and edit it.
+Enchantments are written in json and registered using datapack. It can be directly modified.
 
 ## Commands
 
@@ -97,7 +92,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 
 ```component
 [
-  "minecraft:custom_data":{
+  custom_data={
     modifiers: [
       {
         attribute: "pentamana:mana_capacity",
