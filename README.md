@@ -54,8 +54,8 @@ Below is a template config file `config/pentamana.json` filled with default valu
 - `manaRegenBase`: Initial mana regen amount per tick.
 - `manaRegenIncrementBase`: Used in stream enchantment.
 - `maxManabarLife`: Ticks actionbar updating will be suppressed if interrupted.
-- `manaChars`: Default mana characters, from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
-- `manaColors`: Deafult color of characters, from 0% to 100% character.
+- `manaChars`: Default mana characters in code point, from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
+- `manaColors`: Deafult color in RGB value of characters, from 0% to 100% character.
 - `manaBolds`: Default bold of characters, from 0% to 100% character.
 - `manaItalics`: Default italic of characters, from 0% to 100% character.
 - `manaUnderlineds`: Default underlined of characters, from 0% to 100% character.
@@ -88,7 +88,7 @@ Modifiers can be added or removed from items using custom data components. They 
 |- [Compound]
    |- [String] attribute: Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration`, `pentamana:mana_consumption` and `pentamana:casting_damage`.
    |- [Double] base: Any.
-   |- [String] id: Any. Used to distinguish the same.
+   |- [String] id: Any.
    |- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
    \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest` and `head`.
 ```
@@ -118,7 +118,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 - `pentamana.mana_consumption` Amount of mana to consume.
 - `pentamana.manabar_life` Ticks left till next display update if idle.
 - `pentamana.mana_char_<type_index>_<character_index>` The code point of #`character_index` `type_index` point mana character.
-- `pentamana.mana_color_<type_index>_<character_index>` The index of #`character_index` `type_index` point mana character's color + 1.
+- `pentamana.mana_color_<type_index>_<character_index>` The RGB value of #`character_index` `type_index` point mana character's color + 1.
 - `pentamana.mana_bold_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's bold.
 - `pentamana.mana_italic_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's italic.
 - `pentamana.mana_underlined_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's underlined.
