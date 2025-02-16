@@ -270,6 +270,9 @@ public class ManaCommand {
 
 		executeSetManaCapacity(source, executeCalcManaCapacity(source));
 
+        executeTickManaPower(source);
+        executeTickManaSickness(source);
+
 		TickManaCallback.EVENT.invoker().interact(source.getPlayerOrThrow());
 
 		int mana = executeGetMana(source);
@@ -443,6 +446,34 @@ public class ManaCommand {
     public static int executeCalcManaConsum(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         return (int)player.getCustomModifiedValue("pentamana:mana_consumption", executeGetManaConsum(source)) * (10 - player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization")) / 10;
+    }
+
+    public static int executeTickManaPower(ServerCommandSource source) throws CommandSyntaxException {
+        if (executeGetManaPowerDuration(source) != 0) {
+            executeIncrementManaPowerDuration(source, -1);
+            return 1;
+        }
+
+        if (executeGetManaPowerAmplifier(source) != 0) {
+            executeSetManaPowerAmplifier(source, 0);
+            return 2;
+        }
+
+        return 0;
+    }
+
+    public static int executeTickManaSickness(ServerCommandSource source) throws CommandSyntaxException {
+        if (executeGetManaSicknessDuration(source) != 0) {
+            executeIncrementManaSicknessDuration(source, -1);
+            return 1;
+        }
+
+        if (executeGetManaSicknessAmplifier(source) != 0) {
+            executeSetManaSicknessAmplifier(source, 0);
+            return 2;
+        }
+
+        return 0;
     }
 
     public static int executeGetMana(ServerCommandSource source) throws CommandSyntaxException {
@@ -884,6 +915,110 @@ public class ManaCommand {
     public static int executeResetManaObfuscated(ServerCommandSource source, int manaCharTypeIndex, int manaCharIndex) throws CommandSyntaxException {
         Scoreboard scoreboard = source.getServer().getScoreboard();
         scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_obfuscated_" + manaCharTypeIndex + "_" + manaCharIndex, ScoreboardCriterion.DUMMY, Text.of("Mana Obfuscated " + manaCharTypeIndex + " " + manaCharIndex), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        return 0;
+    }
+
+    public static int executeGetManaPowerDuration(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Power Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+    }
+
+    public static int executeIncrementManaPowerDuration(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Power Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+    }
+
+    public static int executeIncrementManaPowerDuration(ServerCommandSource source) throws CommandSyntaxException {
+        return executeIncrementManaPowerDuration(source, 1);
+    }
+
+    public static int executeSetManaPowerDuration(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Power Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        return 0;
+    }
+
+    public static int executeResetManaPowerDuration(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Power Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        return 0;
+    }
+
+    public static int executeGetManaPowerAmplifier(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Power Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+    }
+
+    public static int executeIncrementManaPowerAmplifier(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Power Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+    }
+
+    public static int executeIncrementManaPowerAmplifier(ServerCommandSource source) throws CommandSyntaxException {
+        return executeIncrementManaPowerAmplifier(source, 1);
+    }
+
+    public static int executeSetManaPowerAmplifier(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Power Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        return 0;
+    }
+
+    public static int executeResetManaPowerAmplifier(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_power_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Power Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        return 0;
+    }
+
+    public static int executeGetManaSicknessDuration(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+    }
+
+    public static int executeIncrementManaSicknessDuration(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+    }
+
+    public static int executeIncrementManaSicknessDuration(ServerCommandSource source) throws CommandSyntaxException {
+        return executeIncrementManaSicknessDuration(source, 1);
+    }
+
+    public static int executeSetManaSicknessDuration(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        return 0;
+    }
+
+    public static int executeResetManaSicknessDuration(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_duration", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Duration"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        return 0;
+    }
+
+    public static int executeGetManaSicknessAmplifier(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+    }
+
+    public static int executeIncrementManaSicknessAmplifier(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+    }
+
+    public static int executeIncrementManaSicknessAmplifier(ServerCommandSource source) throws CommandSyntaxException {
+        return executeIncrementManaSicknessAmplifier(source, 1);
+    }
+
+    public static int executeSetManaSicknessAmplifier(ServerCommandSource source, int amount) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        return 0;
+    }
+
+    public static int executeResetManaSicknessAmplifier(ServerCommandSource source) throws CommandSyntaxException {
+        Scoreboard scoreboard = source.getServer().getScoreboard();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.mana_sickness_amplifier", ScoreboardCriterion.DUMMY, Text.of("Mana Sickness Amplifier"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
         return 0;
     }
 }

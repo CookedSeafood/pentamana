@@ -8,13 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import net.cookedseafood.pentamana.command.ManaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.text.TextColor;
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +27,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 3;
-	public static final byte VERSION_PATCH = 1;
+	public static final byte VERSION_PATCH = 2;
 
 	public static final int MANA_PER_POINT = 0x100_0000/* 2^24 */;
 	public static final int MANA_CAPACITY_BASE = 0x1ff_ffff/* 2^24*2-1 */;

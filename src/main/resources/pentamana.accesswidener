@@ -1,3 +1,7 @@
 accessWidener v2 named
 
+accessible method net/minecraft/entity/LivingEntity consumeItem ()V
+
+accessible method net/minecraft/server/network/ServerPlayerEntity consumeItem ()V
+
 accessible method net/minecraft/server/network/ServerPlayerEntity getDamageAgainst (Lnet/minecraft/entity/Entity;FLnet/minecraft/entity/damage/DamageSource;)F
