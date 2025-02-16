@@ -31,14 +31,14 @@ Below is a template config file `config/pentamana.json` filled with default valu
 
 ```json
 {
-  "manaPerPoint": 0x1000000,
-  "manaCapacityBase": 0x1ffffff,
-  "manaCapacityIncrementBase": 0x2000000,
-  "manaRegenBase": 0x100000,
-  "manaRegenIncrementBase": 0x10000,
+  "manaPerPoint": 16777216,
+  "manaCapacityBase": 33554431,
+  "manaCapacityIncrementBase": 33554432,
+  "manaRegenBase": 1048576,
+  "manaRegenIncrementBase": 65536,
   "maxManabarLife": 40,
-  "manaChars": [0x2605, 0x2bea, 0x2606],
-  "manaColors": [0x55ffff, 0x55ffff, 0x0],
+  "manaChars": [9733, 11242, 9734],
+  "manaColors": [5636095, 5636095, 0],
   "manaBolds": [false, false, false],
   "manaItalics": [false, false, false],
   "manaUnderlineds": [false, false, false],
@@ -164,7 +164,7 @@ public void useExampleWeapon(ServerPlayerEntity player) {
   ServerCommandSource source = player.getServerCommandSource();
   ManaCommand.executeSetManaConsum(source, 16777216)
 
-  if (ManaCommand.executeConsum(source) == 0) {
+  if (ManaCommand.executeConsume(source) == 0) {
     return;
   }
 
