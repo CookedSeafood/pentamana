@@ -107,7 +107,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 
 ## Status Effects
 
-Status effects can be added or removed from items using custom data components. They are applied when the item is consumed.
+Status effects compound can be added or removed from items using custom data components. They are applied when the item is consumed.
 
 ```txt
 [List] status_effects
@@ -132,33 +132,6 @@ Below is an example status effect which increase the mana by 268,435,456(![manaC
   }
 ]
 ```
-
-## Objectives
-
-- `pentamana.mana` Mana supply at last tick.
-- `pentamana.mana_capacity` Mana capacity at last tick.
-- `pentamana.mana_regeneration` Amount of mana regenerated at last tick.
-- `pentamana.mana_consumption` Amount of mana to consume.
-- `pentamana.manabar_life` Ticks left till next display update if idle.
-- `pentamana.mana_char_<type_index>_<character_index>` The code point of #`character_index` `type_index` point mana character.
-- `pentamana.mana_color_<type_index>_<character_index>` The RGB value of #`character_index` `type_index` point mana character's color + 1.
-- `pentamana.mana_bold_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's bold.
-- `pentamana.mana_italic_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's italic.
-- `pentamana.mana_underlined_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's underlined.
-- `pentamana.mana_strikethrough_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's strikethrough.
-- `pentamana.mana_obfuscated_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's obfuscated.
-- `pentamana.enabled` 1 if enabled, otherwise not.
-- `pentamana.display` 1 if visible, otherwise not.
-- `pentamana.render_type` 1 if numberic, otherwise graphic.
-- `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
-- `pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
-- `status_effect.pentamana.<id>_<amplifier>` The duration of <id> status effect of <amplifier> + 1 level.
-
-## Events
-
-- `TickManaCallback` Called after the mana capacity calculation, before everything else.
-- `RegenManaCallback` Called when a player is regenerating mana. After the mana regeneration calculation, before regenerating mana.
-- `ConsumeManaCallback` Called when a player is consuming mana. After the mana consumption calculation, before consuming mana.
 
 ## Tutorial: Create your very own magic weapon
 
@@ -220,7 +193,7 @@ manaRegen -= player.hasCustomStatusEffect("pentamana:mana_inhibition") ? Pentama
 
 ```java
 int manaConsume = (int)player.getCustomModifiedValue("pentamana:mana_consumption", executeGetManaConsum(source));
-manaConsume *= Integer.MAX_VALUE - player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization") * Pentamana.enchantmentUtilizationBase;
+manaConsume *= (Integer.MAX_VALUE - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization")) / (float)Integer.MAX_VALUE;
 ```
 
 ### Casting Damage
@@ -235,6 +208,33 @@ castingDamage -= ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("penta
 castingDamage = Math.max(0, castingDamage);
 castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
 ```
+
+## Events
+
+- `TickManaCallback` Called after the mana capacity calculation, before everything else.
+- `RegenManaCallback` Called when a player is regenerating mana. After the mana regeneration calculation, before regenerating mana.
+- `ConsumeManaCallback` Called when a player is consuming mana. After the mana consumption calculation, before consuming mana.
+
+## Objectives
+
+- `pentamana.mana` Mana supply at last tick.
+- `pentamana.mana_capacity` Mana capacity at last tick.
+- `pentamana.mana_regeneration` Amount of mana regenerated at last tick.
+- `pentamana.mana_consumption` Amount of mana to consume.
+- `pentamana.manabar_life` Ticks left till next display update if idle.
+- `pentamana.mana_char_<type_index>_<character_index>` The code point of #`character_index` `type_index` point mana character.
+- `pentamana.mana_color_<type_index>_<character_index>` The RGB value of #`character_index` `type_index` point mana character's color + 1.
+- `pentamana.mana_bold_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's bold.
+- `pentamana.mana_italic_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's italic.
+- `pentamana.mana_underlined_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's underlined.
+- `pentamana.mana_strikethrough_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's strikethrough.
+- `pentamana.mana_obfuscated_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's obfuscated.
+- `pentamana.enabled` 1 if enabled, otherwise not.
+- `pentamana.display` 1 if visible, otherwise not.
+- `pentamana.render_type` 1 if numberic, otherwise graphic.
+- `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
+- `pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
+- `status_effect.pentamana.<id>_<amplifier>` The duration of <id> status effect of <amplifier> + 1 level.
 
 ## Enchantments
 
