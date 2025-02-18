@@ -42,15 +42,8 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 		NbtList statusEffects = ((ServerPlayerEntity)(Object)this).getActiveItem().getCustomStatusEffects();
 		statusEffects.stream()
 			.map(nbtElement -> (NbtCompound)nbtElement)
-			.filter(statusEffect -> "pentamana:instant_mana".equals(statusEffect.getString("id")))
 			.forEach(statusEffect -> {
-				try {
-					ManaCommand.executeIncrementMana(this.getCommandSource(), (int)Math.pow(2, statusEffect.getInt("amplifier") + 3) * Pentamana.manaPerPoint);
-					ManaCommand.executeIncrementManaSicknessAmplifier(getCommandSource());
-					ManaCommand.executeSetManaSicknessDuration(getCommandSource(), 100);
-				} catch (CommandSyntaxException e) {
-					e.printStackTrace();
-				}
+				((ServerPlayerEntity)(Object)this).addCustomStatusEffect(statusEffect.getString("id"), statusEffect.getInt("duration"), statusEffect.getInt("amplifier"));
 			});
 	}
 
@@ -58,13 +51,22 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 	public float getCastingDamageAgainst(Entity entity, float baseDamage) {
 		ServerCommandSource source = this.getCommandSource();
 		int potencyLevel = ((ServerPlayerEntity)(Object)this).getWeaponStack().getEnchantments().getLevel("pentamana:potency");
+		int manaCapacity = Pentamana.manaCapacityBase;
 		try {
-			return Math.max(0, ((float)ManaCommand.executeGetManaCapacity(source) / Pentamana.manaCapacityBase * (float)((ServerPlayerEntity)(Object)this).getCustomModifiedValue("pentamana:casting_damage", baseDamage) + potencyLevel == 0 ? 0 : ++potencyLevel * (float)0.5 + ManaCommand.executeGetManaPowerDuration(source) == 0 ? 0 : (ManaCommand.executeGetManaPowerAmplifier(source) + 1) * 3 - ManaCommand.executeGetManaSicknessDuration(source) == 0 ? 0 : (ManaCommand.executeGetManaSicknessAmplifier(source) + 1) * 4)) * (entity instanceof WitchEntity ? (float)0.15 : 1);
+			manaCapacity = ManaCommand.executeGetManaCapacity(source);
 		} catch (CommandSyntaxException e) {
 			e.printStackTrace();
 		}
 
-		return 0;
+		float castingDamage = manaCapacity;
+		castingDamage /= Pentamana.manaCapacityBase;
+		castingDamage *= (float)((ServerPlayerEntity)(Object)this).getCustomModifiedValue("pentamana:casting_damage", baseDamage);
+		castingDamage += potencyLevel != 0 ? ++potencyLevel * (float)Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
+		castingDamage += ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_power") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_power").getInt("amplifier") + 1) * Pentamana.statusEffectManaPowerBase : 0;
+		castingDamage -= ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_sickness") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_sickness").getInt("amplifier") + 1) * Pentamana.statusEffectManaSicknessBase : 0;
+		castingDamage = Math.max(0, castingDamage);
+		castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
+		return castingDamage;
 	}
 
 	@Shadow
