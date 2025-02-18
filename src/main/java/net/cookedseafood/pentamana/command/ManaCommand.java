@@ -447,7 +447,7 @@ public class ManaCommand {
     public static int executeCalcManaConsum(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         int manaConsume = (int)player.getCustomModifiedValue("pentamana:mana_consumption", executeGetManaConsum(source));
-        manaConsume *= Integer.MAX_VALUE - player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization") * Pentamana.enchantmentUtilizationBase;
+        manaConsume *= (Integer.MAX_VALUE - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization")) / (float)Integer.MAX_VALUE;
         return manaConsume;
     }
 
