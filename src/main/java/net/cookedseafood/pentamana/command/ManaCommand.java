@@ -1,7 +1,5 @@
 package net.cookedseafood.pentamana.command;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -26,6 +24,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.StringUtils;
 
 public class ManaCommand {
     private static final SimpleCommandExceptionType NO_CHARACTER_EXCEPTION =
@@ -106,10 +105,6 @@ public class ManaCommand {
                 .requires(source -> source.hasPermissionLevel(2))
                 .executes(context -> executeReload((ServerCommandSource)context.getSource()))
             )
-            .then(
-                CommandManager.literal("version")
-                .executes(context -> executeVersion((ServerCommandSource)context.getSource()))
-            )
         );
     }
 
@@ -159,6 +154,14 @@ public class ManaCommand {
         }
 
         throw OPTION_FORMAT_UNCHANGED_EXCEPTION.create(formatString);
+    }
+
+    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText) throws CommandSyntaxException {
+        return executeSetCharacter(source, manaCharText, -1);
+    }
+
+    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText, int manaCharTypeIndex) throws CommandSyntaxException {
+        return executeSetCharacter(source, manaCharText, manaCharTypeIndex, -1);
     }
 
     public static int executeSetCharacter(ServerCommandSource source, Text manaCharText, int manaCharTypeIndex, int manaCharIndex) throws CommandSyntaxException {
@@ -230,14 +233,6 @@ public class ManaCommand {
         throw OPTION_CHARACTER_UNCHANGED_EXCEPTION.create(manaCharTypeIndex, manaCharIndex);
     }
 
-    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText, int manaCharTypeIndex) throws CommandSyntaxException {
-        return executeSetCharacter(source, manaCharText, manaCharTypeIndex, -1);
-    }
-
-    public static int executeSetCharacter(ServerCommandSource source, Text manaCharText) throws CommandSyntaxException {
-        return executeSetCharacter(source, manaCharText, -1);
-    }
-
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
         source.sendFeedback(() -> Text.literal("Reset mana options for player " + name + "."), false);
@@ -259,11 +254,6 @@ public class ManaCommand {
         source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
         return Pentamana.reload();
 	}
-
-    public static int executeVersion(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("Pentamana " + Pentamana.VERSION_MAJOR + "." + Pentamana.VERSION_MINOR + "." + Pentamana.VERSION_PATCH + (Pentamana.forceEnabled ? " (Force Enabled Mode)" : "")), false);
-        return 0;
-    }
 
 	public static int executeTick(ServerCommandSource source) throws CommandSyntaxException {
         tickStatusEffect(source);

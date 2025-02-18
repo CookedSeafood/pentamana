@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.cookedseafood.pentamana.command.ManaCommand;
+import net.cookedseafood.pentamana.command.PentamanaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -27,7 +28,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 3;
-	public static final byte VERSION_PATCH = 3;
+	public static final byte VERSION_PATCH = 4;
 
 	public static final int MANA_PER_POINT = 0x100_0000/* 2^24 */;
 	public static final int MANA_CAPACITY_BASE = 0x1ff_ffff/* 2^24*2-1 */;
@@ -86,7 +87,8 @@ public class Pentamana implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ManaCommand.executeReload(server.getCommandSource());
