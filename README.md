@@ -4,22 +4,6 @@ Pentamana is a scoreboard-based and most customizable mana system that runs serv
 
 ![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
-## Formulas
-
-These formulas are calculated using int except for the `AttributeModify()`, which using double.
-
-```txt
-ManaCapacity = Modify(manaCapacityBase) + CapacityLevel * ManaCapacityIncrementBase
-ManaRegen = Modify(ManaRegenBase) + StreamLevel * ManaRegenIncrementBase
-ManaConsumption = Modify(ManaConsumptionBase) * (10 - UtilizationLevel) / 10
-```
-
-This formula is calculated using float except for the `AttributeModify()`, which using double. Casting damage can be got via `player.getCastingDamageAgainst(Entity entity, float baseDamage)`
-
-```txt
-CastingDamage = Math.max(0, AttributeModify(BaseDamage) * (ManaCapacity / ManaCapacityBase) + PotencyLevel == 0 ? 0 : ++PotencyEnchantmentLevel * 0.5 + ManaPowerDuration == 0 ? 0 : (ManaPowerAmplifier + 1) * 3 - ManaSicknessDuration == 0 ? 0 : (ManaSicknessAmplifier + 1) * 4) * entity instanceof WitchEntity ? 0.15 : 1
-```
-
 ## Configuration
 
 Below is a template config file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify.
@@ -28,9 +12,17 @@ Below is a template config file `config/pentamana.json` filled with default valu
 {
   "manaPerPoint": 16777216,
   "manaCapacityBase": 33554431,
-  "manaCapacityIncrementBase": 33554432,
   "manaRegenBase": 1048576,
-  "manaRegenIncrementBase": 65536,
+  "enchantmentCapacityBase": 33554432,
+  "enchantmentStreamBase": 65536,
+  "enchantmentUtilizationBase": 214748364,
+  "enchantmentPotencyBase": 1073741823,
+  "statusEffectInstantManaBase": 4,
+  "statusEffectInstantDepleteBase": 6,
+  "statusEffectManaRegenBase": 50,
+  "statusEffectManaInhibitionBase": 40,
+  "statusEffectManaPowerBase": 3,
+  "statusEffectManaSicknessBase": 4,
   "maxManabarLife": 40,
   "manaChars": [9733, 11242, 9734],
   "manaColors": [5636095, 5636095, 0],
@@ -45,9 +37,17 @@ Below is a template config file `config/pentamana.json` filled with default valu
 
 - `manaPerPoint`: Amount of mana to be considered as 1 mana point.
 - `manaCapacityBase`: Initial mana capacity, should be odd.
-- `manaCapacityIncrementBase`: Used in capacity enchantment, should be even.
 - `manaRegenBase`: Initial mana regen amount per tick.
-- `manaRegenIncrementBase`: Used in stream enchantment.
+- `enchantmentCapacityBase`: Mana capacity increase amount per level.
+- `enchantmentStreamBase`: Mana regeneration increase amount per level.
+- `enchantmentUtilizationBase`: Mana consumption decrease percent per level. 100% is 2147483647.
+- `enchantmentPotencyBase`: Level multiplier, the result will be added to casting damage. 100% is 2147483647.
+- `statusEffectInstantManaBase`: Mana gained multiplier.
+- `statusEffectInstantDepleteBase`: Mana losed multiplier.
+- `statusEffectManaRegenBase`: Mana point divisor, the result will be regenerated.
+- `statusEffectManaInhibitionBase`: Mana point divisor, the result will be regenerated.
+- `statusEffectManaPowerBase` Amplifier multiplier, the result will be added to casting damage.
+- `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
 - `maxManabarLife`: Ticks actionbar updating will be suppressed if interrupted.
 - `manaChars`: Default mana characters in code point, from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
 - `manaColors`: Deafult color in RGB value of characters, from 0% to 100% character.
@@ -105,6 +105,34 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 ]
 ```
 
+## Status Effects
+
+Status effects can be added or removed from items using custom data components. They are applied when the item is consumed.
+
+```txt
+[List] status_effects
+|- [Compound]
+   |- [String] id: Can be `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.
+   |- [int] duration: value.
+   \- [int] amplifier: value.
+```
+
+Below is an example status effect which increase the mana by 268,435,456(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
+
+```component
+[
+  custom_data={
+    status_effects: [
+      {
+        id: "pentamana:instant_mana",
+        duration: 1,
+        amplifier: 2
+      }
+    ]
+  }
+]
+```
+
 ## Objectives
 
 - `pentamana.mana` Mana supply at last tick.
@@ -124,6 +152,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 - `pentamana.render_type` 1 if numberic, otherwise graphic.
 - `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
 - `pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
+- `status_effect.pentamana.<id>_<amplifier>` The duration of <id> status effect of <amplifier> + 1 level.
 
 ## Events
 
@@ -167,6 +196,46 @@ public void useExampleWeapon(ServerPlayerEntity player) {
 }
 ```
 
+## Formulas
+
+### Mana Capacity
+
+```java
+int manaCapacity = (int)player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);
+manaCapacity += Pentamana.enchantmentCapacityBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
+```
+
+### Mana Regeneration
+
+```java
+int manaRegen = (int)player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenBase);
+manaRegen += player.getWeaponStack().getEnchantments().getLevel("pentamana:steam") * Pentamana.enchantmentStreamBase;
+manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.pointsPerChar * Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
+manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.pointsPerChar * Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
+manaRegen += player.hasCustomStatusEffect("pentamana:mana_regeneration") ? Pentamana.pointsPerChar / Math.max(1, Pentamana.statusEffectManaRegenBase >> player.getActiveCustomStatusEffect("pentamana:mana_regeneration").getInt("amplifier")) : 0;
+manaRegen -= player.hasCustomStatusEffect("pentamana:mana_inhibition") ? Pentamana.pointsPerChar / Math.max(1, Pentamana.statusEffectManaInhibitionBase >> player.getActiveCustomStatusEffect("pentamana:mana_inhibition").getInt("amplifier")) : 0;
+```
+
+### Mana Consumption
+
+```java
+int manaConsume = (int)player.getCustomModifiedValue("pentamana:mana_consumption", executeGetManaConsum(source));
+manaConsume *= Integer.MAX_VALUE - player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization") * Pentamana.enchantmentUtilizationBase;
+```
+
+### Casting Damage
+
+```java
+float castingDamage = manaCapacity;
+castingDamage /= Pentamana.manaCapacityBase;
+castingDamage *= (float)((ServerPlayerEntity)(Object)this).getCustomModifiedValue("pentamana:casting_damage", baseDamage);
+castingDamage += potencyLevel != 0 ? ++potencyLevel * (float)Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
+castingDamage += ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_power") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_power").getInt("amplifier") + 1) * Pentamana.statusEffectManaPowerBase : 0;
+castingDamage -= ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_sickness") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_sickness").getInt("amplifier") + 1) * Pentamana.statusEffectManaSicknessBase : 0;
+castingDamage = Math.max(0, castingDamage);
+castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
+```
+
 ## Enchantments
 
 ### Capacity
@@ -207,4 +276,4 @@ Utilization reduces the mana cost of casting by 10% per level.
 
 ## License
 
-You are free to back port this mod, or port it to any mod loader other than fabric, as long as you credit the origin version.
+You are free to back port this mod, or port it to any mod loader other than fabric, as long as you credit the origin version and respect the license applied to this version, which is GPL-3.0-or-later.
