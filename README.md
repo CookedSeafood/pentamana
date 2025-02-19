@@ -10,11 +10,11 @@ Below is a template config file `config/pentamana.json` filled with default valu
 
 ```json
 {
-  "manaPerPoint": 16777216,
-  "manaCapacityBase": 33554431,
-  "manaRegenBase": 1048576,
-  "enchantmentCapacityBase": 33554432,
-  "enchantmentStreamBase": 65536,
+  "manaPerPoint": 65536,
+  "manaCapacityBase": 131071,
+  "manaRegenBase": 4096,
+  "enchantmentCapacityBase": 131072,
+  "enchantmentStreamBase": 256,
   "enchantmentUtilizationBase": 214748364,
   "enchantmentPotencyBase": 1073741823,
   "statusEffectInstantManaBase": 4,
@@ -74,7 +74,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 
 This mod is disbled for every player by default.
 
-The visibility is false for every player by default.
+The manabar visibility is false for every player by default.
 
 ## Modifiers
 
