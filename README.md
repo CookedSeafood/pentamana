@@ -39,7 +39,7 @@ Below is a template config file `config/pentamana.json` filled with default valu
 - `manaPerPoint`: Amount of mana to be considered as 1 mana point.
 - `manaCapacityBase`: Initial mana capacity, should be odd.
 - `manaRegenBase`: Initial mana regen amount per tick.
-- `enchantmentCapacityBase`: Mana capacity increase amount per level.
+- `enchantmentCapacityBase`: Mana capacity increase amount per level, should be even.
 - `enchantmentStreamBase`: Mana regeneration increase amount per level.
 - `enchantmentUtilizationBase`: Mana consumption decrease percent per level. 100% is 2147483647.
 - `enchantmentPotencyBase`: Level multiplier, the result will be added to casting damage. 100% is 2147483647.
@@ -67,7 +67,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana enbale` Enable this mod for yourself.
 - `/mana disable` Disable this mod for yourself completely.
 - `/mana set display <false|true>` Set the manabar visibility for yourself.
-- `/mana set render_type <flex_size|fixed_size|numberic>` Set the manabar render type for yourself.
+- `/mana set render_type [<flex_size|fixed_size|numberic>]` Set the manabar render type for yourself.
 - `/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
 - `/mana reset` Reset mana character for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
