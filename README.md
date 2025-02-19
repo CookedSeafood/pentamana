@@ -182,11 +182,11 @@ manaCapacity += Pentamana.enchantmentCapacityBase * player.getWeaponStack().getE
 
 ```java
 int manaRegen = (int)player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenBase);
-manaRegen += player.getWeaponStack().getEnchantments().getLevel("pentamana:steam") * Pentamana.enchantmentStreamBase;
-manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.pointsPerChar * Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
-manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.pointsPerChar * Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
-manaRegen += player.hasCustomStatusEffect("pentamana:mana_regeneration") ? Pentamana.pointsPerChar / Math.max(1, Pentamana.statusEffectManaRegenBase >> player.getActiveCustomStatusEffect("pentamana:mana_regeneration").getInt("amplifier")) : 0;
-manaRegen -= player.hasCustomStatusEffect("pentamana:mana_inhibition") ? Pentamana.pointsPerChar / Math.max(1, Pentamana.statusEffectManaInhibitionBase >> player.getActiveCustomStatusEffect("pentamana:mana_inhibition").getInt("amplifier")) : 0;
+manaRegen += Pentamana.enchantmentStreamBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
+manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.manaPerPoint * Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
+manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.manaPerPoint * Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
+manaRegen += player.hasCustomStatusEffect("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / Math.max(1, Pentamana.statusEffectManaRegenBase >> player.getActiveCustomStatusEffect("pentamana:mana_regeneration").getInt("amplifier")) : 0;
+manaRegen -= player.hasCustomStatusEffect("pentamana:mana_inhibition") ? Pentamana.manaPerPoint / Math.max(1, Pentamana.statusEffectManaInhibitionBase >> player.getActiveCustomStatusEffect("pentamana:mana_inhibition").getInt("amplifier")) : 0;
 ```
 
 ### Mana Consumption
@@ -234,7 +234,7 @@ castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
 - `pentamana.render_type` 1 if numberic, otherwise graphic.
 - `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
 - `pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
-- `status_effect.pentamana.<id>_<amplifier>` The duration of <id> status effect of <amplifier> + 1 level.
+- `status_effect.pentamana.<id>_<amplifier>` The duration of `id` status effect of `amplifier` + 1 level.
 
 ## Enchantments
 
@@ -245,7 +245,7 @@ castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 2
 
-Capacity adds extra mana capacity `ManaCapacityIncrementBase` per level.
+Capacity adds extra mana capacity `level * enchantmentCapacityBase`.
 
 ### Stream
 
@@ -254,7 +254,7 @@ Capacity adds extra mana capacity `ManaCapacityIncrementBase` per level.
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 5
 
-Stream adds extra mana regeneration `ManaRegenIncrementBase` per level.
+Stream adds extra mana regeneration by `level * enchantmentStreamBase`.
 
 ### Potency
 
@@ -263,7 +263,7 @@ Stream adds extra mana regeneration `ManaRegenIncrementBase` per level.
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 10
 
-Potency adds 1 extra casting magic damage for the first level and 0.5 for all subsequent levels.
+Potency adds the casting damage by `(level + 1) * enchantmentPotencyBase`.
 
 ### Utilization
 
@@ -272,7 +272,7 @@ Potency adds 1 extra casting magic damage for the first level and 0.5 for all su
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 5
 
-Utilization reduces the mana cost of casting by 10% per level.
+Utilization reduces the mana cost of casting by `level * enchantmentUtilizationBase` percent.
 
 ## License
 
