@@ -28,13 +28,13 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 3;
-	public static final byte VERSION_PATCH = 5;
+	public static final byte VERSION_PATCH = 8;
 
-	public static final int MANA_PER_POINT = 0x100_0000/* 2^24 */;
-	public static final int MANA_CAPACITY_BASE = 0x1ff_ffff/* 2^24*2-1 */;
-	public static final int MANA_REGEN_BASE = 0x10_0000/* 2^20 */;
-    public static final int ENCHANTMENT_CAPACITY_BASE = 0x200_0000/* 2^24*2 */;
-	public static final int ENCHANTMENT_STREAM_BASE = 0x1_0000/* 2^16 */;
+	public static final int MANA_PER_POINT = 0x1_0000/* 2^16 */;
+	public static final int MANA_CAPACITY_BASE = 0x1_ffff/* 2^16*2-1 */;
+	public static final int MANA_REGEN_BASE = 0x1000/* 2^12 */;
+    public static final int ENCHANTMENT_CAPACITY_BASE = 0x2_0000/* 2^16*2 */;
+	public static final int ENCHANTMENT_STREAM_BASE = 0x100/* 2^8 */;
     public static final int ENCHANTMENT_UTILIZATION_BASE = 0xccc_cccc/* (2^31-1)/10 */;
     public static final int ENCHANTMENT_POTENCY_BASE = 0x3fff_ffff/* 2^30 */;
     public static final int STATUS_EFFECT_INSTANT_MANA_BASE = 0x4;
@@ -44,6 +44,7 @@ public class Pentamana implements ModInitializer {
     public static final int STATUS_EFFECT_MANA_POWER_BASE = 0x3;
     public static final int STATUS_EFFECT_MANA_SICKNESS_BASE = 0x4;
 	public static final int MAX_MANABAR_LIFE = 40/* 20*2 */;
+    public static final int DEFAULT_MANABAR_SIZE = 20;
     public static final List<Integer> MANA_CHARS = Stream.of(0x2605, 0x2bea, 0x2606).collect(Collectors.toUnmodifiableList());
     public static final List<TextColor> MANA_COLORS = Stream.of(TextColor.fromRgb(0x55ffff), TextColor.fromRgb(0x55ffff), TextColor.fromRgb(0x0)).collect(Collectors.toUnmodifiableList());
     public static final List<Boolean> MANA_BOLDS = Stream.of(false, false, false).collect(Collectors.toUnmodifiableList());
@@ -52,6 +53,10 @@ public class Pentamana implements ModInitializer {
     public static final List<Boolean> MANA_STRIKETHROUGHS = Stream.of(false, false, false).collect(Collectors.toUnmodifiableList());
     public static final List<Boolean> MANA_OBFUSCATEDS = Stream.of(false, false, false).collect(Collectors.toUnmodifiableList());
 	public static final boolean FORCE_ENABLED = false;
+
+    public static final int RENDER_TYPE_FLEX_SIZE_INDEX = 0;
+    public static final int RENDER_TYPE_FIXED_SIZE_INDEX = 1;
+    public static final int RENDER_TYPE_NUMBERIC_INDEX = 2;
 
 	public static int manaPerPoint;
 	public static int manaCapacityBase;
@@ -67,6 +72,7 @@ public class Pentamana implements ModInitializer {
     public static int statusEffectManaPowerBase;
     public static int statusEffectManaSicknessBase;
 	public static int maxManabarLife;
+    public static int defaultManabarSize;
 	public static List<Integer> manaChars;
     public static List<TextColor> manaColors;
     public static List<Boolean> manaBolds;
@@ -80,6 +86,7 @@ public class Pentamana implements ModInitializer {
     public static int pointsPerChar;
     public static int maxManaPoint;
     public static int maxManaChar;
+    public static int defaultManabarPointSize;
 
 	@Override
 	public void onInitialize() {
@@ -163,6 +170,10 @@ public class Pentamana implements ModInitializer {
             config.has("maxManabarLife") ?
             config.get("maxManabarLife").getAsInt() :
             MAX_MANABAR_LIFE;
+        defaultManabarSize =
+            config.has("defaultManabarSize") ?
+            config.get("defaultManabarSize").getAsInt() :
+            DEFAULT_MANABAR_SIZE;
         manaChars =
             config.has("manaChars") ?
             config.get("manaChars").getAsJsonArray().asList().stream().map(jsonElement -> jsonElement.getAsString().codePointAt(0)).collect(Collectors.toUnmodifiableList()) :
@@ -215,6 +226,7 @@ public class Pentamana implements ModInitializer {
         statusEffectManaPowerBase       = STATUS_EFFECT_MANA_POWER_BASE;
         statusEffectManaSicknessBase    = STATUS_EFFECT_MANA_SICKNESS_BASE;
         maxManabarLife                  = MAX_MANABAR_LIFE;
+        defaultManabarSize              = DEFAULT_MANABAR_SIZE;
         manaChars                       = MANA_CHARS;
         manaColors                      = MANA_COLORS;
         manaBolds                       = MANA_BOLDS;
@@ -230,5 +242,6 @@ public class Pentamana implements ModInitializer {
         pointsPerChar = manaCharTypes - 1;
         maxManaPoint = Integer.MIN_VALUE / -manaPerPoint;
         maxManaChar = maxManaPoint / pointsPerChar;
+        defaultManabarPointSize = defaultManabarSize * pointsPerChar;
     }
 }
