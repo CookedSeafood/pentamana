@@ -24,6 +24,7 @@ Below is a template config file `config/pentamana.json` filled with default valu
   "statusEffectManaPowerBase": 3,
   "statusEffectManaSicknessBase": 4,
   "maxManabarLife": 40,
+  "defaultManabarSize": 20,
   "manaChars": [9733, 11242, 9734],
   "manaColors": [5636095, 5636095, 0],
   "manaBolds": [false, false, false],
@@ -49,13 +50,14 @@ Below is a template config file `config/pentamana.json` filled with default valu
 - `statusEffectManaPowerBase` Amplifier multiplier, the result will be added to casting damage.
 - `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
 - `maxManabarLife`: Ticks actionbar updating will be suppressed if interrupted.
-- `manaChars`: Default mana characters in code point, from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
-- `manaColors`: Deafult color in RGB value of characters, from 0% to 100% character.
-- `manaBolds`: Default bold of characters, from 0% to 100% character.
-- `manaItalics`: Default italic of characters, from 0% to 100% character.
-- `manaUnderlineds`: Default underlined of characters, from 0% to 100% character.
-- `manaStrikethroughs`: Default strikethrough of characters, from 0% to 100% character.
-- `manaObfuscateds`: Default obfuscated of characters, from 0% to 100% character.
+- `defaultManabarSize`: Default manabar size in characters.
+- `manaChars`: Default mana characters, in code point. from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
+- `manaColors`: Deafult color of characters, in RGB value. from 0% to 100% character.
+- `manaBolds`: Default bold of characters. from 0% to 100% character.
+- `manaItalics`: Default italic of characters. from 0% to 100% character.
+- `manaUnderlineds`: Default underlined of characters. from 0% to 100% character.
+- `manaStrikethroughs`: Default strikethrough of characters. from 0% to 100% character.
+- `manaObfuscateds`: Default obfuscated of characters. from 0% to 100% character.
 - `forceEnabled`: Make the mod enabled for every player when setting to ture, do not modify their own preference.
 
 Enchantments are written in json and registered using datapack. It can be directly modified.
@@ -65,7 +67,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana enbale` Enable this mod for yourself.
 - `/mana disable` Disable this mod for yourself completely.
 - `/mana set display <false|true>` Set the manabar visibility for yourself.
-- `/mana set render_type <graphic|numberic>` Set the manabar render type for yourself.
+- `/mana set render_type <flex_size|fixed_size|numberic>` Set the manabar render type for yourself.
 - `/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
 - `/mana reset` Reset mana character for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
