@@ -163,7 +163,7 @@ public class ManaCommand {
     }
 
     public static int executeSetRenderTypeFixedSize(ServerCommandSource source, String renderTypeString) throws CommandSyntaxException {
-        return executeSetRenderTypeFixedSize(source, renderTypeString, Pentamana.defaultManabarSize);
+        return executeSetRenderTypeFixedSize(source, renderTypeString, Pentamana.manabarSize);
     }
 
     public static int executeSetRenderTypeFixedSize(ServerCommandSource source, String renderTypeString, int manabarSize) throws CommandSyntaxException {
@@ -476,6 +476,8 @@ public class ManaCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         int manaCapacity = (int)player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);
         manaCapacity += Pentamana.enchantmentCapacityBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
+        manaCapacity += player.hasCustomStatusEffect("pentamana:mana_boost") ? Pentamana.statusEffectManaBoostBase * (player.getActiveCustomStatusEffect("pentamana:mana_boost").getInt("amplifier") + 1) : 0;
+        manaCapacity -= player.hasCustomStatusEffect("pentamana:mana_reduction") ? Pentamana.statusEffectManaReductionBase * (player.getActiveCustomStatusEffect("pentamana:mana_reduction").getInt("amplifier") + 1) : 0;
         return manaCapacity;
     }
 
@@ -483,8 +485,8 @@ public class ManaCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         int manaRegen = (int)player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenBase);
         manaRegen += Pentamana.enchantmentStreamBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
-        manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.manaPerPoint * Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
-        manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.manaPerPoint * Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
+        manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
+        manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
         manaRegen += player.hasCustomStatusEffect("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / Math.max(1, Pentamana.statusEffectManaRegenBase >> player.getActiveCustomStatusEffect("pentamana:mana_regeneration").getInt("amplifier")) : 0;
         manaRegen -= player.hasCustomStatusEffect("pentamana:mana_inhibition") ? Pentamana.manaPerPoint / Math.max(1, Pentamana.statusEffectManaInhibitionBase >> player.getActiveCustomStatusEffect("pentamana:mana_inhibition").getInt("amplifier")) : 0;
         return manaRegen;
