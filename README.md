@@ -1,14 +1,12 @@
 # Pentamana
 
-Pentamana is a scoreboard-based and most customizable mana system that runs server-side providing mana modification and damage calculation hooks.
+Pentamana is a scoreboard-based and most customizable mana library for storing and modifying mana that runs server-side.
 
 ![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
-Sorry, this page is often slightly out-of-date. It should be up-to-date in 12 hours if that happens. Thank you for your anticipation.
-
 ## Configuration
 
-Below is a template config file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify.
+Here is a template configuration file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify.
 
 ```json
 {
@@ -19,14 +17,16 @@ Below is a template config file `config/pentamana.json` filled with default valu
   "enchantmentStreamBase": 256,
   "enchantmentUtilizationBase": 214748364,
   "enchantmentPotencyBase": 1073741823,
-  "statusEffectInstantManaBase": 4,
-  "statusEffectInstantDepleteBase": 6,
+  "statusEffectManaBoostBase": 262144,
+  "statusEffectManaReductionBase": 262144,
+  "statusEffectInstantManaBase": 262144,
+  "statusEffectInstantDepleteBase": 393216,
   "statusEffectManaRegenBase": 50,
   "statusEffectManaInhibitionBase": 40,
   "statusEffectManaPowerBase": 3,
   "statusEffectManaSicknessBase": 4,
   "maxManabarLife": 40,
-  "defaultManabarSize": 20,
+  "manabarSize": 20,
   "manaChars": [9733, 11242, 9734],
   "manaColors": [5636095, 5636095, 0],
   "manaBolds": [false, false, false],
@@ -39,20 +39,22 @@ Below is a template config file `config/pentamana.json` filled with default valu
 ```
 
 - `manaPerPoint`: Amount of mana to be considered as 1 mana point.
-- `manaCapacityBase`: Initial mana capacity, should be odd.
+- `manaCapacityBase`: Initial mana capacity. Should be odd.
 - `manaRegenBase`: Initial mana regen amount per tick.
-- `enchantmentCapacityBase`: Mana capacity increase amount per level, should be even.
-- `enchantmentStreamBase`: Mana regeneration increase amount per level.
-- `enchantmentUtilizationBase`: Mana consumption decrease percent per level. 100% is 2147483647.
+- `enchantmentCapacityBase`: Level multiplier, the result will be added to mana capacity. Sould be even.
+- `enchantmentStreamBase`: Level multiplier, the result will be added to mana regeneration.
+- `enchantmentUtilizationBase`: Level multiplier, the result in 100% will be saved. 100% is 2147483647.
 - `enchantmentPotencyBase`: Level multiplier, the result will be added to casting damage. 100% is 2147483647.
-- `statusEffectInstantManaBase`: Mana gained multiplier.
-- `statusEffectInstantDepleteBase`: Mana losed multiplier.
-- `statusEffectManaRegenBase`: Mana point divisor, the result will be regenerated.
-- `statusEffectManaInhibitionBase`: Mana point divisor, the result will be regenerated.
+  - `statusEffectManaBoostBase`: Level multiplier, the result will be added to mana capacity.
+- `statusEffectManaReductionBase`: Level multiplier, the result will be substracted from mana capacity.
+- `statusEffectInstantManaBase`: Level multiplier, the result will be added to mana regeneration.
+- `statusEffectInstantDepleteBase`: Level multiplier, the result will be substracted from mana regeneration.
+- `statusEffectManaRegenBase`: Mana point divisor, the result will be added to regeneration.
+- `statusEffectManaInhibitionBase`: Mana point divisor, the result will be substracted from regeneration.
 - `statusEffectManaPowerBase` Amplifier multiplier, the result will be added to casting damage.
 - `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
 - `maxManabarLife`: Ticks actionbar updating will be suppressed if interrupted.
-- `defaultManabarSize`: Default manabar size, in characters. Used in `fixed_size` render type.
+- `manabarSize`: Default manabar size, in characters. Used in `fixed_size` render type.
 - `manaChars`: Default mana characters, in code point. from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
 - `manaColors`: Deafult color of characters, in RGB value. from 0% to 100% character.
 - `manaBolds`: Default bold of characters. from 0% to 100% character.
