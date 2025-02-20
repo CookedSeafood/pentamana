@@ -4,6 +4,8 @@ Pentamana is a scoreboard-based and most customizable mana system that runs serv
 
 ![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
 
+Sorry, this page is often slightly out-of-date. It should be up-to-date in 12 hours if that happens. Thank you for your anticipation.
+
 ## Configuration
 
 Below is a template config file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify.
@@ -50,7 +52,7 @@ Below is a template config file `config/pentamana.json` filled with default valu
 - `statusEffectManaPowerBase` Amplifier multiplier, the result will be added to casting damage.
 - `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
 - `maxManabarLife`: Ticks actionbar updating will be suppressed if interrupted.
-- `defaultManabarSize`: Default manabar size in characters.
+- `defaultManabarSize`: Default manabar size, in characters. Used in `fixed_size` render type.
 - `manaChars`: Default mana characters, in code point. from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
 - `manaColors`: Deafult color of characters, in RGB value. from 0% to 100% character.
 - `manaBolds`: Default bold of characters. from 0% to 100% character.
@@ -90,7 +92,7 @@ Modifiers can be added or removed from items using custom data components. They 
    \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest` and `head`.
 ```
 
-Below is an example modifier which increase mana capacity by 1,275,068,416(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19) when held in offhand.
+Below is an example modifier which increase mana capacity by 2,490,368(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19) when held in offhand.
 
 ```component
 [
@@ -98,7 +100,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
     modifiers: [
       {
         attribute: "pentamana:mana_capacity",
-        base: 1275068416.0d,
+        base: 2490368.0d,
         operation: "add_value",
         slot: "offhand"
       }
@@ -109,7 +111,7 @@ Below is an example modifier which increase mana capacity by 1,275,068,416(![man
 
 ## Status Effects
 
-Status effects compound can be added or removed from items using custom data components. They are applied when the item is consumed.
+Status effects can be added or removed from items using custom data components. They are applied when the item is consumed.
 
 ```txt
 [List] status_effects
@@ -119,7 +121,7 @@ Status effects compound can be added or removed from items using custom data com
    \- [int] amplifier: value.
 ```
 
-Below is an example status effect which increase the mana by 268,435,456(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
+Below is an example status effect which increase the mana by 1,048,576(![manaCharFull.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
 
 ```component
 [
@@ -139,11 +141,11 @@ Below is an example status effect which increase the mana by 268,435,456(![manaC
 
 This tutorial assumes that you already have a method that will be called when the weapon is used.
 
-First, set the amount of mana the weapon consumes per use. For example, 16,777,216(![manaCharHalf](https://cdn.modrinth.com/data/UgFKzdOy/images/d943f1772f350c1645aef349b1c0dcd86a90296c.png)).
+First, set the amount of mana the weapon consumes per use. For example, 65,536(![manaCharHalf](https://cdn.modrinth.com/data/UgFKzdOy/images/d943f1772f350c1645aef349b1c0dcd86a90296c.png)).
 
 ```java
 ServerCommandSource source = player.getServerCommandSource();
-ManaCommand.executeSetManaConsum(source, 16777216)
+ManaCommand.executeSetManaConsum(source, 65536)
 ```
 
 Second, consume the mana and fire your weapon if the consumption is successful. Consumption will succeed if the player has enough mana.
@@ -161,7 +163,7 @@ The result code will look like this:
 ```java
 public void useExampleWeapon(ServerPlayerEntity player) {
   ServerCommandSource source = player.getServerCommandSource();
-  ManaCommand.executeSetManaConsum(source, 16777216)
+  ManaCommand.executeSetManaConsum(source, 65536)
 
   if (ManaCommand.executeConsume(source) == 0) {
     return;
@@ -233,7 +235,7 @@ castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
 - `pentamana.mana_obfuscated_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's obfuscated.
 - `pentamana.enabled` 1 if enabled, otherwise not.
 - `pentamana.display` 1 if visible, otherwise not.
-- `pentamana.render_type` 1 if numberic, otherwise graphic.
+- `pentamana.render_type` 1 if fixed_size, 2 if numberic, otherwise flex_size.
 - `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
 - `pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
 - `status_effect.pentamana.<id>_<amplifier>` The duration of `id` status effect of `amplifier` + 1 level.
@@ -278,4 +280,4 @@ Utilization reduces the mana cost of casting by `level * enchantmentUtilizationB
 
 ## License
 
-You are free to back port this mod, or port it to any mod loader other than fabric, as long as you credit the origin version and respect the license applied to this version, which is GPL-3.0-or-later.
+You are free to back port this mod, or port it to any mod loader other than fabric, as long as you credit the origin version, put a direct link to this page, and respect the license applied to this version, which is GPL-3.0-or-later.
