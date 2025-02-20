@@ -45,7 +45,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `enchantmentStreamBase`: Level multiplier, the result will be added to mana regeneration.
 - `enchantmentUtilizationBase`: Level multiplier, the result in 100% will be saved. 100% is 2147483647.
 - `enchantmentPotencyBase`: Level multiplier, the result will be added to casting damage. 100% is 2147483647.
-  - `statusEffectManaBoostBase`: Level multiplier, the result will be added to mana capacity.
+- `statusEffectManaBoostBase`: Level multiplier, the result will be added to mana capacity.
 - `statusEffectManaReductionBase`: Level multiplier, the result will be substracted from mana capacity.
 - `statusEffectInstantManaBase`: Level multiplier, the result will be added to mana regeneration.
 - `statusEffectInstantDepleteBase`: Level multiplier, the result will be substracted from mana regeneration.
@@ -118,7 +118,7 @@ Status effects can be added or removed from items using custom data components. 
 ```txt
 [List] status_effects
 |- [Compound]
-   |- [String] id: Can be `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.
+   |- [String] id: Can be `pentamana:mana_boost`, `pentamana:mana_reduction`, `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.
    |- [int] duration: value.
    \- [int] amplifier: value.
 ```
@@ -138,6 +138,15 @@ Below is an example status effect which increase the mana by 1,048,576(![manaCha
   }
 ]
 ```
+
+- Mana Boost: Increase mana capacity by `level * statusEffectManaBoostBase`.
+- Mana Reduction: Decrease mana capacity by `level * statusEffectManaReductionBase`.
+- Instant Mana: Increase mana regeneration by `2 ^ level * statusEffectInstantManaBase`.
+- Instant Deplete: Decrease mana regeneration by `2 ^ level * statusEffectInstantDepleteBase`.
+- Mana Regeneration: Increase mana regeneration by `manaPerPoint / statusEffectManaRegenBase >> level`
+- Mana Inhibition: Decrease mana regeneration by `manaPerPoint / statusEffectManaInhibitionBase >> level`
+- Mana Power: Increase casting damage by `level * statusEffectManaPowerBase`.
+- Mana Sickness: Decrease casting damage by `level * statusEffectManaSicknessBase`.
 
 ## Tutorial: Create your very own magic weapon
 
@@ -182,6 +191,7 @@ public void useExampleWeapon(ServerPlayerEntity player) {
 ```java
 int manaCapacity = (int)player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);
 manaCapacity += Pentamana.enchantmentCapacityBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
+manaCapacity += player.hasCustomStatusEffect("pentamana:mana_boost") ? Pentamana.statusEffectManaBoostBase * (player.getActiveCustomStatusEffect("pentamana:mana_boost").getInt("amplifier") + 1) : manaCapacity -= player.hasCustomStatusEffect("pentamana:mana_reduction") ? Pentamana.statusEffectManaReductionBase * (player.getActiveCustomStatusEffect("pentamana:mana_reduction").getInt("amplifier") + 1) : 0;
 ```
 
 ### Mana Regeneration
@@ -189,8 +199,8 @@ manaCapacity += Pentamana.enchantmentCapacityBase * player.getWeaponStack().getE
 ```java
 int manaRegen = (int)player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenBase);
 manaRegen += Pentamana.enchantmentStreamBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
-manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.manaPerPoint * Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
-manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.manaPerPoint * Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
+manaRegen += player.hasCustomStatusEffect("pentamana:instant_mana") ? Pentamana.statusEffectInstantManaBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_mana").getInt("amplifier")) : 0;
+manaRegen -= player.hasCustomStatusEffect("pentamana:instant_deplete") ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, player.getActiveCustomStatusEffect("pentamana:instant_deplete").getInt("amplifier")) : 0;
 manaRegen += player.hasCustomStatusEffect("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / Math.max(1, Pentamana.statusEffectManaRegenBase >> player.getActiveCustomStatusEffect("pentamana:mana_regeneration").getInt("amplifier")) : 0;
 manaRegen -= player.hasCustomStatusEffect("pentamana:mana_inhibition") ? Pentamana.manaPerPoint / Math.max(1, Pentamana.statusEffectManaInhibitionBase >> player.getActiveCustomStatusEffect("pentamana:mana_inhibition").getInt("amplifier")) : 0;
 ```
