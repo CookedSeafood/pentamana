@@ -81,7 +81,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana enbale` Enable this mod for yourself.
 - `/mana disable` Disable this mod for yourself completely.
 - `/mana set display <false|true>` Set the manabar visibility for yourself.
-- `/mana set render_type [<flex_size|fixed_size|numberic>]` Set the manabar render type for yourself.
+- `/mana set render_type <flex_size|fixed_size|numberic> [<size>]` Set the manabar render type for yourself.
 - `/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
 - `/mana reset` Reset mana character for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
