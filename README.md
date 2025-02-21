@@ -86,10 +86,6 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana reset` Reset mana character for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
 
-This mod is disbled for every player by default.
-
-The manabar visibility is false for every player by default.
-
 ## Modifiers
 
 Modifiers can be added or removed from items using custom data components. They are active when equipped in the written slot.
