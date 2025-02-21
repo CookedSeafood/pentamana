@@ -27,11 +27,11 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "statusEffectManaSicknessBase": 4,
   "displayIdleInterval": 40,
   "displaySuppressionInterval": 40,
+  "maxManaCharIndexForDisplay": 127,
   "forceEnabled": false,
   "enabled": true,
   "display": true,
   "renderType": 1,
-  "maxManaCharIndexForDisplay": 127,
   "fixedSize": 20,
   "manaChars": [9733, 11242, 9734],
   "manaColors": [5636095, 5636095, 0],
@@ -60,11 +60,11 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
 - "displayIdleInterval": Ticks actionbar not updating if idle.
 - `displaySuppressionInterval`: Ticks actionbar not updating if interrupted.
+- `maxManaCharIndexForDisplay`: Literally, in characters, for perfermence sack.
 - `forceEnabled`: Make the mod enabled for every player when setting to ture, do not modify their own preference.
 - `enabled`: Default preference.
 - `display`: Default preference.
 - `renderType`: Default preference. 1 if flex_size, 2 if fixed_size, otherwise numberic.
-- `maxManaCharIndexForDisplay`: Default preference, in characters.
 - `fixedSize`: Default preference, in characters.
 - `manaChars`: Default preference, in code point. from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
 - `manaColors`: Deafult preference, in RGB value. from 0% to 100% character.
