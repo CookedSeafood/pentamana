@@ -28,6 +28,8 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 
 public class ManaCommand {
+    private static final SimpleCommandExceptionType NOT_CUSTOMIZABLE_CHARACTER_INDEX =
+        new SimpleCommandExceptionType(Text.literal("Not a customizable character index according to the server configuration."));
     private static final SimpleCommandExceptionType NO_CHARACTER_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Not contain a character."));
     private static final SimpleCommandExceptionType MULTIPLE_CHARACTER_EXCEPTION =
@@ -38,8 +40,12 @@ public class ManaCommand {
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
     private static final DynamicCommandExceptionType OPTION_DISPLAY_UNCHANGED_EXCEPTION =
         new DynamicCommandExceptionType((displayBoolean) -> Text.literal("Nothing changed. Mana display is already set to " + (boolean)displayBoolean + " for that player."));
-    private static final Dynamic2CommandExceptionType OPTION_RENDER_TYPE_UNCHANGED_EXCEPTION =
-        new Dynamic2CommandExceptionType((renderTypeString, manabarSize) -> Text.literal("Nothing changed. Mana render type is already set to " + (String)renderTypeString + ("fixed_size".equals((String)renderTypeString) ? " " + (int)manabarSize : "") + " for that player."));
+    private static final SimpleCommandExceptionType OPTION_RENDER_TYPE_FLEX_SIZE_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana render type is already set to flex size for that player."));
+    private static final DynamicCommandExceptionType OPTION_RENDER_TYPE_FIXED_SIZE_UNCHANGED_EXCEPTION =
+        new DynamicCommandExceptionType((fixedSize) -> Text.literal("Nothing changed. Mana render type is already set to fixed size " + (int)fixedSize + " for that player."));
+    private static final SimpleCommandExceptionType OPTION_RENDER_TYPE_NUMBERIC_UNCHANGED_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana render type is already set to numberic for that player."));
     private static final Dynamic2CommandExceptionType OPTION_CHARACTER_UNCHANGED_EXCEPTION =
         new Dynamic2CommandExceptionType((manaCharTypeIndex, manaCharIndex) -> Text.literal("Nothing changed. That player already has that" + ((int)manaCharIndex == -1 ? "" : (" #" + (int)manaCharIndex)) + ((int)manaCharTypeIndex == -1 ? "" : (" " + (int)manaCharTypeIndex + " point")) + " mana character."));
 
@@ -138,11 +144,11 @@ public class ManaCommand {
             source.sendFeedback(() -> Text.literal("Mana calculation will continue due to the force enabled mode is turned on in server."), false);
         }
 
-        return executeSetEnabled(source, 0);
+        return executeSetEnabled(source, 2);
     }
 
     public static int executeSetDisplay(ServerCommandSource source, boolean displayBoolean) throws CommandSyntaxException {
-        int display = displayBoolean ? 1 : 0;
+        int display = displayBoolean ? 1 : 2;
         if (executeGetDisplay(source) == display) {
             throw OPTION_DISPLAY_UNCHANGED_EXCEPTION.create(displayBoolean);
         }
@@ -154,7 +160,7 @@ public class ManaCommand {
 
     public static int executeSetRenderTypeFlexSize(ServerCommandSource source, String renderTypeString) throws CommandSyntaxException {
         if (executeGetRenderType(source) == Pentamana.RENDER_TYPE_FLEX_SIZE_INDEX) {
-            throw OPTION_RENDER_TYPE_UNCHANGED_EXCEPTION.create(renderTypeString, 0);
+            throw OPTION_RENDER_TYPE_FLEX_SIZE_UNCHANGED_EXCEPTION.create();
         }
 
         String name = source.getPlayerOrThrow().getNameForScoreboard();
@@ -163,20 +169,20 @@ public class ManaCommand {
     }
 
     public static int executeSetRenderTypeFixedSize(ServerCommandSource source, String renderTypeString) throws CommandSyntaxException {
-        return executeSetRenderTypeFixedSize(source, renderTypeString, Pentamana.manabarSize);
+        return executeSetRenderTypeFixedSize(source, renderTypeString, Pentamana.fixedSize);
     }
 
-    public static int executeSetRenderTypeFixedSize(ServerCommandSource source, String renderTypeString, int manabarSize) throws CommandSyntaxException {
-        int playerManabarSize = executeGetManabarSize(source);
+    public static int executeSetRenderTypeFixedSize(ServerCommandSource source, String renderTypeString, int fixedSize) throws CommandSyntaxException {
+        int playerFixedSize = executeGetFixedSize(source);
         int playerRenderType = executeGetRenderType(source);
-        if (playerManabarSize == manabarSize && playerRenderType == Pentamana.RENDER_TYPE_FIXED_SIZE_INDEX) {
-            throw OPTION_RENDER_TYPE_UNCHANGED_EXCEPTION.create(renderTypeString, manabarSize);
+        if (playerFixedSize == fixedSize && playerRenderType == Pentamana.RENDER_TYPE_FIXED_SIZE_INDEX) {
+            throw OPTION_RENDER_TYPE_FIXED_SIZE_UNCHANGED_EXCEPTION.create(fixedSize);
         }
 
         int miss = 0;
-        if (playerManabarSize != manabarSize) {
+        if (playerFixedSize != fixedSize) {
             ++miss;
-            executeSetManabarSize(source, manabarSize);
+            executeSetFixedSize(source, fixedSize);
         }
         if (playerRenderType != Pentamana.RENDER_TYPE_FIXED_SIZE_INDEX) {
             ++miss;
@@ -184,13 +190,13 @@ public class ManaCommand {
         }
 
         String name = source.getPlayerOrThrow().getNameForScoreboard();
-        source.sendFeedback(() -> Text.literal("Updated the mana render type for player " + name + " to " + renderTypeString + " " + manabarSize + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated the mana render type for player " + name + " to " + renderTypeString + " " + (fixedSize + 1) + "."), false);
         return miss;
     }
 
     public static int executeSetRenderTypeNumberic(ServerCommandSource source, String renderTypeString) throws CommandSyntaxException {
         if (executeGetRenderType(source) == Pentamana.RENDER_TYPE_NUMBERIC_INDEX) {
-            throw OPTION_RENDER_TYPE_UNCHANGED_EXCEPTION.create(renderTypeString, 0);
+            throw OPTION_RENDER_TYPE_NUMBERIC_UNCHANGED_EXCEPTION.create();
         }
 
         String name = source.getPlayerOrThrow().getNameForScoreboard();
@@ -207,6 +213,10 @@ public class ManaCommand {
     }
 
     public static int executeSetCharacter(ServerCommandSource source, Text manaCharText, int manaCharTypeIndex, int manaCharIndex) throws CommandSyntaxException {
+        if (manaCharIndex > Pentamana.maxManaCharIndexForDisplay) {
+            throw NOT_CUSTOMIZABLE_CHARACTER_INDEX.create();
+        }
+
         String manaCharString = manaCharText.getString();
         if (manaCharString == null || manaCharString.isEmpty() || manaCharString.isBlank()) {
             throw NO_CHARACTER_EXCEPTION.create();
@@ -228,13 +238,13 @@ public class ManaCommand {
         int manaObfuscated = manaCharTextStyle.isObfuscated() ? 1 : 2;
 
         int startManaCharTypeIndex = manaCharTypeIndex == -1 ? 0 : manaCharTypeIndex;
-        int endManaCharTypeIndex = manaCharTypeIndex == -1 ? Pentamana.manaCharTypes : manaCharTypeIndex;/* Exclude */
+        int endManaCharTypeIndex = manaCharTypeIndex == -1 ? Pentamana.maxManaCharTypeIndex : manaCharTypeIndex;
         int startManaCharIndex = manaCharIndex == -1 ? 0 : manaCharIndex;
-        int endManaCharIndex = manaCharIndex == -1 ? Pentamana.maxManaChar : manaCharIndex;/* Exclude */
+        int endManaCharIndex = manaCharIndex == -1 ? Pentamana.maxManaCharIndexForDisplay : manaCharIndex;
 
         int miss = 0;
-        for (int t = startManaCharTypeIndex; t < endManaCharTypeIndex; ++t) {
-            for (int i = startManaCharIndex; i < endManaCharIndex; ++i) {
+        for (int t = startManaCharTypeIndex; t <= endManaCharTypeIndex; ++t) {
+            for (int i = startManaCharIndex; i <= endManaCharIndex; ++i) {
                 if (executeGetManaChar(source, t, i) != manaChar) {
                     ++miss;
                     executeSetManaChar(source, manaChar, t, i);
@@ -277,9 +287,9 @@ public class ManaCommand {
 
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         String name = source.getPlayerOrThrow().getNameForScoreboard();
-        source.sendFeedback(() -> Text.literal("Reset mana options for player " + name + "."), false);
-        for (int t = 0; t < Pentamana.manaCharTypes; ++t) {
-            for (int i = 0; i < Pentamana.maxManaChar; ++i) {
+        source.sendFeedback(() -> Text.literal("Reset mana characters for player " + name + "."), false);
+        for (int t = 0; t <= Pentamana.maxManaCharTypeIndex; ++t) {
+            for (int i = 0; i <= Pentamana.maxManaCharIndexForDisplay; ++i) {
                 executeResetManaChar(source, t, i);
                 executeResetManaColor(source, t, i);
                 executeResetManaBold(source, t, i);
@@ -300,7 +310,13 @@ public class ManaCommand {
 	public static int executeTick(ServerCommandSource source) throws CommandSyntaxException {
         tickStatusEffect(source);
 
-        if (!Pentamana.forceEnabled && executeGetEnabled(source) != 1) {
+        int playerEnabled = executeGetEnabled(source);
+        boolean enabled =
+            playerEnabled == 0 ?
+            Pentamana.enabled :
+            playerEnabled == 1;
+
+        if (enabled == false && !Pentamana.forceEnabled) {
             return 0;
         }
 
@@ -372,15 +388,21 @@ public class ManaCommand {
 	}
 
     public static int executeDisplay(ServerCommandSource source) throws CommandSyntaxException {
-        if (executeGetDisplay(source) != 1) {
+        int playerDisplay = executeGetDisplay(source);
+        boolean display =
+            playerDisplay == 0 ?
+            Pentamana.display :
+            playerDisplay == 1;
+
+        if (display == false) {
             return 0;
         }
 
         int manabarLife = executeGetManabarLife(source);
-        if (manabarLife > 0 && manabarLife < Pentamana.maxManabarLife) {
+        if (manabarLife > 0 && manabarLife < Pentamana.displaySuppressionInterval) {
             return 1;
         }
-		
+
         int manaCapacity = executeGetManaCapacity(source);
 		int mana = executeGetMana(source);
         int manaCapacityPoint = (-manaCapacity - 1) / -Pentamana.manaPerPoint;
@@ -391,9 +413,13 @@ public class ManaCommand {
 
         executeSetManaPoint(source, manaPoint);
         executeSetManaCapacityPoint(source, manaCapacityPoint);
-        executeSetManabarLife(source, -Pentamana.maxManabarLife);
+        executeSetManabarLife(source, -Pentamana.displayIdleInterval);
 
-        int renderType = executeGetRenderType(source);
+        int playerRenderType = executeGetRenderType(source);
+        int renderType =
+            playerRenderType == 0 ?
+            Pentamana.renderType :
+            playerRenderType;
 
         if (renderType == Pentamana.RENDER_TYPE_NUMBERIC_INDEX) {
             int playerManaColor = executeGetManaColor(source, 0, 0);
@@ -407,12 +433,14 @@ public class ManaCommand {
         }
 
         if (renderType == Pentamana.RENDER_TYPE_FIXED_SIZE_INDEX) {
-            manaCapacityPoint = Pentamana.pointsPerChar * executeGetManabarSize(source);
+            manaCapacityPoint = Pentamana.pointsPerChar * executeGetFixedSize(source);
             manaPoint = (int)((float)mana / manaCapacity * manaCapacityPoint);
         }
 
         int manaCapacityPointTrimmed = manaCapacityPoint - manaCapacityPoint % Pentamana.pointsPerChar;
         int manaPointTrimmed = manaPoint - manaPoint % Pentamana.pointsPerChar;
+
+        manaCapacityPointTrimmed = Math.min(manaCapacityPointTrimmed, Pentamana.maxManaCapacityPointTrimmed);
 
         MutableText manabar = MutableText.of(PlainTextContent.EMPTY);
         for (int manaPointIndex = 0; manaPointIndex < manaCapacityPointTrimmed; manaPointIndex += Pentamana.pointsPerChar) {
@@ -478,6 +506,7 @@ public class ManaCommand {
         manaCapacity += Pentamana.enchantmentCapacityBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
         manaCapacity += player.hasCustomStatusEffect("pentamana:mana_boost") ? Pentamana.statusEffectManaBoostBase * (player.getActiveCustomStatusEffect("pentamana:mana_boost").getInt("amplifier") + 1) : 0;
         manaCapacity -= player.hasCustomStatusEffect("pentamana:mana_reduction") ? Pentamana.statusEffectManaReductionBase * (player.getActiveCustomStatusEffect("pentamana:mana_reduction").getInt("amplifier") + 1) : 0;
+        manaCapacity = Math.max(manaCapacity, 0);
         return manaCapacity;
     }
 
@@ -746,29 +775,29 @@ public class ManaCommand {
         return 0;
     }
 
-    public static int executeGetManabarSize(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeGetFixedSize(ServerCommandSource source) throws CommandSyntaxException {
         ServerScoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.manabar_size", ScoreboardCriterion.DUMMY, Text.of("Manabar Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.fixed_size", ScoreboardCriterion.DUMMY, Text.of("Fixed Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).getScore();
     }
 
-    public static int executeIncrementManabarSize(ServerCommandSource source, int amount) throws CommandSyntaxException {
+    public static int executeIncrementFixedSize(ServerCommandSource source, int amount) throws CommandSyntaxException {
         ServerScoreboard scoreboard = source.getServer().getScoreboard();
-        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.manabar_size", ScoreboardCriterion.DUMMY, Text.of("Manabar Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
+        return scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.fixed_size", ScoreboardCriterion.DUMMY, Text.of("Fixed Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).incrementScore(amount);
     }
 
-    public static int executeIncrementManabarSize(ServerCommandSource source) throws CommandSyntaxException {
-        return executeIncrementManabarSize(source, 1);
+    public static int executeIncrementFixedSize(ServerCommandSource source) throws CommandSyntaxException {
+        return executeIncrementFixedSize(source, 1);
     }
 
-    public static int executeSetManabarSize(ServerCommandSource source, int amount) throws CommandSyntaxException {
+    public static int executeSetFixedSize(ServerCommandSource source, int amount) throws CommandSyntaxException {
         ServerScoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.manabar_size", ScoreboardCriterion.DUMMY, Text.of("Manabar Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.fixed_size", ScoreboardCriterion.DUMMY, Text.of("Fixed Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).setScore(amount);
         return 0;
     }
 
-    public static int executeResetManabarSize(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeResetFixedSize(ServerCommandSource source) throws CommandSyntaxException {
         ServerScoreboard scoreboard = source.getServer().getScoreboard();
-        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.manabar_size", ScoreboardCriterion.DUMMY, Text.of("Manabar Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
+        scoreboard.getOrCreateScore(source.getPlayerOrThrow().getScoreHolder(), scoreboard.getOrAddObjective("pentamana.fixed_size", ScoreboardCriterion.DUMMY, Text.of("Fixed Size"), ScoreboardCriterion.RenderType.INTEGER, true, null)).resetScore();
         return 0;
     }
 

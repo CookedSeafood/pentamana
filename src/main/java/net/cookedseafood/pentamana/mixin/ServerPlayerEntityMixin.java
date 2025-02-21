@@ -64,7 +64,7 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 		castingDamage += potencyLevel != 0 ? ++potencyLevel * (float)Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
 		castingDamage += ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_power") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_power").getInt("amplifier") + 1) * Pentamana.statusEffectManaPowerBase : 0;
 		castingDamage -= ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_sickness") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_sickness").getInt("amplifier") + 1) * Pentamana.statusEffectManaSicknessBase : 0;
-		castingDamage = Math.max(0, castingDamage);
+		castingDamage = Math.max(castingDamage, 0);
 		castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
 		return castingDamage;
 	}
