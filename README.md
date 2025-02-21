@@ -58,7 +58,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `statusEffectManaInhibitionBase` Mana point divisor, the result will be substracted from regeneration.
 - `statusEffectManaPowerBase` Amplifier multiplier, the result will be added to casting damage.
 - `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
-- "displayIdleInterval" Ticks actionbar not updating if idle.
+- `displayIdleInterval` Ticks actionbar not updating if idle.
 - `displaySuppressionInterval` Ticks actionbar not updating if interrupted.
 - `maxManaCharIndexForDisplay` Literally, in characters, for perfermence sack.
 - `forceEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
