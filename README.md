@@ -66,13 +66,13 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `display` Default preference.
 - `renderType` Default preference. 1 if flex_size, 2 if fixed_size, otherwise numberic.
 - `fixedSize` Default preference, in characters.
-- `manaChars` Default preference, in code point. from 0% to 100% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
-- `manaColors` Deafult preference, in RGB value. from 0% to 100% character.
-- `manaBolds` Default preference. from 0% to 100% character.
-- `manaItalics` Default preference. from 0% to 100% character.
-- `manaUnderlineds` Default preference. from 0% to 100% character.
-- `manaStrikethroughs` Default preference. from 0% to 100% character.
-- `manaObfuscateds` Default preference. from 0% to 100% character.
+- `manaChars` Default preference, in code point. from 100% to 0% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
+- `manaColors` Deafult preference, in RGB value. from 100% to 0% character.
+- `manaBolds` Default preference. from 100% to 0% character.
+- `manaItalics` Default preference. from 100% to 0% character.
+- `manaUnderlineds` Default preference. from 100% to 0% character.
+- `manaStrikethroughs` Default preference. from 100% to 0% character.
+- `manaObfuscateds` Default preference. from 100% to 0% character.
 
 Enchantments are written in json and registered using datapack. It can be directly modified.
 
