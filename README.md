@@ -64,7 +64,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `forceEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
 - `enabled` Default preference.
 - `display` Default preference.
-- `renderType` Default preference. 1 if flex_size, 2 if fixed_size, otherwise numberic.
+- `renderType` Default preference. 1 if flex_size, 2 if fixed_size, else numberic.
 - `fixedSize` Default preference, in characters.
 - `manaChars` Default preference, in code point. from 100% to 0% character. The count of its elements determines the amount of mana points to be considered as 1 mana character.
 - `manaColors` Deafult preference, in RGB value. from 100% to 0% character.
@@ -253,9 +253,9 @@ castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
 - `pentamana.mana_underlined_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's underlined.
 - `pentamana.mana_strikethrough_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's strikethrough.
 - `pentamana.mana_obfuscated_<type_index>_<character_index>` The boolean of #`character_index` `type_index` point mana character's obfuscated.
-- `pentamana.enabled` 1 if enabled, otherwise not.
-- `pentamana.display` 1 if visible, otherwise not.
-- `pentamana.render_type` 1 if `flex_size`, 2 if `fixed_size`, otherwise `numberic`.
+- `pentamana.enabled` 1 if enabled, else not.
+- `pentamana.display` 1 if visible, else not.
+- `pentamana.render_type` 1 if `flex_size`, 2 if `fixed_size`, else `numberic`.
 - `pentamana.fixed_size` Manabar size for `fixed_size` render type.
 - `pentamana.mana_point` Mana supply in point at last tick. Used only in display.
 - `pentamana.mana_capacity_point` Mana capacity in point at last tick. Used only in display.
