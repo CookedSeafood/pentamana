@@ -1,4 +1,4 @@
-package net.cookedseafood.pentamana.api;
+package net.cookedseafood.pentamana.api.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

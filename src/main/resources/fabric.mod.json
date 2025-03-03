@@ -22,6 +22,12 @@
 	"entrypoints": {
 		"main": [
 			"net.cookedseafood.pentamana.Pentamana"
+		],
+		"cardinal-components-entity": [
+			"net.cookedseafood.pentamana.component.ManaStatus",
+			"net.cookedseafood.pentamana.component.ManaStatusEffect",
+			"net.cookedseafood.pentamana.component.ManaPreference",
+			"net.cookedseafood.pentamana.component.ManaDisplay"
 		]
 	},
 	"mixins": [
@@ -32,7 +38,8 @@
 		"minecraft": "1.21.4",
 		"java": ">=21",
 		"fabric-api": "*",
-		"candywrapper": ">=0.4.8"
+		"cardinal-components-base": ">=6.2.2",
+		"candywrapper": ">=0.4.9"
 	},
 	"suggests": {
 		"another-mod": "*"
@@ -42,7 +49,13 @@
 			"net/minecraft/class_3222": [
 				"net/cookedseafood/pentamana/api/ServerPlayerEntityApi"
 			]
-		}
+		},
+		"cardinal-components": [
+            "pentamana:mana_status",
+			"pentamana:mana_status_effect",
+			"pentamana:mana_preference",
+			"pentamana:mana_display"
+        ]
 	},
 	"accessWidener": "pentamana.accesswidener"
 }

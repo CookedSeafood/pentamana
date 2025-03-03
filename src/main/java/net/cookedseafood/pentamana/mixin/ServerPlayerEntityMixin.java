@@ -4,6 +4,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.ServerPlayerEntityApi;
 import net.cookedseafood.pentamana.command.ManaCommand;
+import net.cookedseafood.pentamana.component.ManaPreference;
+import net.cookedseafood.pentamana.component.ManaStatus;
+import net.cookedseafood.pentamana.component.ManaStatusEffect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.WitchEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -23,8 +26,18 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 		at = @At("RETURN")
 	)
 	private void tickMana(CallbackInfo info) {
+		ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
+		ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
+
+        if (manaPreference.getEnabled() == false && !Pentamana.forceManaEnabled) {
+            return;
+        }
+
+		ManaStatusEffect.MANA_STATUS_EFFECT.get(player).tick();
+		ManaStatus.MANA_STATUS.get(player).tick(player);
+
 		try {
-			ManaCommand.executeTick(this.getCommandSource());
+			ManaCommand.executeDisplay(player.getCommandSource());
 		} catch (CommandSyntaxException e) {
 			e.printStackTrace();
 		}
@@ -38,34 +51,38 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 			shift = At.Shift.AFTER
 		)
 	)
-	private void applyCustomStatusEffects(CallbackInfo info) {
-		NbtList statusEffects = ((ServerPlayerEntity)(Object)this).getActiveItem().getCustomStatusEffects();
-		statusEffects.stream()
-			.map(nbtElement -> (NbtCompound)nbtElement)
-			.forEach(statusEffect -> {
-				((ServerPlayerEntity)(Object)this).addCustomStatusEffect(statusEffect.getString("id"), statusEffect.getInt("duration"), statusEffect.getInt("amplifier"));
-			});
+	private void applyManaStatusEffects(CallbackInfo info) {
+		ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
+		ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
+
+		NbtList presentedManaStatusEffects = ((ServerPlayerEntity)(Object)this).getActiveItem().getCustomStatusEffects();
+		presentedManaStatusEffects.stream()
+			.map(NbtCompound.class::cast)
+			.forEach(statusEffect -> manaStatusEffect.addStatusEffect(statusEffect.getString("id"), statusEffect.getInt("duration"), statusEffect.getInt("amplifier")));
 	}
 
 	@Override
 	public float getCastingDamageAgainst(Entity entity, float baseDamage) {
-		ServerCommandSource source = this.getCommandSource();
-		int potencyLevel = ((ServerPlayerEntity)(Object)this).getWeaponStack().getEnchantments().getLevel("pentamana:potency");
-		int manaCapacity = Pentamana.manaCapacityBase;
-		try {
-			manaCapacity = ManaCommand.executeGetManaCapacity(source);
-		} catch (CommandSyntaxException e) {
-			e.printStackTrace();
-		}
+		ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
+		ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
+
+		float manaCapacity = ManaStatus.MANA_STATUS.get(player).getManaCapacity();
+		int potencyLevel = player.getWeaponStack().getEnchantments().getLevel("pentamana:potency");
 
 		float castingDamage = manaCapacity;
 		castingDamage /= Pentamana.manaCapacityBase;
-		castingDamage *= (float)((ServerPlayerEntity)(Object)this).getCustomModifiedValue("pentamana:casting_damage", baseDamage);
-		castingDamage += potencyLevel != 0 ? ++potencyLevel * (float)Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
-		castingDamage += ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_power") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_power").getInt("amplifier") + 1) * Pentamana.statusEffectManaPowerBase : 0;
-		castingDamage -= ((ServerPlayerEntity)(Object)this).hasCustomStatusEffect("pentamana:mana_sickness") ? (((ServerPlayerEntity)(Object)this).getActiveCustomStatusEffect("pentamana:mana_sickness").getInt("amplifier") + 1) * Pentamana.statusEffectManaSicknessBase : 0;
-		castingDamage = Math.max(castingDamage, 0);
-		castingDamage *= entity instanceof WitchEntity ? (float)0.15 : 1;
+		castingDamage *= (float)player.getCustomModifiedValue("pentamana:casting_damage", baseDamage);
+		castingDamage += potencyLevel != 0 ?
+			++potencyLevel * Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE :
+			0;
+		castingDamage += manaStatusEffect.hasStatusEffect("pentamana:mana_power") ?
+			(manaStatusEffect.getActiveStatusEffectAmplifier("pentamana:mana_power") + 1) * Pentamana.statusEffectManaPowerBase :
+			0;
+		castingDamage -= manaStatusEffect.hasStatusEffect("pentamana:mana_sickness") ?
+			(manaStatusEffect.getActiveStatusEffectAmplifier("pentamana:mana_sickness") + 1) * Pentamana.statusEffectManaSicknessBase :
+			0;
+		castingDamage = Math.max(castingDamage, 0.0f);
+		castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
 		return castingDamage;
 	}
 
