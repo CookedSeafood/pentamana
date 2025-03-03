@@ -37,7 +37,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 ```
 
 - `manaPerPoint` Amount of mana to be considered as 1 mana point.
-- `pointsPerCharacter` Amount of mana points to be considered as 1 mana character.
+- `pointsPerCharacter` Default preference. Amount of mana points to be considered as 1 mana character.
 - `manaCapacityBase` Initial mana capacity. Should be odd.
 - `manaRegenBase` Initial mana regen amount per tick.
 - `enchantmentCapacityBase` Level multiplier, the result will be added to mana capacity. Sould be even.
