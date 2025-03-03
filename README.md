@@ -58,7 +58,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `forceManaEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
 - `manaEnabled` Default preference.
 - `manaDisplay` Default preference.
-- `manaRenderType` Default preference. 1 if flex_size, 2 if fixed_size, else numberic.
+- `manaRenderType` Default preference. 0 if flex_size, 1 if fixed_size, 2 if numberic, 3 if percentage.
 - `manaFixedSize` Default preference, in characters.
 - `manaCharacters` Default preference. from 0% to 100% point character.
 
