@@ -3,7 +3,7 @@
 	"id": "pentamana",
 	"version": "${version}",
 	"name": "Pentamana",
-	"description": "Scoreboard-based and most customizable mana library for storing and modifying mana.",
+	"description": "An extraordinary customizable mana library for storing and modifying mana.",
 	"authors": [
 		{
 			"name": "CookedSeafood",
@@ -39,7 +39,7 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"cardinal-components-base": ">=6.2.2",
-		"candywrapper": ">=0.4.9"
+		"candy-wrapper": ">=0.5.0"
 	},
 	"suggests": {
 		"another-mod": "*"
