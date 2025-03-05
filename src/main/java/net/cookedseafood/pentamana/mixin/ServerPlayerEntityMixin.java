@@ -1,9 +1,8 @@
 package net.cookedseafood.pentamana.mixin;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.ServerPlayerEntityApi;
-import net.cookedseafood.pentamana.command.ManaCommand;
+import net.cookedseafood.pentamana.component.ManaDisplay;
 import net.cookedseafood.pentamana.component.ManaPreference;
 import net.cookedseafood.pentamana.component.ManaStatus;
 import net.cookedseafood.pentamana.component.ManaStatusEffect;
@@ -35,12 +34,7 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 
 		ManaStatusEffect.MANA_STATUS_EFFECT.get(player).tick();
 		ManaStatus.MANA_STATUS.get(player).tick(player);
-
-		try {
-			ManaCommand.executeDisplay(player.getCommandSource());
-		} catch (CommandSyntaxException e) {
-			e.printStackTrace();
-		}
+		ManaDisplay.MANA_DISPLAY.get(player).tick(player);
 	}
 
 	@Inject(

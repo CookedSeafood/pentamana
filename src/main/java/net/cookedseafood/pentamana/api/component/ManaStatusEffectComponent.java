@@ -1,27 +1,40 @@
 package net.cookedseafood.pentamana.api.component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+
+import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.Component;
+
+import net.cookedseafood.pentamana.Pentamana;
 
 public interface ManaStatusEffectComponent extends Component {
     void tick();
 
-    Map<String, List<Integer>> getStatusEffect();
+    @NotNull
+    Map<String, List<Integer>> getStatusEffects();
 
+    @NotNull
     default List<Integer> getStatusEffect(String id) {
-        return this.getStatusEffect().get(id);
+        List<Integer> statusEffect = this.getStatusEffects().get(id);
+        return statusEffect != null ? statusEffect : new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0));
     }
 
     default boolean hasStatusEffect(String id) {
-        List<Integer> statusEffect = this.getStatusEffect(id);
-        return statusEffect != null ? statusEffect.stream().anyMatch(duration -> duration > 0) : false;
+        return this.getStatusEffects().containsKey(id) ?
+            this.getStatusEffect(id).stream().anyMatch(duration -> duration > 0) :
+            false;
     }
 
     default int getActiveStatusEffectAmplifier(String id) {
-        List<Integer> statusEffect = this.getStatusEffect(id);
+        if (!this.hasStatusEffect(id)) {
+            return -1;
+        }
 
+        List<Integer> statusEffect = this.getStatusEffect(id);
         return IntStream.iterate(statusEffect.size() - 1, amplifier -> amplifier >= 0, amplifier -> --amplifier)
             .filter(amplifier -> statusEffect.get(amplifier) > 0)
             .findFirst()
@@ -29,6 +42,10 @@ public interface ManaStatusEffectComponent extends Component {
     }
 
     default int getStatusEffectDuration(String id, int amplifier) {
+        if (!this.hasStatusEffect(id)) {
+            return 0;
+        }
+
         return this.getStatusEffect(id).get(amplifier);
     }
 
@@ -41,6 +58,10 @@ public interface ManaStatusEffectComponent extends Component {
     }
 
     default void setStatusEffect(String id, int duration, int amplifier) {
+        if (!this.hasStatusEffect(id)) {
+            this.getStatusEffects().put(id, new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)));
+        }
+
         this.getStatusEffect(id).set(amplifier, duration);
     }
 
@@ -53,6 +74,10 @@ public interface ManaStatusEffectComponent extends Component {
     }
 
     default boolean addStatusEffect(String id, int duration, int amplifier) {
+        if (!this.hasStatusEffect(id)) {
+            this.getStatusEffects().put(id, new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)));
+        }
+
         List<Integer> statusEffect = this.getStatusEffect(id);
         if (statusEffect.get(amplifier) < duration) {
             statusEffect.set(amplifier, duration);

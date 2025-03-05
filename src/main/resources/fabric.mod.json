@@ -13,8 +13,8 @@
 		}
 	],
 	"contact": {
-		"homepage": "https://modrinth.com/mod/Pentamana",
-		"sources": "https://github.com/CookedSeafood/Pentamana"
+		"homepage": "https://modrinth.com/mod/pentamana",
+		"sources": "https://github.com/CookedSeafood/pentamana"
 	},
 	"license": "GNU-GPL-3.0",
 	"icon": "assets/pentamana/icon.png",

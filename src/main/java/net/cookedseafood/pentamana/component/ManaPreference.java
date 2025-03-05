@@ -12,10 +12,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -27,53 +25,49 @@ import org.ladysnake.cca.api.v3.entity.RespawnableComponent;
 public class ManaPreference implements ManaPreferenceComponent, EntityComponentInitializer, RespawnableComponent<ManaPreferenceComponent> {
     public static final ComponentKey<ManaPreference> MANA_PREFERENCE =
         ComponentRegistry.getOrCreate(Identifier.of("pentamana", "mana_preference"), ManaPreference.class);
-    private boolean manaEnabled;
-    private boolean manaDisplay;
+    private boolean enabled;
+    private boolean display;
     private byte manaRenderType;
     private int manaFixedSize;
     private int pointsPerCharacter;
     private List<List<Text>> manaCharacters;
 
     public ManaPreference() {
-        this.manaEnabled = true;
-        this.manaDisplay = true;
+        this.enabled = true;
+        this.display = true;
         this.manaRenderType = (byte)1;
         this.pointsPerCharacter = 2;
         this.manaFixedSize = 20;
         this.manaCharacters = Stream.concat(
             Stream.of(
-                Collections.nCopies(256, (Text)Text.literal("\u2605").setStyle(
-                    Style.EMPTY.withColor(TextColor.fromRgb(0x55ffff))
-                )),
-                Collections.nCopies(256, (Text)Text.literal("\u2bea").setStyle(
-                    Style.EMPTY.withColor(TextColor.fromRgb(0x55ffff))
-                )),
-                Collections.nCopies(256, (Text)Text.literal("\u2606").setStyle(
-                    Style.EMPTY.withColor(TextColor.fromRgb(0x000000))
-                ))
+                Collections.nCopies(256, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
+                Collections.nCopies(256, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
+                Collections.nCopies(256, (Text)Text.literal("\u2606").formatted(Formatting.AQUA))
             ),
-            Collections.nCopies(125, Collections.nCopies(256, ScreenTexts.EMPTY)).stream()
-        ).collect(Collectors.toList());
+            Collections.nCopies(125, Collections.nCopies(256, (Text)Text.literal("�"))).stream()
+        )
+        .map(ArrayList::new)
+        .collect(Collectors.toList());
     }
 
     @Override
     public boolean getEnabled() {
-        return this.manaEnabled;
+        return this.enabled;
     }
 
     @Override
-    public void setEnabled(boolean manaEnabled) {
-        this.manaEnabled = manaEnabled;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
     public boolean getDisplay() {
-        return this.manaDisplay;
+        return this.display;
     }
 
     @Override
-    public void setDisplay(boolean manaDisplay) {
-        this.manaDisplay = manaDisplay;
+    public void setDisplay(boolean display) {
+        this.display = display;
     }
 
     @Override
@@ -118,12 +112,12 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
 
     @Override
     public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        this.manaEnabled = nbtCompound.contains("manaEnabled") ?
-            nbtCompound.getBoolean("manaEnabled") :
-            Pentamana.manaEnabled;
-        this.manaDisplay = nbtCompound.contains("manaDisplay") ?
-            nbtCompound.getBoolean("manaDisplay") :
-            Pentamana.manaDisplay;
+        this.enabled = nbtCompound.contains("enabled") ?
+            nbtCompound.getBoolean("enabled") :
+            Pentamana.enabled;
+        this.display = nbtCompound.contains("display") ?
+            nbtCompound.getBoolean("display") :
+            Pentamana.display;
         this.manaRenderType = nbtCompound.contains("manaRenderType", NbtElement.BYTE_TYPE) ?
             nbtCompound.getByte("manaRenderType") :
             Pentamana.manaRenderType;
@@ -143,13 +137,15 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
                     .collect(Collectors.toList())
                 )
                 .collect(Collectors.toList()) :
-            new ArrayList<>(Pentamana.manaCharacters);
+            Pentamana.manaCharacters.stream()
+                .map(ArrayList::new)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        nbtCompound.putBoolean("manaEnabled", manaEnabled);
-        nbtCompound.putBoolean("manaDisplay", manaDisplay);
+        nbtCompound.putBoolean("enabled", enabled);
+        nbtCompound.putBoolean("display", display);
         nbtCompound.putByte("manaRenderType", manaRenderType);
         nbtCompound.putInt("manaFixedSize", manaFixedSize);
         nbtCompound.putInt("pointsPerCharacter", pointsPerCharacter);

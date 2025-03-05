@@ -6,23 +6,19 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ManaDisplay;
 import net.cookedseafood.pentamana.component.ManaPreference;
-import net.cookedseafood.pentamana.component.ManaStatus;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.PlainTextContent;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 public class ManaCommand {
     private static final SimpleCommandExceptionType NOT_CUSTOMIZABLE_CHARACTER_TYPE_INDEX =
@@ -288,17 +284,18 @@ public class ManaCommand {
         int startManaCharIndex = manaCharacterIndex == -1 ? 0 : manaCharacterIndex;
         int endManaCharIndex = manaCharacterIndex == -1 ? Pentamana.MANA_CHARACTER_INDEX_LIMIT : manaCharacterIndex;
 
-        int miss = 0;
-        for (int characterTypeIndex = startManaCharTypeIndex; characterTypeIndex <= endManaCharTypeIndex; ++characterTypeIndex) {
-            for (int characterIndex = startManaCharIndex; characterIndex <= endManaCharIndex; ++characterIndex) {
-                if (!manaCharacters.get(characterTypeIndex).get(characterIndex).equals(manaCharacter)) {
-                    ++miss;
-                    manaCharacters.get(characterTypeIndex).set(characterIndex, manaCharacter);
-                }
-            }
-        }
+        MutableInt miss = new MutableInt(0);
+        IntStream.rangeClosed(startManaCharTypeIndex, endManaCharTypeIndex)
+            .forEach(cti -> IntStream.rangeClosed(startManaCharIndex, endManaCharIndex)
+                .forEach(ci -> {
+                    if (!manaCharacters.get(cti).get(ci).equals(manaCharacter)) {
+                        miss.increment();
+                        manaCharacters.get(cti).set(ci, manaCharacter);
+                    }
+                })
+            );
 
-        if (miss == 0) {
+        if (miss.intValue() == 0) {
             throw OPTION_CHARACTER_UNCHANGED_EXCEPTION.create(manaCharacterTypeIndex, manaCharacterIndex);
         }
 
@@ -309,10 +306,14 @@ public class ManaCommand {
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setDisplay(Pentamana.manaDisplay);
+        manaPreference.setDisplay(Pentamana.display);
         manaPreference.setManaRenderType(Pentamana.manaRenderType);
         manaPreference.setPointsPerCharacter(Pentamana.pointsPerCharacter);
-        manaPreference.setManaCharacters(new ArrayList<>(Pentamana.manaCharacters));
+        manaPreference.setManaCharacters(
+            Pentamana.manaCharacters.stream()
+                .map(ArrayList::new)
+                .collect(Collectors.toList())
+        );
 
         source.sendFeedback(() -> Text.literal("Reset mana options for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -321,7 +322,7 @@ public class ManaCommand {
     public static int executeResetDisplay(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setDisplay(Pentamana.manaDisplay);
+        manaPreference.setDisplay(Pentamana.display);
 
         source.sendFeedback(() -> Text.literal("Reset mana display for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -349,7 +350,11 @@ public class ManaCommand {
     public static int executeResetCharacters(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setManaCharacters(new ArrayList<>(Pentamana.manaCharacters));
+        manaPreference.setManaCharacters(
+            Pentamana.manaCharacters.stream()
+                .map(ArrayList::new)
+                .collect(Collectors.toList())
+        );
 
         source.sendFeedback(() -> Text.literal("Reset mana characters for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -359,111 +364,4 @@ public class ManaCommand {
         source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
         return Pentamana.reload();
 	}
-
-    private static Text getManabarGraphical(int manaCapacityPoint, int manaSupplyPoint, int pointsPerCharacter, List<List<Text>> manaCharacters) {
-        int manaCapacityPointTrimmed = manaCapacityPoint - manaCapacityPoint % pointsPerCharacter;
-        int manaPointTrimmed = manaSupplyPoint - manaSupplyPoint % pointsPerCharacter;
-
-        manaCapacityPointTrimmed = Math.min(manaCapacityPointTrimmed, Pentamana.manaPointLimit);
-
-        MutableText manabar = MutableText.of(PlainTextContent.EMPTY);
-        for (int manaPointIndex = 0; manaPointIndex < manaCapacityPointTrimmed; manaPointIndex += pointsPerCharacter) {
-            int manaCharacterTypeIndex =
-                manaPointIndex < manaPointTrimmed ?
-                0 : manaPointIndex < manaSupplyPoint ?
-                manaSupplyPoint - manaPointIndex : pointsPerCharacter;
-            int manaCharacterIndex = manaPointIndex / pointsPerCharacter;
-
-            Text character = manaCharacters.get(manaCharacterTypeIndex).get(manaCharacterIndex);
-            Text targetCharacter =
-                character.getString() == "" ?
-                Pentamana.manaCharacters.get(manaCharacterTypeIndex).get(manaCharacterIndex) :
-                character;
-
-            manabar.append(targetCharacter);
-        }
-
-        return manabar;
-    }
-
-    public static int executeDisplay(ServerCommandSource source) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-
-        boolean display = manaPreference.getDisplay();
-        if (display == false) {
-            return 0;
-        }
-
-        ManaDisplay manaDisplay = ManaDisplay.MANA_DISPLAY.get(player);
-
-        byte manabarLife = manaDisplay.getManabarLife();
-        if (manabarLife > (byte)0 && manabarLife < Pentamana.displaySuppressionInterval) {
-            return 1;
-        }
-
-        ManaStatus manaStatus = ManaStatus.MANA_STATUS.get(player);
-
-        float manaCapacity = manaStatus.getManaCapacity();
-		float manaSupply = manaStatus.getManaSupply();
-
-        byte manaRenderType = manaPreference.getManaRenderType();
-        if (manaRenderType == Pentamana.ManaRenderType.FLEX_SIZE.getIndex()) {
-            int manaCapacityPoint = (int)(manaCapacity / Pentamana.manaPerPoint);
-            int manaSupplyPoint = (int)(manaSupply / Pentamana.manaPerPoint);
-            if (manaDisplay.getManaCapacityPoint() == manaCapacityPoint && manaDisplay.getManaSupplyPoint() == manaSupplyPoint && manabarLife < (byte)0) {
-                return 2;
-            }
-
-            manaDisplay.setManaCapacityPoint(manaCapacityPoint);
-            manaDisplay.setManaSupplyPoint(manaSupplyPoint);
-            manaDisplay.setManabarLife((byte)-Pentamana.displayIdleInterval);
-            player.sendMessage(getManabarGraphical(manaCapacityPoint, manaSupplyPoint, manaPreference.getPointsPerCharacter(), manaPreference.getManaCharacters()), true);
-            return 3;
-        }
-
-        if (manaRenderType == Pentamana.ManaRenderType.FIXED_SIZE.getIndex()) {
-            int pointsPerCharacter = manaPreference.getPointsPerCharacter();
-
-            int manaCapacityPoint = pointsPerCharacter * manaPreference.getManaFixedSize();
-            int manaSupplyPoint = (int)(manaSupply / manaCapacity * manaCapacityPoint);
-            if (manaDisplay.getManaCapacityPoint() == manaCapacityPoint && manaDisplay.getManaSupplyPoint() == manaSupplyPoint && manabarLife < (byte)0) {
-                return 2;
-            }
-
-            manaDisplay.setManaCapacityPoint(manaCapacityPoint);
-            manaDisplay.setManaSupplyPoint(manaSupplyPoint);
-            manaDisplay.setManabarLife((byte)-Pentamana.displayIdleInterval);
-            player.sendMessage(getManabarGraphical(manaCapacityPoint, manaSupplyPoint, pointsPerCharacter, manaPreference.getManaCharacters()), true);
-            return 3;
-        }
-
-        if (manaRenderType == Pentamana.ManaRenderType.NUMBERIC.getIndex()) {
-            int manaCapacityPoint = (int)(manaCapacity / Pentamana.manaPerPoint);
-            int manaSupplyPoint = (int)(manaSupply / Pentamana.manaPerPoint);
-            if (manaDisplay.getManaCapacityPoint() == manaCapacityPoint && manaDisplay.getManaSupplyPoint() == manaSupplyPoint && manabarLife < (byte)0) {
-                return 2;
-            }
-
-            manaDisplay.setManaCapacityPoint(manaCapacityPoint);
-            manaDisplay.setManaSupplyPoint(manaSupplyPoint);
-            manaDisplay.setManabarLife((byte)-Pentamana.displayIdleInterval);
-            player.sendMessage(Text.literal(manaSupplyPoint + "/" + manaCapacityPoint).setStyle(Style.EMPTY.withColor(Formatting.AQUA)), true);
-            return 3;
-        }
-
-        if (manaRenderType == Pentamana.ManaRenderType.PERCENTAGE.getIndex()) {
-            byte manaSupplyPercent = (byte)(manaSupply / manaCapacity * 100);
-            if (manaDisplay.getManaSupplyPercent() == manaSupplyPercent && manabarLife < (byte)0) {
-                return 2;
-            }
-
-            manaDisplay.setManaSupplyPercent(manaSupplyPercent);
-            manaDisplay.setManabarLife((byte)-Pentamana.displayIdleInterval);
-            player.sendMessage(Text.literal(manaSupplyPercent + "%").setStyle(Style.EMPTY.withColor(Formatting.AQUA)), true);
-            return 3;
-        }
-
-        return -1;
-    }
 }

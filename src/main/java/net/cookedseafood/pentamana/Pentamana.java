@@ -16,10 +16,8 @@ import net.cookedseafood.pentamana.command.PentamanaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 4;
-	public static final byte VERSION_PATCH = 1;
+	public static final byte VERSION_PATCH = 3;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -58,24 +56,18 @@ public class Pentamana implements ModInitializer {
     public static final int STATUS_EFFECT_MANA_INHIBITION_BASE = 40;
     public static final byte DISPLAY_IDLE_INTERVAL = 40/* 20*2 */;
 	public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
-    public static final boolean FORCE_MANA_ENABLED = false;
-    public static final boolean MANA_ENABLED = true;
-    public static final boolean MANA_DISPLAY = true;
+    public static final boolean FORCE_ENABLED = false;
+    public static final boolean ENABLED = true;
+    public static final boolean DISPLAY = true;
     public static final byte MANA_RENDER_TYPE = 0;
     public static final int MANA_FIXED_SIZE = 20;
     public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
         Stream.of(
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").setStyle(
-                Style.EMPTY.withColor(TextColor.fromRgb(0x55ffff))
-            )),
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2bea").setStyle(
-                Style.EMPTY.withColor(TextColor.fromRgb(0x55ffff))
-            )),
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").setStyle(
-                Style.EMPTY.withColor(TextColor.fromRgb(0x000000))
-            ))
+            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
+            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
+            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").formatted(Formatting.AQUA))
         ),
-        Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, ScreenTexts.EMPTY)).stream()
+        Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
     ).collect(Collectors.toUnmodifiableList());
 
 	public static int manaPerPoint;
@@ -97,8 +89,8 @@ public class Pentamana implements ModInitializer {
     public static byte displayIdleInterval;
 	public static byte displaySuppressionInterval;
 	public static boolean forceManaEnabled;
-    public static boolean manaEnabled;
-    public static boolean manaDisplay;
+    public static boolean enabled;
+    public static boolean display;
     public static byte manaRenderType;
     public static int manaFixedSize;
 	public static List<List<Text>> manaCharacters;
@@ -206,15 +198,15 @@ public class Pentamana implements ModInitializer {
         forceManaEnabled =
             config.has("forceManaEnabled") ?
             config.get("forceManaEnabled").getAsBoolean() :
-            FORCE_MANA_ENABLED;
-        manaEnabled =
-            config.has("manaEnabled") ?
-            config.get("manaEnabled").getAsBoolean() :
-            MANA_ENABLED;
-        manaDisplay =
-            config.has("manaDisplay") ?
-            config.get("manaDisplay").getAsBoolean() :
-            MANA_DISPLAY;
+            FORCE_ENABLED;
+        enabled =
+            config.has("enabled") ?
+            config.get("enabled").getAsBoolean() :
+            ENABLED;
+        display =
+            config.has("display") ?
+            config.get("display").getAsBoolean() :
+            DISPLAY;
         manaRenderType =
             config.has("manaRenderType") ?
             config.get("manaRenderType").getAsByte() :
@@ -246,7 +238,7 @@ public class Pentamana implements ModInitializer {
             .map(incompleteManaCharacters -> incompleteManaCharacters.size() <= MANA_CHARACTER_TYPE_INDEX_LIMIT ?
                 Stream.concat(
                     incompleteManaCharacters.stream(),
-                    Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - incompleteManaCharacters.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, ScreenTexts.EMPTY)).stream()
+                    Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - incompleteManaCharacters.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
                 )
                 .collect(Collectors.toUnmodifiableList()) :
                 incompleteManaCharacters
@@ -278,9 +270,9 @@ public class Pentamana implements ModInitializer {
         statusEffectManaSicknessBase        = STATUS_EFFECT_MANA_SICKNESS_BASE;
         displayIdleInterval                 = DISPLAY_IDLE_INTERVAL;
         displaySuppressionInterval          = DISPLAY_SUPPRESSION_INTERVAL;
-        forceManaEnabled                    = FORCE_MANA_ENABLED;
-        manaEnabled                         = MANA_ENABLED;
-        manaDisplay                         = MANA_DISPLAY;
+        forceManaEnabled                    = FORCE_ENABLED;
+        enabled                             = ENABLED;
+        display                         = DISPLAY;
         manaRenderType                      = MANA_RENDER_TYPE;
         manaFixedSize                       = MANA_FIXED_SIZE;
         manaCharacters                      = MANA_CHARACTERS;

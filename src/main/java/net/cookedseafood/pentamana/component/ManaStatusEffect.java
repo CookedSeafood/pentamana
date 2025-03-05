@@ -2,6 +2,7 @@ package net.cookedseafood.pentamana.component;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +15,8 @@ import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
+
+import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -26,24 +29,7 @@ public class ManaStatusEffect implements ManaStatusEffectComponent, EntityCompon
     private Map<String, List<Integer>> statusEffects;
 
     public ManaStatusEffect() {
-        this.statusEffects = Map.of(
-            "pentamana:mana_regeneration",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:mana_inhibition",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:instant_mana",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:instant_deplete",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:mana_boost",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:mana_reduction",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:mana_power",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)),
-            "pentamana:mana_sickness",
-            new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0))
-        );
+        this.statusEffects = new HashMap<>();
     }
 
     @Override
@@ -55,7 +41,8 @@ public class ManaStatusEffect implements ManaStatusEffectComponent, EntityCompon
     }
 
     @Override
-    public Map<String, List<Integer>> getStatusEffect() {
+    @NotNull
+    public Map<String, List<Integer>> getStatusEffects() {
         return this.statusEffects;
     }
 

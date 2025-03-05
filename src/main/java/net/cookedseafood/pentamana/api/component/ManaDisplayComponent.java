@@ -1,8 +1,11 @@
 package net.cookedseafood.pentamana.api.component;
 
+import net.minecraft.entity.player.PlayerEntity;
 import org.ladysnake.cca.api.v3.component.Component;
 
 public interface ManaDisplayComponent extends Component {
+    void tick(PlayerEntity player);
+
     byte getManabarLife();
 
     byte setManabarLife(byte value);
