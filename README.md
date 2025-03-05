@@ -28,8 +28,8 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "displayIdleInterval": 40,
   "displaySuppressionInterval": 40,
   "forceManaEnabled": false,
-  "manaEnabled": true,
-  "manaDisplay": true,
+  "enabled": true,
+  "display": true,
   "manaRenderType": 0,
   "manaFixedSize": 20,
   "manaCharacters": [["{\"text\":\"★\",\"color\":\"aqua\"}"],["{\"text\":\"⯪\",\"color\":\"aqua\"}"],["{\"text\":\"☆\",\"color\":\"black\"}"]]
@@ -56,8 +56,8 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `displaySuppressionInterval` Ticks actionbar not updating if interrupted.
 - `maxManaCharIndexForDisplay` Literally, in characters, for perfermence sack.
 - `forceManaEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
-- `manaEnabled` Default preference.
-- `manaDisplay` Default preference.
+- `enabled` Default preference.
+- `display` Default preference.
 - `manaRenderType` Default preference. 0 if flex_size, 1 if fixed_size, 2 if numberic, 3 if percentage.
 - `manaFixedSize` Default preference, in characters.
 - `manaCharacters` Default preference. from 0% to 100% point character.
