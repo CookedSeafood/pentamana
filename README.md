@@ -30,7 +30,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "forceManaEnabled": false,
   "enabled": true,
   "display": true,
-  "manaRenderType": 0,
+  "manaRenderType": "flex_size",
   "manaFixedSize": 20,
   "manaCharacters": [["{\"text\":\"★\",\"color\":\"aqua\"}"],["{\"text\":\"⯪\",\"color\":\"aqua\"}"],["{\"text\":\"☆\",\"color\":\"black\"}"]]
 }
@@ -58,7 +58,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `forceManaEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
 - `enabled` Default preference.
 - `display` Default preference.
-- `manaRenderType` Default preference. 0 if flex_size, 1 if fixed_size, 2 if numberic, 3 if percentage.
+- `manaRenderType` Default preference. Can be flex_size, fixed_size, numberic and percentage.
 - `manaFixedSize` Default preference, in characters.
 - `manaCharacters` Default preference. from 0% to 100% point character.
 
