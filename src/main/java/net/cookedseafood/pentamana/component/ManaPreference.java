@@ -42,10 +42,11 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
             Stream.of(
                 Collections.nCopies(256, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
                 Collections.nCopies(256, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
-                Collections.nCopies(256, (Text)Text.literal("\u2606").formatted(Formatting.AQUA))
+                Collections.nCopies(256, (Text)Text.literal("\u2606").formatted(Formatting.BLACK))
             ),
-            Collections.nCopies(125, Collections.nCopies(256, (Text)Text.literal("�"))).stream()
+            Collections.nCopies(125, Collections.nCopies(256, (Text)Text.literal("\ufffd"))).stream()
         )
+        .collect(Collectors.toUnmodifiableList()).stream()
         .map(ArrayList::new)
         .collect(Collectors.toList());
     }
@@ -118,9 +119,9 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
         this.display = nbtCompound.contains("display") ?
             nbtCompound.getBoolean("display") :
             Pentamana.display;
-        this.manaRenderType = nbtCompound.contains("manaRenderType", NbtElement.BYTE_TYPE) ?
-            nbtCompound.getByte("manaRenderType") :
-            Pentamana.manaRenderType;
+        this.manaRenderType = nbtCompound.contains("manaRenderType", NbtElement.STRING_TYPE) ?
+            Pentamana.ManaRenderType.getIndex(nbtCompound.getString("manaRenderType")) :
+            Pentamana.manaRenderType.getIndex();
         this.manaFixedSize = nbtCompound.contains("manaFixedSize", NbtElement.INT_TYPE) ?
             nbtCompound.getInt("manaFixedSize") :
             Pentamana.manaFixedSize;
@@ -146,7 +147,7 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
     public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
         nbtCompound.putBoolean("enabled", enabled);
         nbtCompound.putBoolean("display", display);
-        nbtCompound.putByte("manaRenderType", manaRenderType);
+        nbtCompound.putString("manaRenderType", Pentamana.ManaRenderType.getName(manaRenderType));
         nbtCompound.putInt("manaFixedSize", manaFixedSize);
         nbtCompound.putInt("pointsPerCharacter", pointsPerCharacter);
         nbtCompound.put("manaCharacters", manaCharacters.stream()

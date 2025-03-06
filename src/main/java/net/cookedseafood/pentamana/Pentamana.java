@@ -32,7 +32,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 4;
-	public static final byte VERSION_PATCH = 3;
+	public static final byte VERSION_PATCH = 5;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -59,15 +59,15 @@ public class Pentamana implements ModInitializer {
     public static final boolean FORCE_ENABLED = false;
     public static final boolean ENABLED = true;
     public static final boolean DISPLAY = true;
-    public static final byte MANA_RENDER_TYPE = 0;
+    public static final ManaRenderType MANA_RENDER_TYPE = Pentamana.ManaRenderType.FLEX_SIZE;
     public static final int MANA_FIXED_SIZE = 20;
     public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
         Stream.of(
             Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
             Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").formatted(Formatting.AQUA))
+            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").formatted(Formatting.BLACK))
         ),
-        Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
+        Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\ufffd"))).stream()
     ).collect(Collectors.toUnmodifiableList());
 
 	public static int manaPerPoint;
@@ -91,7 +91,7 @@ public class Pentamana implements ModInitializer {
 	public static boolean forceManaEnabled;
     public static boolean enabled;
     public static boolean display;
-    public static byte manaRenderType;
+    public static ManaRenderType manaRenderType;
     public static int manaFixedSize;
 	public static List<List<Text>> manaCharacters;
 
@@ -209,7 +209,7 @@ public class Pentamana implements ModInitializer {
             DISPLAY;
         manaRenderType =
             config.has("manaRenderType") ?
-            config.get("manaRenderType").getAsByte() :
+            ManaRenderType.byName(config.get("manaRenderType").getAsString()) :
             MANA_RENDER_TYPE;
         manaFixedSize =
             config.has("manaFixedSize") ?
@@ -272,7 +272,7 @@ public class Pentamana implements ModInitializer {
         displaySuppressionInterval          = DISPLAY_SUPPRESSION_INTERVAL;
         forceManaEnabled                    = FORCE_ENABLED;
         enabled                             = ENABLED;
-        display                         = DISPLAY;
+        display                             = DISPLAY;
         manaRenderType                      = MANA_RENDER_TYPE;
         manaFixedSize                       = MANA_FIXED_SIZE;
         manaCharacters                      = MANA_CHARACTERS;

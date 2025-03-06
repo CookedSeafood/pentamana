@@ -307,7 +307,7 @@ public class ManaCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
         manaPreference.setDisplay(Pentamana.display);
-        manaPreference.setManaRenderType(Pentamana.manaRenderType);
+        manaPreference.setManaRenderType(Pentamana.manaRenderType.getIndex());
         manaPreference.setPointsPerCharacter(Pentamana.pointsPerCharacter);
         manaPreference.setManaCharacters(
             Pentamana.manaCharacters.stream()
@@ -331,7 +331,7 @@ public class ManaCommand {
     public static int executeResetManaRenderType(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setManaRenderType(Pentamana.manaRenderType);
+        manaPreference.setManaRenderType(Pentamana.manaRenderType.getIndex());
         manaPreference.setManaFixedSize(Pentamana.manaFixedSize);
 
         source.sendFeedback(() -> Text.literal("Reset mana render type for player " + player.getNameForScoreboard() + "."), false);
