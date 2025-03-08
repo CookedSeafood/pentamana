@@ -38,9 +38,9 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 
 - `manaPerPoint` Amount of mana to be considered as 1 mana point.
 - `pointsPerCharacter` Default preference. Amount of mana points to be considered as 1 mana character.
-- `manaCapacityBase` Initial mana capacity. Should be odd.
+- `manaCapacityBase` Initial mana capacity.
 - `manaRegenBase` Initial mana regen amount per tick.
-- `enchantmentCapacityBase` Level multiplier, the result will be added to mana capacity. Sould be even.
+- `enchantmentCapacityBase` Level multiplier, the result will be added to mana capacity.
 - `enchantmentStreamBase` Level multiplier, the result will be added to mana regeneration.
 - `enchantmentUtilizationBase` Level multiplier, the result in 100% will be saved.
 - `enchantmentPotencyBase` Level multiplier, the result will be added to casting damage.
@@ -73,6 +73,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
 - `/mana reset [<visibility|render_type|points_per_character|character>]` Reset mana options for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
+- `/pentamana debug ...` Debug commands. (May be changed frequently)
 
 ## Modifiers
 
@@ -88,15 +89,15 @@ Modifiers can be added or removed from items using custom data components. They 
    \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest` and `head`.
 ```
 
-Below is an example modifier which increase mana capacity by 2,490,368(![2PointManaChar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×19) when held in offhand.
+Below is an example modifier which increase mana capacity by 120(![2PointManaChar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×60) when held in offhand.
 
 ```component
 [
-  custom_data={
+  minecraft:custom_data={
     modifiers: [
       {
         attribute: "pentamana:mana_capacity",
-        base: 2490368.0d,
+        base: 120.0d,
         operation: "add_value",
         slot: "offhand"
       }
@@ -117,11 +118,11 @@ Status effects can be added or removed from items using custom data components. 
    \- [int] amplifier: value.
 ```
 
-Below is an example status effect which increase the mana by 1,048,576(![2PointManaChar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
+Below is an example status effect which increase the mana by 16(![2PointManaChar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
 
 ```component
 [
-  custom_data={
+  minecraft:custom_data={
     status_effects: [
       {
         id: "pentamana:instant_mana",
