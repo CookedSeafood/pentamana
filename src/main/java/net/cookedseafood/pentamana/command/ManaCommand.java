@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.component.ManaPreference;
@@ -307,13 +306,9 @@ public class ManaCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
         manaPreference.setDisplay(Pentamana.display);
-        manaPreference.setManaRenderType(Pentamana.manaRenderType.getIndex());
+        manaPreference.setManaRenderType(Pentamana.manaRenderType);
         manaPreference.setPointsPerCharacter(Pentamana.pointsPerCharacter);
-        manaPreference.setManaCharacters(
-            Pentamana.manaCharacters.stream()
-                .map(ArrayList::new)
-                .collect(Collectors.toList())
-        );
+        manaPreference.setManaCharacters(new ArrayList<>(Pentamana.manaCharacters));
 
         source.sendFeedback(() -> Text.literal("Reset mana options for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -331,7 +326,7 @@ public class ManaCommand {
     public static int executeResetManaRenderType(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setManaRenderType(Pentamana.manaRenderType.getIndex());
+        manaPreference.setManaRenderType(Pentamana.manaRenderType);
         manaPreference.setManaFixedSize(Pentamana.manaFixedSize);
 
         source.sendFeedback(() -> Text.literal("Reset mana render type for player " + player.getNameForScoreboard() + "."), false);
@@ -350,11 +345,7 @@ public class ManaCommand {
     public static int executeResetCharacters(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setManaCharacters(
-            Pentamana.manaCharacters.stream()
-                .map(ArrayList::new)
-                .collect(Collectors.toList())
-        );
+        manaPreference.setManaCharacters(new ArrayList<>(Pentamana.manaCharacters));
 
         source.sendFeedback(() -> Text.literal("Reset mana characters for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -362,6 +353,6 @@ public class ManaCommand {
 
     public static int executeReload(ServerCommandSource source) {
         source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
-        return Pentamana.reload();
+        return Pentamana.reload(source.getServer());
 	}
 }

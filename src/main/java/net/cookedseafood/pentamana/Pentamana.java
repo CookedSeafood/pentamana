@@ -1,11 +1,11 @@
 package net.cookedseafood.pentamana;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ import net.cookedseafood.pentamana.command.ManaCommand;
 import net.cookedseafood.pentamana.command.PentamanaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +32,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 4;
-	public static final byte VERSION_PATCH = 5;
+	public static final byte VERSION_PATCH = 6;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -59,7 +59,7 @@ public class Pentamana implements ModInitializer {
     public static final boolean FORCE_ENABLED = false;
     public static final boolean ENABLED = true;
     public static final boolean DISPLAY = true;
-    public static final ManaRenderType MANA_RENDER_TYPE = Pentamana.ManaRenderType.FLEX_SIZE;
+    public static final byte MANA_RENDER_TYPE = Pentamana.ManaRenderType.FLEX_SIZE.getIndex();
     public static final int MANA_FIXED_SIZE = 20;
     public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
         Stream.of(
@@ -68,7 +68,9 @@ public class Pentamana implements ModInitializer {
             Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").formatted(Formatting.BLACK))
         ),
         Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\ufffd"))).stream()
-    ).collect(Collectors.toUnmodifiableList());
+    )
+    .map(ArrayList::new)
+    .collect(Collectors.toList());
 
 	public static int manaPerPoint;
     public static int pointsPerCharacter;
@@ -91,7 +93,7 @@ public class Pentamana implements ModInitializer {
 	public static boolean forceManaEnabled;
     public static boolean enabled;
     public static boolean display;
-    public static ManaRenderType manaRenderType;
+    public static byte manaRenderType;
     public static int manaFixedSize;
 	public static List<List<Text>> manaCharacters;
 
@@ -105,13 +107,9 @@ public class Pentamana implements ModInitializer {
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
-
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			ManaCommand.executeReload(server.getCommandSource());
-		});
 	}
 
-	public static int reload() {
+	public static int reload(MinecraftServer server) {
 		String configString;
 		try {
 			configString = FileUtils.readFileToString(new File("./config/pentamana.json"), StandardCharsets.UTF_8);
@@ -209,7 +207,7 @@ public class Pentamana implements ModInitializer {
             DISPLAY;
         manaRenderType =
             config.has("manaRenderType") ?
-            ManaRenderType.byName(config.get("manaRenderType").getAsString()) :
+            ManaRenderType.getIndex(config.get("manaRenderType").getAsString()) :
             MANA_RENDER_TYPE;
         manaFixedSize =
             config.has("manaFixedSize") ?
@@ -219,28 +217,27 @@ public class Pentamana implements ModInitializer {
             config.has("manaCharacters") ?
             Stream.of(
                 config.get("manaCharacters").getAsJsonArray().asList().stream()
-                .map(incompleteManaCharacterType -> incompleteManaCharacterType.getAsJsonArray().asList().stream()
-                    .map(JsonElement::getAsString)
-                    .map(Text::literal)
-                    .map(Text.class::cast)
-                    .collect(Collectors.toUnmodifiableList())
-                )
-                .map(incompleteManaCharacterType -> incompleteManaCharacterType.size() <= MANA_CHARACTER_INDEX_LIMIT ?
-                    Stream.concat(
-                        incompleteManaCharacterType.stream(),
-                        Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1 - incompleteManaCharacterType.size(), incompleteManaCharacterType.getFirst()).stream()
+                    .map(incompleteManaCharacterType -> incompleteManaCharacterType.getAsJsonArray().asList().stream()
+                        .map(manaCharacter -> Text.Serialization.fromJsonTree(config, server.getRegistryManager()))
+                        .map(Text.class::cast)
+                        .collect(Collectors.toList())
                     )
-                    .collect(Collectors.toUnmodifiableList()) :
-                    incompleteManaCharacterType
-                )
-                .collect(Collectors.toUnmodifiableList())
+                    .map(incompleteManaCharacterType -> incompleteManaCharacterType.size() <= MANA_CHARACTER_INDEX_LIMIT ?
+                        Stream.concat(
+                            incompleteManaCharacterType.stream(),
+                            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1 - incompleteManaCharacterType.size(), incompleteManaCharacterType.getFirst()).stream()
+                        )
+                        .collect(Collectors.toList()) :
+                        incompleteManaCharacterType
+                    )
+                    .collect(Collectors.toList())
             )
             .map(incompleteManaCharacters -> incompleteManaCharacters.size() <= MANA_CHARACTER_TYPE_INDEX_LIMIT ?
                 Stream.concat(
                     incompleteManaCharacters.stream(),
                     Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - incompleteManaCharacters.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
                 )
-                .collect(Collectors.toUnmodifiableList()) :
+                .collect(Collectors.toList()) :
                 incompleteManaCharacters
             )
             .findAny()

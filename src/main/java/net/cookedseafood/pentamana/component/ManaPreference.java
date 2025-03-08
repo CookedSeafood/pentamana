@@ -1,10 +1,8 @@
 package net.cookedseafood.pentamana.component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.component.ManaPreferenceComponent;
 import net.minecraft.nbt.NbtCompound;
@@ -13,7 +11,6 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -33,22 +30,12 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
     private List<List<Text>> manaCharacters;
 
     public ManaPreference() {
-        this.enabled = true;
-        this.display = true;
-        this.manaRenderType = (byte)1;
-        this.pointsPerCharacter = 2;
-        this.manaFixedSize = 20;
-        this.manaCharacters = Stream.concat(
-            Stream.of(
-                Collections.nCopies(256, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
-                Collections.nCopies(256, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
-                Collections.nCopies(256, (Text)Text.literal("\u2606").formatted(Formatting.BLACK))
-            ),
-            Collections.nCopies(125, Collections.nCopies(256, (Text)Text.literal("\ufffd"))).stream()
-        )
-        .collect(Collectors.toUnmodifiableList()).stream()
-        .map(ArrayList::new)
-        .collect(Collectors.toList());
+        this.enabled = Pentamana.ENABLED;
+        this.display = Pentamana.DISPLAY;
+        this.manaRenderType = Pentamana.MANA_RENDER_TYPE;
+        this.pointsPerCharacter = Pentamana.POINTS_PER_CHARACTER;
+        this.manaFixedSize = Pentamana.MANA_FIXED_SIZE;
+        this.manaCharacters = new ArrayList<>(Pentamana.MANA_CHARACTERS);
     }
 
     @Override
@@ -121,7 +108,7 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
             Pentamana.display;
         this.manaRenderType = nbtCompound.contains("manaRenderType", NbtElement.STRING_TYPE) ?
             Pentamana.ManaRenderType.getIndex(nbtCompound.getString("manaRenderType")) :
-            Pentamana.manaRenderType.getIndex();
+            Pentamana.manaRenderType;
         this.manaFixedSize = nbtCompound.contains("manaFixedSize", NbtElement.INT_TYPE) ?
             nbtCompound.getInt("manaFixedSize") :
             Pentamana.manaFixedSize;
@@ -133,14 +120,12 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
                 .map(manaCharacterType -> ((NbtList)manaCharacterType).stream()
                     .map(NbtString.class::cast)
                     .map(NbtString::asString)
-                    .map(Text::literal)
+                    .map(manaCharacter -> Text.Serialization.fromJson(manaCharacter, registryLookup))
                     .map(Text.class::cast)
                     .collect(Collectors.toList())
                 )
                 .collect(Collectors.toList()) :
-            Pentamana.manaCharacters.stream()
-                .map(ArrayList::new)
-                .collect(Collectors.toList());
+            new ArrayList<>(Pentamana.manaCharacters);
     }
 
     @Override
@@ -152,7 +137,7 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
         nbtCompound.putInt("pointsPerCharacter", pointsPerCharacter);
         nbtCompound.put("manaCharacters", manaCharacters.stream()
             .map(manaCharacterType -> manaCharacterType.stream()
-                .map(Text::getString)
+                .map(manaCharacter -> Text.Serialization.toJsonString(manaCharacter, registryLookup))
                 .map(NbtString::of)
                 .collect(NbtList::new, NbtList::add, (left, right) -> left.addAll(right))
             )
