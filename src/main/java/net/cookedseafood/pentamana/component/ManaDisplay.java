@@ -33,8 +33,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     public void tick(PlayerEntity player) {
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
 
-        boolean display = manaPreference.getDisplay();
-        if (display == false) {
+        if (manaPreference.getVisibility() == false) {
             return;
         }
 

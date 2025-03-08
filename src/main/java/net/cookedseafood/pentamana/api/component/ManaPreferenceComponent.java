@@ -7,11 +7,11 @@ import org.ladysnake.cca.api.v3.component.Component;
 public interface ManaPreferenceComponent extends Component {
     boolean getEnabled();
 
-    void setEnabled(boolean manaEnabled);
+    void setEnabled(boolean isEnabled);
 
-    boolean getDisplay();
+    boolean getVisibility();
 
-    void setDisplay(boolean manaDisplay);
+    void setVisibility(boolean isVisible);
 
     byte getManaRenderType();
 

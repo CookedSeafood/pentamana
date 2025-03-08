@@ -28,8 +28,8 @@ public class ManaCommand {
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already enabled for that player."));
     private static final SimpleCommandExceptionType OPTION_ALREADY_DISABLED_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
-    private static final DynamicCommandExceptionType OPTION_DISPLAY_UNCHANGED_EXCEPTION =
-        new DynamicCommandExceptionType(display -> Text.literal("Nothing changed. That player already has " + (boolean)display + " for mana display."));
+    private static final DynamicCommandExceptionType OPTION_VISIBILITY_UNCHANGED_EXCEPTION =
+        new DynamicCommandExceptionType(isVisible -> Text.literal("Nothing changed. That player already has " + (boolean)isVisible + " for mana visibility."));
     private static final SimpleCommandExceptionType OPTION_RENDER_TYPE_ALREADY_FLEX_SIZE_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana render type is already set to flex size for that player."));
     private static final DynamicCommandExceptionType OPTION_RENDER_TYPE_ALREADY_FIXED_SIZE_EXCEPTION =
@@ -60,14 +60,14 @@ public class ManaCommand {
             .then(
                 CommandManager.literal("set")
                 .then(
-                    CommandManager.literal("display")
+                    CommandManager.literal("visibility")
                     .then(
                         CommandManager.literal("false")
-                        .executes(context -> executeSetDisplay((ServerCommandSource)context.getSource(), false))
+                        .executes(context -> executeSetVisibility((ServerCommandSource)context.getSource(), false))
                     )
                     .then(
                         CommandManager.literal("true")
-                        .executes(context -> executeSetDisplay((ServerCommandSource)context.getSource(), true))
+                        .executes(context -> executeSetVisibility((ServerCommandSource)context.getSource(), true))
                     )
                 )
                 .then(
@@ -120,8 +120,8 @@ public class ManaCommand {
                 CommandManager.literal("reset")
                 .executes(context -> executeReset((ServerCommandSource)context.getSource()))
                 .then(
-                    CommandManager.literal("display")
-                    .executes(context -> executeResetDisplay((ServerCommandSource)context.getSource()))
+                    CommandManager.literal("visibility")
+                    .executes(context -> executeResetVisibility((ServerCommandSource)context.getSource()))
                 )
                 .then(
                     CommandManager.literal("render_type")
@@ -167,23 +167,23 @@ public class ManaCommand {
         manaPreference.setEnabled(false);
 
         source.sendFeedback(() -> Text.literal("Disabled mana for player " + player.getNameForScoreboard() + "."), false);
-        if (Pentamana.forceManaEnabled) {
+        if (Pentamana.isForceEnabled) {
             source.sendFeedback(() -> Text.literal("Mana calculation will continue due to the force enabled mode is turned on in server."), false);
         }
 
         return 1;
     }
 
-    public static int executeSetDisplay(ServerCommandSource source, boolean display) throws CommandSyntaxException {
+    public static int executeSetVisibility(ServerCommandSource source, boolean isVisible) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        if (manaPreference.getDisplay() == display) {
-            throw OPTION_DISPLAY_UNCHANGED_EXCEPTION.create(display);
+        if (manaPreference.getVisibility() == isVisible) {
+            throw OPTION_VISIBILITY_UNCHANGED_EXCEPTION.create(isVisible);
         }
 
-        manaPreference.setDisplay(display);
+        manaPreference.setVisibility(isVisible);
 
-        source.sendFeedback(() -> Text.literal("Updated the mana display for player " + player.getNameForScoreboard() + " to " + display + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated the mana visibility for player " + player.getNameForScoreboard() + " to " + isVisible + "."), false);
         return 1;
     }
 
@@ -305,7 +305,7 @@ public class ManaCommand {
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setDisplay(Pentamana.display);
+        manaPreference.setVisibility(Pentamana.isVisible);
         manaPreference.setManaRenderType(Pentamana.manaRenderType);
         manaPreference.setPointsPerCharacter(Pentamana.pointsPerCharacter);
         manaPreference.setManaCharacters(new ArrayList<>(Pentamana.manaCharacters));
@@ -314,12 +314,12 @@ public class ManaCommand {
         return 0;
     }
 
-    public static int executeResetDisplay(ServerCommandSource source) throws CommandSyntaxException {
+    public static int executeResetVisibility(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        manaPreference.setDisplay(Pentamana.display);
+        manaPreference.setVisibility(Pentamana.isVisible);
 
-        source.sendFeedback(() -> Text.literal("Reset mana display for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset mana visibility for player " + player.getNameForScoreboard() + "."), false);
         return 0;
     }
 

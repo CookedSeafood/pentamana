@@ -15,6 +15,7 @@ import net.cookedseafood.pentamana.command.ManaCommand;
 import net.cookedseafood.pentamana.command.PentamanaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -32,7 +33,7 @@ public class Pentamana implements ModInitializer {
 
 	public static final byte VERSION_MAJOR = 0;
 	public static final byte VERSION_MINOR = 4;
-	public static final byte VERSION_PATCH = 6;
+	public static final byte VERSION_PATCH = 7;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -56,9 +57,9 @@ public class Pentamana implements ModInitializer {
     public static final int STATUS_EFFECT_MANA_INHIBITION_BASE = 40;
     public static final byte DISPLAY_IDLE_INTERVAL = 40/* 20*2 */;
 	public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
-    public static final boolean FORCE_ENABLED = false;
-    public static final boolean ENABLED = true;
-    public static final boolean DISPLAY = true;
+    public static final boolean IS_FORCE_ENABLED = false;
+    public static final boolean IS_ENABLED = true;
+    public static final boolean IS_VISIBLE = true;
     public static final byte MANA_RENDER_TYPE = Pentamana.ManaRenderType.FLEX_SIZE.getIndex();
     public static final int MANA_FIXED_SIZE = 20;
     public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
@@ -90,14 +91,15 @@ public class Pentamana implements ModInitializer {
     public static int statusEffectManaInhibitionBase;
     public static byte displayIdleInterval;
 	public static byte displaySuppressionInterval;
-	public static boolean forceManaEnabled;
-    public static boolean enabled;
-    public static boolean display;
+	public static boolean isForceEnabled;
+    public static boolean isEnabled;
+    public static boolean isVisible;
     public static byte manaRenderType;
     public static int manaFixedSize;
 	public static List<List<Text>> manaCharacters;
 
     public static int manaPointLimit;
+    public static boolean isLoaded;
 
 	@Override
 	public void onInitialize() {
@@ -107,6 +109,10 @@ public class Pentamana implements ModInitializer {
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            reload(server);
+        });
 	}
 
 	public static int reload(MinecraftServer server) {
@@ -193,18 +199,18 @@ public class Pentamana implements ModInitializer {
             config.has("displaySuppressionInterval") ?
             config.get("displaySuppressionInterval").getAsByte() :
             DISPLAY_SUPPRESSION_INTERVAL;
-        forceManaEnabled =
-            config.has("forceManaEnabled") ?
-            config.get("forceManaEnabled").getAsBoolean() :
-            FORCE_ENABLED;
-        enabled =
-            config.has("enabled") ?
-            config.get("enabled").getAsBoolean() :
-            ENABLED;
-        display =
-            config.has("display") ?
-            config.get("display").getAsBoolean() :
-            DISPLAY;
+        isForceEnabled =
+            config.has("isForceEnabled") ?
+            config.get("isForceEnabled").getAsBoolean() :
+            IS_FORCE_ENABLED;
+        isEnabled =
+            config.has("isEnabled") ?
+            config.get("isEnabled").getAsBoolean() :
+            IS_ENABLED;
+        isVisible =
+            config.has("isVisible") ?
+            config.get("isVisible").getAsBoolean() :
+            IS_VISIBLE;
         manaRenderType =
             config.has("manaRenderType") ?
             ManaRenderType.getIndex(config.get("manaRenderType").getAsString()) :
@@ -218,7 +224,7 @@ public class Pentamana implements ModInitializer {
             Stream.of(
                 config.get("manaCharacters").getAsJsonArray().asList().stream()
                     .map(incompleteManaCharacterType -> incompleteManaCharacterType.getAsJsonArray().asList().stream()
-                        .map(manaCharacter -> Text.Serialization.fromJsonTree(config, server.getRegistryManager()))
+                        .map(manaCharacter -> Text.Serialization.fromJsonTree(manaCharacter, server.getRegistryManager()))
                         .map(Text.class::cast)
                         .collect(Collectors.toList())
                     )
@@ -245,6 +251,7 @@ public class Pentamana implements ModInitializer {
             MANA_CHARACTERS;
 
         reCalc();
+        isLoaded = true;
 		return 2;
 	}
 
@@ -267,9 +274,9 @@ public class Pentamana implements ModInitializer {
         statusEffectManaSicknessBase        = STATUS_EFFECT_MANA_SICKNESS_BASE;
         displayIdleInterval                 = DISPLAY_IDLE_INTERVAL;
         displaySuppressionInterval          = DISPLAY_SUPPRESSION_INTERVAL;
-        forceManaEnabled                    = FORCE_ENABLED;
-        enabled                             = ENABLED;
-        display                             = DISPLAY;
+        isForceEnabled                      = IS_FORCE_ENABLED;
+        isEnabled                           = IS_ENABLED;
+        isVisible                           = IS_VISIBLE;
         manaRenderType                      = MANA_RENDER_TYPE;
         manaFixedSize                       = MANA_FIXED_SIZE;
         manaCharacters                      = MANA_CHARACTERS;

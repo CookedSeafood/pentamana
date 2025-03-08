@@ -22,40 +22,42 @@ import org.ladysnake.cca.api.v3.entity.RespawnableComponent;
 public class ManaPreference implements ManaPreferenceComponent, EntityComponentInitializer, RespawnableComponent<ManaPreferenceComponent> {
     public static final ComponentKey<ManaPreference> MANA_PREFERENCE =
         ComponentRegistry.getOrCreate(Identifier.of("pentamana", "mana_preference"), ManaPreference.class);
-    private boolean enabled;
-    private boolean display;
+    private boolean isEnabled;
+    private boolean isVisible;
     private byte manaRenderType;
     private int manaFixedSize;
     private int pointsPerCharacter;
     private List<List<Text>> manaCharacters;
 
     public ManaPreference() {
-        this.enabled = Pentamana.ENABLED;
-        this.display = Pentamana.DISPLAY;
-        this.manaRenderType = Pentamana.MANA_RENDER_TYPE;
-        this.pointsPerCharacter = Pentamana.POINTS_PER_CHARACTER;
-        this.manaFixedSize = Pentamana.MANA_FIXED_SIZE;
-        this.manaCharacters = new ArrayList<>(Pentamana.MANA_CHARACTERS);
+        if (Pentamana.isLoaded) {
+            this.isEnabled = Pentamana.isEnabled;
+            this.isVisible = Pentamana.isVisible;
+            this.manaRenderType = Pentamana.manaRenderType;
+            this.pointsPerCharacter = Pentamana.pointsPerCharacter;
+            this.manaFixedSize = Pentamana.manaFixedSize;
+            this.manaCharacters = new ArrayList<>(Pentamana.manaCharacters);
+        }
     }
 
     @Override
     public boolean getEnabled() {
-        return this.enabled;
+        return this.isEnabled;
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 
     @Override
-    public boolean getDisplay() {
-        return this.display;
+    public boolean getVisibility() {
+        return this.isVisible;
     }
 
     @Override
-    public void setDisplay(boolean display) {
-        this.display = display;
+    public void setVisibility(boolean isVisible) {
+        this.isVisible = isVisible;
     }
 
     @Override
@@ -100,12 +102,12 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
 
     @Override
     public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        this.enabled = nbtCompound.contains("enabled") ?
-            nbtCompound.getBoolean("enabled") :
-            Pentamana.enabled;
-        this.display = nbtCompound.contains("display") ?
-            nbtCompound.getBoolean("display") :
-            Pentamana.display;
+        this.isEnabled = nbtCompound.contains("isEnabled") ?
+            nbtCompound.getBoolean("isEnabled") :
+            Pentamana.isEnabled;
+        this.isVisible = nbtCompound.contains("isVisible") ?
+            nbtCompound.getBoolean("isVisible") :
+            Pentamana.isVisible;
         this.manaRenderType = nbtCompound.contains("manaRenderType", NbtElement.STRING_TYPE) ?
             Pentamana.ManaRenderType.getIndex(nbtCompound.getString("manaRenderType")) :
             Pentamana.manaRenderType;
@@ -130,8 +132,8 @@ public class ManaPreference implements ManaPreferenceComponent, EntityComponentI
 
     @Override
     public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        nbtCompound.putBoolean("enabled", enabled);
-        nbtCompound.putBoolean("display", display);
+        nbtCompound.putBoolean("isEnabled", isEnabled);
+        nbtCompound.putBoolean("isVisible", isVisible);
         nbtCompound.putString("manaRenderType", Pentamana.ManaRenderType.getName(manaRenderType));
         nbtCompound.putInt("manaFixedSize", manaFixedSize);
         nbtCompound.putInt("pointsPerCharacter", pointsPerCharacter);

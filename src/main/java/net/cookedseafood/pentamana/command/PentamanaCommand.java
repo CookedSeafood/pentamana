@@ -47,7 +47,7 @@ public class PentamanaCommand {
         ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
         boolean enabled = manaPreference.getEnabled();
-        boolean display = manaPreference.getDisplay();
+        boolean display = manaPreference.getVisibility();
         List<List<Text>> manaCharacters = manaPreference.getManaCharacters();
 
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
@@ -75,7 +75,7 @@ public class PentamanaCommand {
     }
 
     public static int executeVersion(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("Pentamana " + Pentamana.VERSION_MAJOR + "." + Pentamana.VERSION_MINOR + "." + Pentamana.VERSION_PATCH + (Pentamana.forceManaEnabled ? " (Force Enabled Mode)" : "")), false);
+        source.sendFeedback(() -> Text.literal("Pentamana " + Pentamana.VERSION_MAJOR + "." + Pentamana.VERSION_MINOR + "." + Pentamana.VERSION_PATCH + (Pentamana.isForceEnabled ? " (Force Enabled Mode)" : "")), false);
         return 0;
     }
 }

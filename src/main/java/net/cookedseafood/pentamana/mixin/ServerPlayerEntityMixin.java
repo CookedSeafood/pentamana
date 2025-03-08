@@ -28,7 +28,7 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
 		ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
 		ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
 
-        if (manaPreference.getEnabled() == false && !Pentamana.forceManaEnabled) {
+        if (manaPreference.getEnabled() == false && !Pentamana.isForceEnabled) {
             return;
         }
 
