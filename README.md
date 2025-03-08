@@ -32,7 +32,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "isVisible": true,
   "manaRenderType": "flex_size",
   "manaFixedSize": 20,
-  "manaCharacters": [["{\"text\":\"★\",\"color\":\"aqua\"}"],["{\"text\":\"⯪\",\"color\":\"aqua\"}"],["{\"text\":\"☆\",\"color\":\"black\"}"]]
+  "manaCharacters": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]]
 }
 ```
 
