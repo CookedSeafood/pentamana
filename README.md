@@ -30,9 +30,13 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "isForceEnabled": false,
   "isEnabled": true,
   "isVisible": true,
-  "manaRenderType": "flex_size",
-  "manaFixedSize": 20,
-  "manaCharacters": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]]
+  "isCompression": false,
+  "compressionSize": 20,
+  "manabarType": "character",
+  "manabarPosition": "actionbar",
+  "manaCharacters": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]],
+  "bossbarColor": "blue",
+  "bossbarStyle": "progress"
 }
 ```
 
@@ -57,9 +61,13 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `isForceEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
 - `isEnabled` Default preference.
 - `isVisible` Default preference.
-- `manaRenderType` Default preference. Can be flex_size, fixed_size, numberic and percentage.
-- `manaFixedSize` Default preference, in characters.
-- `manaCharacters` Default preference. from 0% to 100% point character.
+- `isCompression` Default preference.
+- `compressionSize` Default preference, in characters.
+- `manabarType` Default preference. Can be character, numeric, percentage and none.
+- `manabarPosition` Default preference. Can be actionbar and bossbar.
+- `manaCharacters` Default preference. from 100% to 0% point character.
+- `bossbarColor` Default preference.
+- `bossbarStyle` Default preference.
 
 Enchantments are written in json and registered using datapack. It can be directly modified.
 
@@ -68,10 +76,13 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana enbale` Enable this mod for yourself.
 - `/mana disable` Disable this mod for yourself completely.
 - `/mana set visibility <false|true>` Set the manabar visibility for yourself.
-- `/mana set render_type <fixed_size|flex_size|numberic|percentage> [<size>]` Set the manabar render type for yourself.
+- `/mana set render_type <character|numeric|percentage|none>` Set the manabar render type for yourself.
+- `/mana set render_position <actionbar|bossbar>` Set the manabar position for yourself.
 - `/mana set points_per_character <value>` Set the amount of mana points to be considered as 1 mana character for yourself.
 - `/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
-- `/mana reset [<visibility|render_type|points_per_character|character>]` Reset mana options for yourself.
+- `/mana set bossbar_color <pink|blue|red|green|yellow|purple|white>` Set the mana bossbar color for yourself.
+- `/mana set bossbar_style <progress|notched_6|notched_10|notched_12|notched_20>` Set the mana bossbar style for yourself.
+- `/mana reset [<visibility|render_type|points_per_character|character|bossbar_color|bossbar_style>]` Reset mana options for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
 - `/pentamana debug ...` Debug commands. (May be changed frequently)
 
