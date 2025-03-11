@@ -188,7 +188,7 @@ if (!"Magik Wand".equals(stack.getItemName().getString())) {
 Check if the player has mana enabled:
 
 ```java
-if (!ManaPreference.MANA_PREFERENCE.get(player).getManaEnabled()) {
+if (!ManaPreference.MANA_PREFERENCE.get(player).isEnabled()) {
   return ActionResult.PASS;
 }
 ```
