@@ -1,5 +1,6 @@
 package net.cookedseafood.pentamana.api.component;
 
+import net.cookedseafood.pentamana.Pentamana;
 import net.minecraft.entity.player.PlayerEntity;
 import org.ladysnake.cca.api.v3.component.Component;
 
@@ -24,6 +25,10 @@ public interface ManaStatusComponent extends Component {
         return setManaSupply(this.getManaSupply() + manaSupply);
     };
 
+    default int getManaSupplyPoint() {
+        return (int)(this.getManaSupply() / Pentamana.manaPerPoint);
+    }
+
     float getManaCapacity();
 
     float setManaCapacity(float manaCapacity);
@@ -35,4 +40,8 @@ public interface ManaStatusComponent extends Component {
     default float incrementManaCapacity(float manaCapacity) {
         return setManaCapacity(this.getManaCapacity() + manaCapacity);
     };
+
+    default int getManaCapacityPoint() {
+        return (int)(this.getManaCapacity() / Pentamana.manaPerPoint);
+    }
 }

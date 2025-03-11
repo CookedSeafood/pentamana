@@ -17,7 +17,7 @@ import org.ladysnake.cca.api.v3.entity.RespawnableComponent;
 
 public class ManaStatus implements ManaStatusComponent, EntityComponentInitializer, RespawnableComponent<ManaStatus> {
     public static final ComponentKey<ManaStatus> MANA_STATUS =
-        ComponentRegistry.getOrCreate(Identifier.of("pentamana", "mana_status"), ManaStatus.class);
+        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "mana_status"), ManaStatus.class);
     private float manaSupply;
     private float manaCapacity;
 
@@ -26,8 +26,6 @@ public class ManaStatus implements ManaStatusComponent, EntityComponentInitializ
 
     @Override
     public float tick(PlayerEntity player) {
-        ManaDisplay.MANA_DISPLAY.get(player).incrementManabarLife();
-
         ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
 
         float manaCapacity = (float)player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);

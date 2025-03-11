@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.component.ManaStatusEffectComponent;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -21,7 +22,7 @@ import org.ladysnake.cca.api.v3.entity.RespawnableComponent;
 
 public class ManaStatusEffect implements ManaStatusEffectComponent, EntityComponentInitializer, RespawnableComponent<ManaStatusEffect> {
     public static final ComponentKey<ManaStatusEffect> MANA_STATUS_EFFECT =
-        ComponentRegistry.getOrCreate(Identifier.of("pentamana", "mana_status_effect"), ManaStatusEffect.class);
+        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "mana_status_effect"), ManaStatusEffect.class);
     private Map<String, List<Integer>> statusEffects;
 
     public ManaStatusEffect() {

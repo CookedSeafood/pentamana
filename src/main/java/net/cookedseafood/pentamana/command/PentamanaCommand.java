@@ -10,6 +10,8 @@ import net.cookedseafood.pentamana.component.ManaDisplay;
 import net.cookedseafood.pentamana.component.ManaPreference;
 import net.cookedseafood.pentamana.component.ManaStatus;
 import net.cookedseafood.pentamana.component.ManaStatusEffect;
+import net.cookedseafood.pentamana.render.ManabarPositions;
+import net.cookedseafood.pentamana.render.ManabarTypes;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -25,7 +27,7 @@ public class PentamanaCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
-            CommandManager.literal("pentamana")
+            CommandManager.literal(Pentamana.MOD_ID)
             .then(
                 CommandManager.literal("debug")
                 .then(
@@ -46,15 +48,12 @@ public class PentamanaCommand {
         ManaDisplay manaDisplay = ManaDisplay.MANA_DISPLAY.get(player);
         ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        boolean enabled = manaPreference.getEnabled();
-        boolean display = manaPreference.getVisibility();
         List<List<Text>> manaCharacters = manaPreference.getManaCharacters();
 
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
         IntStream.range(0, 10).forEach(i -> profile.append(manaCharacters.get(i).get(i)));
         profile.append(Text.literal("\n" + manaStatus.getManaSupply() + "/" + manaStatus.getManaCapacity()).formatted(Formatting.AQUA));
-        profile.append(Text.literal(" " + manaDisplay.getManaSupplyPoint() + "/" + manaDisplay.getManaCapacityPoint()).formatted(Formatting.YELLOW));
-        profile.append(Text.literal(" " + manaDisplay.getManaSupplyPercent() + "%").formatted(Formatting.YELLOW));
+        profile.append(Text.literal(" " + manaDisplay.getLastManaSupplyPoint() + "/" + manaDisplay.getLastManaCapacityPoint()).formatted(Formatting.YELLOW));
         profile.append(Text.literal(" " + manaDisplay.getManabarLife()).formatted(Formatting.GRAY));
         manaStatusEffect.getStatusEffects().keySet().stream()
             .filter(id -> manaStatusEffect.hasStatusEffect(id))
@@ -64,11 +63,13 @@ public class PentamanaCommand {
                 profile.append(Text.literal(" " + amplifier));
                 profile.append(Text.literal(" " + manaStatusEffect.getStatusEffectDuration(id, amplifier)));
             });
-        profile.append(Text.literal("\n" + (enabled ? "T" : "F")).formatted(enabled ? Formatting.GREEN : Formatting.RED));
-        profile.append(Text.literal(" " + (display ? "T" : "F")).formatted(display ? Formatting.GREEN : Formatting.RED));
+        profile.append(manaPreference.isEnabled() ? Text.literal("\nT").formatted(Formatting.GREEN) : Text.literal("\nF").formatted(Formatting.RED));
+        profile.append(manaPreference.isVisible() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
+        profile.append(manaPreference.isCompression() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
+        profile.append(Text.literal(" " + manaPreference.getCompressionSize()).formatted(Formatting.YELLOW));
         profile.append(Text.literal(" " + manaPreference.getPointsPerCharacter()).formatted(Formatting.AQUA));
-        profile.append(Text.literal(" " + Pentamana.ManaRenderType.getName((byte)manaPreference.getManaRenderType())).formatted(Formatting.YELLOW));
-        profile.append(Text.literal(" " + manaPreference.getManaFixedSize()).formatted(Formatting.YELLOW));
+        profile.append(Text.literal(" " + ManabarTypes.getName((byte)manaPreference.getManabarType())).formatted(Formatting.YELLOW));
+        profile.append(Text.literal(" " + ManabarPositions.getName((byte)manaPreference.getManabarPosition())).formatted(Formatting.YELLOW));
 
         source.sendFeedback(() -> profile, false);
         return 0;

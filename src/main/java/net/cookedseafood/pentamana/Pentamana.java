@@ -6,16 +6,18 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.cookedseafood.pentamana.command.ManaCommand;
 import net.cookedseafood.pentamana.command.PentamanaCommand;
+import net.cookedseafood.pentamana.render.ManabarPositions;
+import net.cookedseafood.pentamana.render.ManabarTypes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.entity.boss.BossBar;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -32,8 +34,8 @@ public class Pentamana implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static final byte VERSION_MAJOR = 0;
-	public static final byte VERSION_MINOR = 4;
-	public static final byte VERSION_PATCH = 7;
+	public static final byte VERSION_MINOR = 5;
+	public static final byte VERSION_PATCH = 0;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -60,8 +62,10 @@ public class Pentamana implements ModInitializer {
     public static final boolean IS_FORCE_ENABLED = false;
     public static final boolean IS_ENABLED = true;
     public static final boolean IS_VISIBLE = true;
-    public static final byte MANA_RENDER_TYPE = Pentamana.ManaRenderType.FLEX_SIZE.getIndex();
-    public static final int MANA_FIXED_SIZE = 20;
+    public static final boolean IS_COMPRESSION = false;
+    public static final byte COMPRESSION_SIZE = 20;
+    public static final byte MANA_BAR_TYPE = ManabarTypes.CHARACTER.getIndex();
+    public static final byte MANA_BAR_POSITION = ManabarPositions.ACTIONBAR.getIndex();
     public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
         Stream.of(
             Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
@@ -72,6 +76,8 @@ public class Pentamana implements ModInitializer {
     )
     .map(ArrayList::new)
     .collect(Collectors.toList());
+    public static final BossBar.Color BOSS_BAR_COLOR = BossBar.Color.BLUE;
+    public static final BossBar.Style BOSS_BAR_STYLE = BossBar.Style.PROGRESS;
 
 	public static int manaPerPoint;
     public static int pointsPerCharacter;
@@ -94,9 +100,13 @@ public class Pentamana implements ModInitializer {
 	public static boolean isForceEnabled;
     public static boolean isEnabled;
     public static boolean isVisible;
-    public static byte manaRenderType;
-    public static int manaFixedSize;
+    public static boolean isCompression;
+    public static byte compressionSize;
+    public static byte manabarType;
+    public static byte manabarPosition;
 	public static List<List<Text>> manaCharacters;
+    public static BossBar.Color bossbarColor;
+    public static BossBar.Style bossbarStyle;
 
     public static int manaPointLimit;
     public static boolean isLoaded;
@@ -211,14 +221,22 @@ public class Pentamana implements ModInitializer {
             config.has("isVisible") ?
             config.get("isVisible").getAsBoolean() :
             IS_VISIBLE;
-        manaRenderType =
-            config.has("manaRenderType") ?
-            ManaRenderType.getIndex(config.get("manaRenderType").getAsString()) :
-            MANA_RENDER_TYPE;
-        manaFixedSize =
-            config.has("manaFixedSize") ?
-            config.get("manaFixedSize").getAsInt() :
-            MANA_FIXED_SIZE;
+        isCompression =
+            config.has("isCompression") ?
+            config.get("isCompression").getAsBoolean() :
+            IS_COMPRESSION;
+        compressionSize =
+            config.has("compressionSize") ?
+            config.get("compressionSize").getAsByte() :
+            COMPRESSION_SIZE;
+        manabarType =
+            config.has("manabarType") ?
+            ManabarTypes.getIndex(config.get("manabarType").getAsString()) :
+            MANA_BAR_TYPE;
+        manabarPosition =
+            config.has("manabarPosition") ?
+            ManabarPositions.getIndex(config.get("manabarPosition").getAsString()) :
+            MANA_BAR_POSITION;
         manaCharacters =
             config.has("manaCharacters") ?
             Stream.of(
@@ -249,6 +267,14 @@ public class Pentamana implements ModInitializer {
             .findAny()
             .orElse(MANA_CHARACTERS) :
             MANA_CHARACTERS;
+        bossbarColor =
+            config.has("bossbarColor") ?
+            BossBar.Color.byName(config.get("bossbarColor").getAsString()) :
+            BOSS_BAR_COLOR;
+        bossbarStyle =
+            config.has("bossbarStyle") ?
+            BossBar.Style.byName(config.get("bossbarStyle").getAsString()) :
+            BOSS_BAR_STYLE;
 
         reCalc();
         isLoaded = true;
@@ -277,65 +303,16 @@ public class Pentamana implements ModInitializer {
         isForceEnabled                      = IS_FORCE_ENABLED;
         isEnabled                           = IS_ENABLED;
         isVisible                           = IS_VISIBLE;
-        manaRenderType                      = MANA_RENDER_TYPE;
-        manaFixedSize                       = MANA_FIXED_SIZE;
+        isCompression                       = IS_COMPRESSION;
+        compressionSize                     = COMPRESSION_SIZE;
+        manabarType                         = MANA_BAR_TYPE;
+        manabarPosition                     = MANA_BAR_POSITION;
         manaCharacters                      = MANA_CHARACTERS;
+        bossbarColor                        = BOSS_BAR_COLOR;
+        bossbarStyle                        = BOSS_BAR_STYLE;
 	}
 
     public static void reCalc() {
         manaPointLimit = MANA_CHARACTER_INDEX_LIMIT * manaPerPoint;
-    }
-
-    public enum ManaRenderType {
-        FLEX_SIZE((byte)0, "flex_size"),
-        FIXED_SIZE((byte)1, "fixed_size"),
-        NUMBERIC((byte)2, "numberic"),
-        PERCENTAGE((byte)3, "percentage");
-
-        private byte index;
-        private String name;
-
-        ManaRenderType(byte index, String name) {
-            this.index = index;
-            this.name = name;
-        }
-
-        public byte getIndex() {
-            return this.index;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public static byte getIndex(String name) {
-            return Arrays.stream(ManaRenderType.values())
-                .filter(manaRenderType -> manaRenderType.name.equals(name))
-                .map(manaRenderType -> manaRenderType.index)
-                .findAny()
-                .get();
-        }
-
-        public static String getName(byte index) {
-            return Arrays.stream(ManaRenderType.values())
-                .filter(manaRenderType -> manaRenderType.index == index)
-                .map(manaRenderType -> manaRenderType.name)
-                .findAny()
-                .get();
-        }
-
-        public static ManaRenderType byIndex(byte index) {
-            return Arrays.stream(ManaRenderType.values())
-                .filter(manaRenderType -> manaRenderType.index == index)
-                .findAny()
-                .get();
-        }
-
-        public static ManaRenderType byName(String name) {
-            return Arrays.stream(ManaRenderType.values())
-                .filter(manaRenderType -> manaRenderType.name.equals(name))
-                .findAny()
-                .get();
-        }
     }
 }

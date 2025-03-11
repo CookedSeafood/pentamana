@@ -5,11 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-
+import net.cookedseafood.pentamana.Pentamana;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.Component;
-
-import net.cookedseafood.pentamana.Pentamana;
 
 public interface ManaStatusEffectComponent extends Component {
     void tick();
