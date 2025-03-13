@@ -11,7 +11,6 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 ```json
 {
   "manaPerPoint": 1,
-  "pointsPerCharacter": 2,
   "manaRegenBase": 2.0,
   "enchantmentCapacityBase": 2.0,
   "enchantmentStreamBase": 0.0625,
@@ -32,16 +31,17 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "isVisible": true,
   "isCompression": false,
   "compressionSize": 20,
+  "manabarPattern": {"text":"","extra":[{"text":"$"}]},
   "manabarType": "character",
   "manabarPosition": "actionbar",
-  "manaCharacters": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]],
-  "bossbarColor": "blue",
-  "bossbarStyle": "progress"
+  "manabarColor": "blue",
+  "manabarStyle": "progress",
+  "pointsPerCharacter" : 2,
+  "manaCharacter": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]],
 }
 ```
 
 - `manaPerPoint` Amount of mana to be considered as 1 mana point.
-- `pointsPerCharacter` Default preference. Amount of mana points to be considered as 1 mana character.
 - `manaCapacityBase` Initial mana capacity.
 - `manaRegenBase` Initial mana regen amount per tick.
 - `enchantmentCapacityBase` Level multiplier, the result will be added to mana capacity.
@@ -62,12 +62,14 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `isEnabled` Default preference.
 - `isVisible` Default preference.
 - `isCompression` Default preference.
-- `compressionSize` Default preference, in characters.
+- `compressionSize` Default preference, in character.
+- `manabarPattern` Default preference.
 - `manabarType` Default preference. Can be character, numeric, percentage and none.
 - `manabarPosition` Default preference. Can be actionbar and bossbar.
-- `manaCharacters` Default preference. from 100% to 0% point character.
-- `bossbarColor` Default preference.
-- `bossbarStyle` Default preference.
+- `manabarColor` Default preference.
+- `manabarStyle` Default preference.
+- `pointsPerCharacter` Default preference. Amount of mana points to be considered as 1 mana character.
+- `manaCharacter` Default preference. from 100% to 0% point character.
 
 Enchantments are written in json and registered using datapack. It can be directly modified.
 
@@ -75,15 +77,16 @@ Enchantments are written in json and registered using datapack. It can be direct
 
 - `/mana enbale` Enable this mod for yourself.
 - `/mana disable` Disable this mod for yourself completely.
-- `/mana set visibility <false|true>` Set the manabar visibility for yourself.
-- `/mana set render_type <character|numeric|percentage|none>` Set the manabar render type for yourself.
-- `/mana set render_position <actionbar|bossbar>` Set the manabar position for yourself.
-- `/mana set points_per_character <value>` Set the amount of mana points to be considered as 1 mana character for yourself.
-- `/mana set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
-- `/mana set bossbar_color <pink|blue|red|green|yellow|purple|white>` Set the mana bossbar color for yourself.
-- `/mana set bossbar_style <progress|notched_6|notched_10|notched_12|notched_20>` Set the mana bossbar style for yourself.
-- `/mana reset [<visibility|render_type|points_per_character|character|bossbar_color|bossbar_style>]` Reset mana options for yourself.
 - `/mana reload` Reload config file. (Require premission level 2)
+- `/manabar set visibility <false|true>` Set the manabar visibility for yourself.
+- `/manabar set pattern <text>` Set the manabar pattern for yourself.
+- `/manabar set type <character|numeric|percentage|none>` Set the manabar type for yourself.
+- `/manabar set position <actionbar|bossbar>` Set the manabar position for yourself.
+- `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the manabar color in bossbar for yourself.
+- `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set the manabar style in bossbar for yourself.
+- `/manabar set points_per_character <value>` Set the amount of mana points to be considered as 1 mana character for yourself.
+- `/manabar set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
+- `/manabar reset [<visibility|pattern|type|position|color|style|points_per_character|character>]` Reset manabar options for yourself.
 - `/pentamana debug ...` Debug commands. (May be changed frequently)
 
 ## Modifiers
