@@ -63,7 +63,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 - `isVisible` Default preference.
 - `isCompression` Default preference.
 - `compressionSize` Default preference, in character.
-- `manabarPattern` Default preference.
+- `manabarPattern` Default preference. Use `$` to represent mana text.
 - `manabarType` Default preference. Can be character, numeric, percentage and none.
 - `manabarPosition` Default preference. Can be actionbar and bossbar.
 - `manabarColor` Default preference.
@@ -79,13 +79,13 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana disable` Disable this mod for yourself completely.
 - `/mana reload` Reload config file. (Require premission level 2)
 - `/manabar set visibility <false|true>` Set the manabar visibility for yourself.
-- `/manabar set pattern <text>` Set the manabar pattern for yourself.
+- `/manabar set pattern <text>` Set the manabar pattern for yourself. Use `$` to represent mana text.
 - `/manabar set type <character|numeric|percentage|none>` Set the manabar type for yourself.
 - `/manabar set position <actionbar|bossbar>` Set the manabar position for yourself.
 - `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the manabar color in bossbar for yourself.
 - `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set the manabar style in bossbar for yourself.
 - `/manabar set points_per_character <value>` Set the amount of mana points to be considered as 1 mana character for yourself.
-- `/manabar set character <text> [<type_index>] [<character_index>]` Set the #`character_index` `type_index` point mana character for yourself.
+- `/manabar set character <text> [<character_type_index>] [<character_index>]` Set the #`character_index` `character_type_index` point mana character for yourself.
 - `/manabar reset [<visibility|pattern|type|position|color|style|points_per_character|character>]` Reset manabar options for yourself.
 - `/pentamana debug ...` Debug commands. (May be changed frequently)
 
