@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.cookedseafood.pentamana.command.ManaCommand;
+import net.cookedseafood.pentamana.command.ManabarCommand;
 import net.cookedseafood.pentamana.command.PentamanaCommand;
 import net.cookedseafood.pentamana.render.ManabarPositions;
 import net.cookedseafood.pentamana.render.ManabarTypes;
@@ -26,27 +27,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Pentamana implements ModInitializer {
-	public static final String MOD_ID = "pentamana";
+    public static final String MOD_ID = "pentamana";
 
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    // This logger is used to write text to the console and the log file.
+    // It is considered best practice to use your mod id as the logger's name.
+    // That way, it's clear which mod wrote info, warnings, and errors.
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static final byte VERSION_MAJOR = 0;
-	public static final byte VERSION_MINOR = 5;
-	public static final byte VERSION_PATCH = 0;
+    public static final byte VERSION_MAJOR = 0;
+    public static final byte VERSION_MINOR = 5;
+    public static final byte VERSION_PATCH = 1;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final int MANA_STATUS_EFFECT_AMPLIFIER_LIMIT = 255;
 
-	public static final int MANA_PER_POINT = 1;
-    public static final int POINTS_PER_CHARACTER = 2;
-	public static final float MANA_CAPACITY_BASE = 2.0f;
-	public static final float MANA_REGEN_BASE = 0.0625f;
+    public static final int MANA_PER_POINT = 1;
+    public static final float MANA_CAPACITY_BASE = 2.0f;
+    public static final float MANA_REGEN_BASE = 0.0625f;
     public static final float ENCHANTMENT_CAPACITY_BASE = 2.0f;
-	public static final float ENCHANTMENT_STREAM_BASE = 0.03125f;
+    public static final float ENCHANTMENT_STREAM_BASE = 0.03125f;
     public static final float ENCHANTMENT_UTILIZATION_BASE = 0.1f;
     public static final float ENCHANTMENT_POTENCY_BASE = 0.5f;
     public static final float STATUS_EFFECT_MANA_BOOST_BASE = 4.0f;
@@ -58,14 +58,18 @@ public class Pentamana implements ModInitializer {
     public static final int STATUS_EFFECT_MANA_REGEN_BASE = 50;
     public static final int STATUS_EFFECT_MANA_INHIBITION_BASE = 40;
     public static final byte DISPLAY_IDLE_INTERVAL = 40/* 20*2 */;
-	public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
+    public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
     public static final boolean IS_FORCE_ENABLED = false;
     public static final boolean IS_ENABLED = true;
     public static final boolean IS_VISIBLE = true;
     public static final boolean IS_COMPRESSION = false;
     public static final byte COMPRESSION_SIZE = 20;
-    public static final byte MANA_BAR_TYPE = ManabarTypes.CHARACTER.getIndex();
-    public static final byte MANA_BAR_POSITION = ManabarPositions.ACTIONBAR.getIndex();
+    public static final Text MANABAR_PATTERN = Text.empty().append("$");
+    public static final byte MANABAR_TYPE = ManabarTypes.CHARACTER.getIndex();
+    public static final byte MANABAR_POSITION = ManabarPositions.ACTIONBAR.getIndex();
+    public static final BossBar.Color MANABAR_COLOR = BossBar.Color.BLUE;
+    public static final BossBar.Style MANABAR_STYLE = BossBar.Style.PROGRESS;
+    public static final int POINTS_PER_CHARACTER = 2;
     public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
         Stream.of(
             Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
@@ -76,11 +80,8 @@ public class Pentamana implements ModInitializer {
     )
     .map(ArrayList::new)
     .collect(Collectors.toList());
-    public static final BossBar.Color BOSS_BAR_COLOR = BossBar.Color.BLUE;
-    public static final BossBar.Style BOSS_BAR_STYLE = BossBar.Style.PROGRESS;
 
 	public static int manaPerPoint;
-    public static int pointsPerCharacter;
 	public static float manaCapacityBase;
     public static float manaRegenBase;
 	public static float enchantmentCapacityBase;
@@ -102,11 +103,13 @@ public class Pentamana implements ModInitializer {
     public static boolean isVisible;
     public static boolean isCompression;
     public static byte compressionSize;
+    public static Text manabarPattern;
     public static byte manabarType;
     public static byte manabarPosition;
-	public static List<List<Text>> manaCharacters;
-    public static BossBar.Color bossbarColor;
-    public static BossBar.Style bossbarStyle;
+    public static BossBar.Color manabarColor;
+    public static BossBar.Style manabarStyle;
+    public static int pointsPerCharacter;
+	public static List<List<Text>> manaCharacter;
 
     public static int manaPointLimit;
     public static boolean isLoaded;
@@ -119,6 +122,7 @@ public class Pentamana implements ModInitializer {
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManabarCommand.register(dispatcher, registryAccess));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             reload(server);
@@ -141,10 +145,6 @@ public class Pentamana implements ModInitializer {
             config.has("manaPerPoint") ? 
             config.get("manaPerPoint").getAsInt() :
             MANA_PER_POINT;
-        pointsPerCharacter =
-            config.has("pointsPerCharacter") ? 
-            config.get("pointsPerCharacter").getAsInt() :
-            POINTS_PER_CHARACTER;
         manaCapacityBase =
             config.has("manaCapacityBase") ?
             config.get("manaCapacityBase").getAsFloat() :
@@ -229,18 +229,34 @@ public class Pentamana implements ModInitializer {
             config.has("compressionSize") ?
             config.get("compressionSize").getAsByte() :
             COMPRESSION_SIZE;
+        manabarPattern =
+            config.has("manabarPattern") ?
+            Text.Serialization.fromJsonTree(config.get("manabarPattern"), server.getRegistryManager()) :
+            MANABAR_PATTERN;
         manabarType =
             config.has("manabarType") ?
             ManabarTypes.getIndex(config.get("manabarType").getAsString()) :
-            MANA_BAR_TYPE;
+            MANABAR_TYPE;
         manabarPosition =
             config.has("manabarPosition") ?
             ManabarPositions.getIndex(config.get("manabarPosition").getAsString()) :
-            MANA_BAR_POSITION;
-        manaCharacters =
-            config.has("manaCharacters") ?
+            MANABAR_POSITION;
+        manabarColor =
+            config.has("manabarColor") ?
+            BossBar.Color.byName(config.get("manabarColor").getAsString()) :
+            MANABAR_COLOR;
+        manabarStyle =
+            config.has("manabarStyle") ?
+            BossBar.Style.byName(config.get("manabarStyle").getAsString()) :
+            MANABAR_STYLE;
+        pointsPerCharacter =
+            config.has("pointsPerCharacter") ? 
+            config.get("pointsPerCharacter").getAsInt() :
+            POINTS_PER_CHARACTER;
+        manaCharacter =
+            config.has("manaCharacter") ?
             Stream.of(
-                config.get("manaCharacters").getAsJsonArray().asList().stream()
+                config.get("manaCharacter").getAsJsonArray().asList().stream()
                     .map(incompleteManaCharacterType -> incompleteManaCharacterType.getAsJsonArray().asList().stream()
                         .map(manaCharacter -> Text.Serialization.fromJsonTree(manaCharacter, server.getRegistryManager()))
                         .map(Text.class::cast)
@@ -256,25 +272,17 @@ public class Pentamana implements ModInitializer {
                     )
                     .collect(Collectors.toList())
             )
-            .map(incompleteManaCharacters -> incompleteManaCharacters.size() <= MANA_CHARACTER_TYPE_INDEX_LIMIT ?
+            .map(incompleteManaCharacter -> incompleteManaCharacter.size() <= MANA_CHARACTER_TYPE_INDEX_LIMIT ?
                 Stream.concat(
-                    incompleteManaCharacters.stream(),
-                    Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - incompleteManaCharacters.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
+                    incompleteManaCharacter.stream(),
+                    Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - incompleteManaCharacter.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
                 )
                 .collect(Collectors.toList()) :
-                incompleteManaCharacters
+                incompleteManaCharacter
             )
             .findAny()
             .orElse(MANA_CHARACTERS) :
             MANA_CHARACTERS;
-        bossbarColor =
-            config.has("bossbarColor") ?
-            BossBar.Color.byName(config.get("bossbarColor").getAsString()) :
-            BOSS_BAR_COLOR;
-        bossbarStyle =
-            config.has("bossbarStyle") ?
-            BossBar.Style.byName(config.get("bossbarStyle").getAsString()) :
-            BOSS_BAR_STYLE;
 
         reCalc();
         isLoaded = true;
@@ -283,7 +291,6 @@ public class Pentamana implements ModInitializer {
 
 	public static void reset() {
         manaPerPoint                        = MANA_PER_POINT;
-        pointsPerCharacter                  = POINTS_PER_CHARACTER;
         manaCapacityBase                    = MANA_CAPACITY_BASE;
         manaRegenBase                       = MANA_REGEN_BASE;
         enchantmentCapacityBase             = ENCHANTMENT_CAPACITY_BASE;
@@ -305,11 +312,13 @@ public class Pentamana implements ModInitializer {
         isVisible                           = IS_VISIBLE;
         isCompression                       = IS_COMPRESSION;
         compressionSize                     = COMPRESSION_SIZE;
-        manabarType                         = MANA_BAR_TYPE;
-        manabarPosition                     = MANA_BAR_POSITION;
-        manaCharacters                      = MANA_CHARACTERS;
-        bossbarColor                        = BOSS_BAR_COLOR;
-        bossbarStyle                        = BOSS_BAR_STYLE;
+        manabarPattern                      = MANABAR_PATTERN;
+        manabarType                         = MANABAR_TYPE;
+        manabarPosition                     = MANABAR_POSITION;
+        manabarColor                        = MANABAR_COLOR;
+        manabarStyle                        = MANABAR_STYLE;
+        pointsPerCharacter                  = POINTS_PER_CHARACTER;
+        manaCharacter                       = MANA_CHARACTERS;
 	}
 
     public static void reCalc() {

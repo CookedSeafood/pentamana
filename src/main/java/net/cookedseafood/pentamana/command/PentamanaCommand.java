@@ -48,10 +48,10 @@ public class PentamanaCommand {
         ManaDisplay manaDisplay = ManaDisplay.MANA_DISPLAY.get(player);
         ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        List<List<Text>> manaCharacters = manaPreference.getManaCharacters();
+        List<List<Text>> manaCharacter = manaPreference.getManaCharacter();
 
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
-        IntStream.range(0, 10).forEach(i -> profile.append(manaCharacters.get(i).get(i)));
+        IntStream.range(0, 10).forEach(i -> profile.append(manaCharacter.get(i).get(i)));
         profile.append(Text.literal("\n" + manaStatus.getManaSupply() + "/" + manaStatus.getManaCapacity()).formatted(Formatting.AQUA));
         profile.append(Text.literal(" " + manaDisplay.getLastManaSupplyPoint() + "/" + manaDisplay.getLastManaCapacityPoint()).formatted(Formatting.YELLOW));
         profile.append(Text.literal(" " + manaDisplay.getManabarLife()).formatted(Formatting.GRAY));
@@ -68,6 +68,7 @@ public class PentamanaCommand {
         profile.append(manaPreference.isCompression() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
         profile.append(Text.literal(" " + manaPreference.getCompressionSize()).formatted(Formatting.YELLOW));
         profile.append(Text.literal(" " + manaPreference.getPointsPerCharacter()).formatted(Formatting.AQUA));
+        profile.append(Text.literal(" " + manaPreference.getManabarPattern().toString()));
         profile.append(Text.literal(" " + ManabarTypes.getName((byte)manaPreference.getManabarType())).formatted(Formatting.YELLOW));
         profile.append(Text.literal(" " + ManabarPositions.getName((byte)manaPreference.getManabarPosition())).formatted(Formatting.YELLOW));
 

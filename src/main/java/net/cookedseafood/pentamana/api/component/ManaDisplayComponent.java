@@ -11,11 +11,11 @@ public interface ManaDisplayComponent extends Component {
 
     boolean isSuppressed();
 
-    void updateManabar(ServerPlayerEntity player, Text manabar, byte manabarPosition, BossBar.Color bossbarColor, BossBar.Style bossbarStyle);
+    void updateManabar(ServerPlayerEntity player, Text manabar, byte manabarPosition, BossBar.Color manabarColor, BossBar.Style manabarStyle);
 
     void updateManabarInActionbar(ServerPlayerEntity player, Text manabar);
 
-    void updateManabarInBossbar(ServerPlayerEntity player, Text manabar, BossBar.Color bossbarColor, BossBar.Style bossbarStyle);
+    void updateManabarInBossbar(ServerPlayerEntity player, Text manabar, BossBar.Color manabarColor, BossBar.Style manabarStyle);
 
     void finishManabar(ServerPlayerEntity player, byte manabarPosition);
 
@@ -23,13 +23,17 @@ public interface ManaDisplayComponent extends Component {
 
     void finishManabarInBossBar(ServerPlayerEntity player);
 
-    Text toText(byte manabarType, int pointsPerCharacter, List<List<Text>> manaCharacters);
+    Text toPattern(byte manabarType, Text manabarPattern, int pointsPerCharacter, List<List<Text>> manaCharacter);
 
-    Text toCharacterText(int pointsPerCharacter, List<List<Text>> manaCharacters);
+    Text toText(byte manabarType, int pointsPerCharacter, List<List<Text>> manaCharacter);
+
+    Text toCharacterText(int pointsPerCharacter, List<List<Text>> manaCharacter);
 
     Text toNumericText();
 
     Text toPercentageText();
+
+    Text toFixedText(Text fixedText);
 
     Text toNoneText();
 
@@ -45,43 +49,27 @@ public interface ManaDisplayComponent extends Component {
         return setManabarLife((byte)(this.getManabarLife() + value));
     };
 
+    boolean getLastIsVisible();
+
+    void setLastIsVisible(boolean lastIsVisible);
+
+    int getLastManabarPattern();
+
+    void setLastManabarPattern(int lastManabarPattern);
+
+    byte getLastManabarType();
+
+    void setLastManabarType(byte lastManabarType);
+
     byte getLastManabarPosition();
 
     byte setLastManabarPosition(byte lastManabarPosition);
-
-    default byte incrementLastManabarPosition() {
-        return incrementLastManabarPosition((byte)1);
-    };
-
-    default byte incrementLastManabarPosition(byte value) {
-        return setLastManabarPosition((byte)(this.getLastManabarPosition() + value));
-    };
 
     int getLastManaSupplyPoint();
 
     int setLastManaSupplyPoint(int lastManaSupplyPoint);
 
-    default int incrementLastManaSupplyPoint() {
-        return incrementLastManaSupplyPoint(1);
-    };
-
-    default int incrementLastManaSupplyPoint(int value) {
-        return setLastManaSupplyPoint(this.getLastManaSupplyPoint() + value);
-    };
-
     int getLastManaCapacityPoint();
 
     int setLastManaCapacityPoint(int lastManaCapacityPoint);
-
-    default int incrementLastManaCapacityPoint() {
-        return incrementLastManaCapacityPoint(1);
-    };
-
-    default int incrementLastManaCapacityPoint(int value) {
-        return setLastManaCapacityPoint(this.getLastManaCapacityPoint() + value);
-    };
-
-    boolean getLastIsVisible();
-
-    void setLastIsVisible(boolean lastIsVisible);
 }

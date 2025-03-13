@@ -3,10 +3,10 @@ package net.cookedseafood.pentamana.render;
 import java.util.Arrays;
 
 public enum ManabarTypes {
-    NONE((byte)0, "none"),
     CHARACTER((byte)1, "character"),
     NUMERIC((byte)2, "numeric"),
-    PERCENTAGE((byte)3, "percentage");
+    PERCENTAGE((byte)3, "percentage"),
+    NONE((byte)0, "none");
 
     private byte index;
     private String name;

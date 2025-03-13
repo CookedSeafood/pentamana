@@ -1,7 +1,6 @@
 package net.cookedseafood.pentamana.api.component;
 
 import java.util.List;
-
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.text.Text;
 import org.ladysnake.cca.api.v3.component.Component;
@@ -23,6 +22,10 @@ public interface ManaPreferenceComponent extends Component {
 
     void setCompressionSize(byte compressionSize);
 
+    Text getManabarPattern();
+
+    void setManabarPattern(Text manabarPattern);
+
     byte getManabarType();
 
     void setManabarType(byte manabarType);
@@ -31,19 +34,19 @@ public interface ManaPreferenceComponent extends Component {
 
     void setManabarPosition(byte manabarPosition);
 
+    BossBar.Color getManabarColor();
+
+    void setManabarColor(BossBar.Color manabarColor);
+
+    BossBar.Style getManabarStyle();
+
+    void setManabarStyle(BossBar.Style manabarStyle);
+
     int getPointsPerCharacter();
 
     void setPointsPerCharacter(int pointsPerCharacter);
 
-    List<List<Text>> getManaCharacters();
+    List<List<Text>> getManaCharacter();
 
-    void setManaCharacters(List<List<Text>> manaCharacters);
-
-    BossBar.Color getBossBarColor();
-
-    void setBossBarColor(BossBar.Color bossbarColor);
-
-    BossBar.Style getBossBarStyle();
-
-    void setBossBarStyle(BossBar.Style bossbarStyle);
+    void setManaCharacter(List<List<Text>> manaCharacter);
 }

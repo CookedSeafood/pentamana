@@ -26,10 +26,12 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     public static final ComponentKey<ManaDisplay> MANA_DISPLAY =
         ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "mana_display"), ManaDisplay.class);
     private byte manabarLife;
+    private boolean lastIsVisible;
+    private int lastManabarPattern;
+    private byte lastManabarType;
     private byte lastManabarPosition;
     private int lastManaSupplyPoint;
     private int lastManaCapacityPoint;
-    private boolean lastIsVisible;
 
     public ManaDisplay() {
     }
@@ -38,32 +40,38 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     public void tick(ServerPlayerEntity player) {
         ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
         if (manaPreference.isVisible()) {
-            tickVisible(player, manaPreference.getManabarType(), manaPreference.getManabarPosition(), manaPreference.getPointsPerCharacter(), manaPreference.isCompression(), manaPreference.getCompressionSize(), manaPreference.getManaCharacters(), manaPreference.getBossBarColor(), manaPreference.getBossBarStyle());
+            tickVisible(player, manaPreference);
             ++this.manabarLife;
             return;
         }
 
-        tickInvisible(player, manaPreference.getManabarPosition());
+        tickInvisible(player, manaPreference);
     }
 
-    private void tickVisible(ServerPlayerEntity player, byte manabarType, byte manabarPosition, int pointsPerCharacter, boolean isCompression, byte compressionSize, List<List<Text>> manaCharacters, BossBar.Color bossbarColor, BossBar.Style bossbarStyle) {
+    private void tickVisible(ServerPlayerEntity player, ManaPreference manaPreference) {
         this.lastIsVisible = true;
-        if (this.isSuppressed() || !this.isOutdate(player, manabarType, manabarPosition, pointsPerCharacter, isCompression, compressionSize)) {
+        boolean isCompression = manaPreference.isCompression();
+        byte compressionSize = manaPreference.getCompressionSize();
+        Text manabarPattern = manaPreference.getManabarPattern();
+        byte manabarType = manaPreference.getManabarType();
+        byte manabarPosition = manaPreference.getManabarPosition();
+        int pointsPerCharacter = manaPreference.getPointsPerCharacter();
+        if (this.isSuppressed() || !this.isOutdate(player, manabarPattern, manabarType, manabarPosition, pointsPerCharacter, isCompression, compressionSize)) {
             return;
         }
 
         this.manabarLife = (byte)-Pentamana.displayIdleInterval;
-        this.updateManabar(player, this.toText(manabarType, pointsPerCharacter, manaCharacters), manabarPosition, bossbarColor, bossbarStyle);
+        this.updateManabar(player, this.toPattern(manabarType, manabarPattern, pointsPerCharacter, manaPreference.getManaCharacter()), manabarPosition, manaPreference.getManabarColor(), manaPreference.getManabarStyle());
     }
 
-    private void tickInvisible(ServerPlayerEntity player, byte manabarPosition) {
+    private void tickInvisible(ServerPlayerEntity player, ManaPreference manaPreference) {
         if (!this.lastIsVisible) {
             return;
         }
 
         this.lastIsVisible = false;
         this.manabarLife = 0;
-        this.finishManabar(player, manabarPosition);
+        this.finishManabar(player, manaPreference.getManabarPosition());
     }
 
     @Override
@@ -71,10 +79,12 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
         return this.manabarLife > (byte)0 && this.manabarLife < Pentamana.displaySuppressionInterval;
     }
 
-    private boolean isOutdate(ServerPlayerEntity player, byte manabarType, byte manabarPosition, int pointsPerCharacter, boolean isCompression, byte compressionSize) {
+    private boolean isOutdate(ServerPlayerEntity player, Text manabarPattern, byte manabarType, byte manabarPosition, int pointsPerCharacter, boolean isCompression, byte compressionSize) {
         ManaStatus manaStatus = ManaStatus.MANA_STATUS.get(player);
         return this.tryUpdateStatus(manabarType, manaStatus.getManaCapacity(), manaStatus.getManaSupply(), pointsPerCharacter, isCompression, compressionSize)
         || this.manabarLife >= (byte)0
+        || this.tryUpdateManabarPattern(player, manabarPattern)
+        || this.tryUpdateManabarType(player, manabarType)
         || this.tryUpdateManabarPosition(player, manabarPosition);
     }
 
@@ -101,7 +111,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
             manaSupplyPoint = (int)(manaSupply / manaCapacity * manaCapacityPoint);
         }
 
-        if (this.lastManaCapacityPoint == manaCapacityPoint && this.lastManaSupplyPoint == manaSupplyPoint) {
+        if (manaCapacityPoint == this.lastManaCapacityPoint && manaSupplyPoint == this.lastManaSupplyPoint) {
             return false;
         }
 
@@ -114,7 +124,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
         int manaCapacityPoint = (int)(manaCapacity / Pentamana.manaPerPoint);
         int manaSupplyPoint = (int)(manaSupply / Pentamana.manaPerPoint);
 
-        if (this.lastManaCapacityPoint == manaCapacityPoint && this.lastManaSupplyPoint == manaSupplyPoint) {
+        if (manaCapacityPoint == this.lastManaCapacityPoint && manaSupplyPoint == this.lastManaSupplyPoint) {
             return false;
         }
 
@@ -125,7 +135,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
 
     private boolean tryUpdateStatusInPercentage(float manaCapacity, float manaSupply) {
         byte manaSupplyPoint = (byte)(manaSupply / manaCapacity * 100);
-        if (this.lastManaSupplyPoint == manaSupplyPoint) {
+        if (manaSupplyPoint == this.lastManaSupplyPoint) {
             return false;
         }
 
@@ -137,7 +147,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
         int manaCapacityPoint = (int)(manaCapacity / Pentamana.manaPerPoint);
         int manaSupplyPoint = (int)(manaSupply / Pentamana.manaPerPoint);
 
-        if (this.lastManaCapacityPoint == manaCapacityPoint && this.lastManaSupplyPoint == manaSupplyPoint) {
+        if (manaCapacityPoint == this.lastManaCapacityPoint && manaSupplyPoint == this.lastManaSupplyPoint) {
             return false;
         }
 
@@ -146,8 +156,27 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
         return true;
     }
 
+    private boolean tryUpdateManabarPattern(ServerPlayerEntity player, Text manabarPattern) {
+        int hashCode = manabarPattern.hashCode();
+        if (this.lastManabarPattern == hashCode) {
+            return false;
+        }
+
+        this.lastManabarPattern = hashCode;
+        return true;
+    }
+
+    private boolean tryUpdateManabarType(ServerPlayerEntity player, byte manabarType) {
+        if (manabarType == this.lastManabarType) {
+            return false;
+        }
+
+        this.lastManabarType = manabarType;
+        return true;
+    }
+
     private boolean tryUpdateManabarPosition(ServerPlayerEntity player, byte manabarPosition) {
-        if (this.lastManabarPosition == manabarPosition) {
+        if (manabarPosition == this.lastManabarPosition) {
             return false;
         }
 
@@ -157,11 +186,11 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     }
 
     @Override
-    public void updateManabar(ServerPlayerEntity player, Text manabar, byte manabarPosition, BossBar.Color bossbarColor, BossBar.Style bossbarStyle) {
+    public void updateManabar(ServerPlayerEntity player, Text manabar, byte manabarPosition, BossBar.Color manabarColor, BossBar.Style manabarStyle) {
         if (manabarPosition == ManabarPositions.ACTIONBAR.getIndex()) {
             this.updateManabarInActionbar(player, manabar);
         } else if (manabarPosition == ManabarPositions.BOSSBAR.getIndex()) {
-            this.updateManabarInBossbar(player, manabar, bossbarColor, bossbarStyle);
+            this.updateManabarInBossbar(player, manabar, manabarColor, manabarStyle);
         }
     }
 
@@ -171,13 +200,13 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     }
 
     @Override
-    public void updateManabarInBossbar(ServerPlayerEntity player, Text manabar, BossBar.Color bossbarColor, BossBar.Style bossbarStyle) {
-        CommandBossBar bossbar = player.getServer().getBossBarManager().getOrAdd(Identifier.of(Pentamana.MOD_ID, "manabar" + player.getUuidAsString()), manabar);
+    public void updateManabarInBossbar(ServerPlayerEntity player, Text manabar, BossBar.Color manabarColor, BossBar.Style manabarStyle) {
+        CommandBossBar bossbar = player.getServer().getBossBarManager().getOrAdd(Identifier.of(Pentamana.MOD_ID, "manabar." + player.getUuidAsString()), manabar);
         bossbar.setMaxValue(this.lastManaCapacityPoint);
         bossbar.setValue(this.lastManaSupplyPoint);
         bossbar.setName(manabar);
-        bossbar.setColor(bossbarColor);
-        bossbar.setStyle(bossbarStyle);
+        bossbar.setColor(manabarColor);
+        bossbar.setStyle(manabarStyle);
         bossbar.addPlayer(player);
     }
 
@@ -198,7 +227,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     @Override
     public void finishManabarInBossBar(ServerPlayerEntity player) {
         BossBarManager bossbarManager = player.getServer().getBossBarManager();
-        Identifier id = Identifier.of(Pentamana.MOD_ID, "manabar" + player.getUuidAsString());
+        Identifier id = Identifier.of(Pentamana.MOD_ID, "manabar." + player.getUuidAsString());
         if (bossbarManager.contains(id)) {
             bossbarManager.get(id).clearPlayers();
             bossbarManager.remove(id);
@@ -206,9 +235,23 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     }
 
     @Override
-    public Text toText(byte manabarType, int pointsPerCharacter, List<List<Text>> manaCharacters) {
+    public Text toPattern(byte manabarType, Text manabarPattern, int pointsPerCharacter, List<List<Text>> manaCharacter) {
+        List<Text> siblings = manabarPattern.getSiblings();
+        if (!siblings.stream().anyMatch(sibling -> "$".equals(sibling.getString()))) {
+            return manabarPattern;
+        }
+
+        MutableText manabarText = Text.empty().setStyle(manabarPattern.getStyle());
+        siblings.stream()
+            .map(sibling -> "$".equals(sibling.getString()) ? this.toText(manabarType, pointsPerCharacter, manaCharacter) : sibling)
+            .forEach(sibling -> manabarText.append(sibling));
+        return manabarText;
+    }
+
+    @Override
+    public Text toText(byte manabarType, int pointsPerCharacter, List<List<Text>> manaCharacter) {
         return manabarType == ManabarTypes.CHARACTER.getIndex() ?
-            this.toCharacterText(pointsPerCharacter, manaCharacters) :
+            this.toCharacterText(pointsPerCharacter, manaCharacter) :
             manabarType == ManabarTypes.NUMERIC.getIndex() ?
             this.toNumericText() :
             manabarType == ManabarTypes.PERCENTAGE.getIndex() ?
@@ -219,7 +262,7 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     }
 
     @Override
-    public Text toCharacterText(int pointsPerCharacter, List<List<Text>> manaCharacters) {
+    public Text toCharacterText(int pointsPerCharacter, List<List<Text>> manaCharacter) {
         int manaCapacityPointTrimmed = this.lastManaCapacityPoint - this.lastManaCapacityPoint % pointsPerCharacter;
         int manaPointTrimmed = this.lastManaSupplyPoint - this.lastManaSupplyPoint % pointsPerCharacter;
 
@@ -233,8 +276,8 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
                 lastManaSupplyPoint - manaPointIndex : pointsPerCharacter;
             int manaCharacterIndex = manaPointIndex / pointsPerCharacter;
 
-            Text manaCharacter = manaCharacters.get(manaCharacterTypeIndex).get(manaCharacterIndex);
-            manabar.append(manaCharacter);
+            Text SelectedManaCharacter = manaCharacter.get(manaCharacterTypeIndex).get(manaCharacterIndex);
+            manabar.append(SelectedManaCharacter);
         }
 
         return manabar;
@@ -251,6 +294,11 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     }
 
     @Override
+    public Text toFixedText(Text fixedText) {
+        return fixedText;
+    }
+
+    @Override
     public Text toNoneText() {
         return Text.empty();
     }
@@ -263,6 +311,36 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     @Override
     public byte setManabarLife(byte manabarLife) {
         return this.manabarLife = manabarLife;
+    }
+
+    @Override
+    public boolean getLastIsVisible() {
+        return this.lastIsVisible;
+    }
+
+    @Override
+    public void setLastIsVisible(boolean lastIsVisible) {
+        this.lastIsVisible = lastIsVisible;
+    }
+
+    @Override
+    public int getLastManabarPattern() {
+        return this.lastManabarPattern;
+    }
+
+    @Override
+    public void setLastManabarPattern(int lastManabarPattern) {
+        this.lastManabarPattern = lastManabarPattern;
+    }
+
+    @Override
+    public byte getLastManabarType() {
+        return this.lastManabarType;
+    }
+
+    @Override
+    public void setLastManabarType(byte lastManabarType) {
+        this.lastManabarType = lastManabarType;
     }
 
     @Override
@@ -293,16 +371,6 @@ public class ManaDisplay implements ManaDisplayComponent, EntityComponentInitial
     @Override
     public int setLastManaCapacityPoint(int lastManaCapacityPoint) {
         return this.lastManaCapacityPoint = lastManaCapacityPoint;
-    }
-
-    @Override
-    public boolean getLastIsVisible() {
-        return this.lastIsVisible;
-    }
-
-    @Override
-    public void setLastIsVisible(boolean lastIsVisible) {
-        this.lastIsVisible = lastIsVisible;
     }
 
     @Override
