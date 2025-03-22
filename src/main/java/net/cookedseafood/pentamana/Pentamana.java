@@ -7,14 +7,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.cookedseafood.pentamana.command.ManaBarCommand;
 import net.cookedseafood.pentamana.command.ManaCommand;
-import net.cookedseafood.pentamana.command.ManabarCommand;
 import net.cookedseafood.pentamana.command.PentamanaCommand;
-import net.cookedseafood.pentamana.render.ManabarPositions;
-import net.cookedseafood.pentamana.render.ManabarTypes;
+import net.cookedseafood.pentamana.mana.ManaBar;
+import net.cookedseafood.pentamana.mana.ManaCharset;
+import net.cookedseafood.pentamana.mana.ManaPattern;
+import net.cookedseafood.pentamana.mana.ManaRender;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -23,6 +24,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +37,14 @@ public class Pentamana implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static final byte VERSION_MAJOR = 0;
-    public static final byte VERSION_MINOR = 5;
-    public static final byte VERSION_PATCH = 1;
+    public static final byte VERSION_MINOR = 6;
+    public static final byte VERSION_PATCH = 0;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final int MANA_STATUS_EFFECT_AMPLIFIER_LIMIT = 255;
+    public static final Text MANA_PATTERN_MATCHER = Text.of("$");
+    public static final String MANA_BAR_NAME_PREFIX = "manabar.";
 
     public static final int MANA_PER_POINT = 1;
     public static final float MANA_CAPACITY_BASE = 2.0f;
@@ -61,25 +65,27 @@ public class Pentamana implements ModInitializer {
     public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
     public static final boolean IS_FORCE_ENABLED = false;
     public static final boolean IS_ENABLED = true;
-    public static final boolean IS_VISIBLE = true;
+    public static final ManaBar.Position MANA_BAR_POSITION = ManaBar.Position.ACTIONBAR;
+    public static final ManaPattern MANA_PATTERN = new ManaPattern(Stream.of(Text.literal("$")).collect(Collectors.toList()));
+    public static final ManaRender.Type MANA_RENDER_TYPE = ManaRender.Type.CHARACTER;
+    public static final ManaCharset MANA_CHARSET = new ManaCharset(
+        Stream.concat(
+            Stream.of(
+                Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
+                Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
+                Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").formatted(Formatting.BLACK))
+            ),
+            Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\ufffd"))).stream()
+        )
+        .map(ArrayList::new)
+        .collect(Collectors.toList())
+    );
+    public static final int POINTS_PER_CHARACTER = 2;
     public static final boolean IS_COMPRESSION = false;
     public static final byte COMPRESSION_SIZE = 20;
-    public static final Text MANABAR_PATTERN = Text.empty().append("$");
-    public static final byte MANABAR_TYPE = ManabarTypes.CHARACTER.getIndex();
-    public static final byte MANABAR_POSITION = ManabarPositions.ACTIONBAR.getIndex();
-    public static final BossBar.Color MANABAR_COLOR = BossBar.Color.BLUE;
-    public static final BossBar.Style MANABAR_STYLE = BossBar.Style.PROGRESS;
-    public static final int POINTS_PER_CHARACTER = 2;
-    public static final List<List<Text>> MANA_CHARACTERS = Stream.concat(
-        Stream.of(
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2605").formatted(Formatting.AQUA)),
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2bea").formatted(Formatting.AQUA)),
-            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\u2606").formatted(Formatting.BLACK))
-        ),
-        Collections.nCopies(125, Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("\ufffd"))).stream()
-    )
-    .map(ArrayList::new)
-    .collect(Collectors.toList());
+    public static final boolean IS_VISIBLE = true;
+    public static final BossBar.Color MANA_BAR_COLOR = BossBar.Color.BLUE;
+    public static final BossBar.Style MANA_BAR_STYLE = BossBar.Style.PROGRESS;
 
 	public static int manaPerPoint;
 	public static float manaCapacityBase;
@@ -100,19 +106,18 @@ public class Pentamana implements ModInitializer {
 	public static byte displaySuppressionInterval;
 	public static boolean isForceEnabled;
     public static boolean isEnabled;
-    public static boolean isVisible;
+    public static ManaBar.Position manaBarPosition;
+    public static ManaPattern manaPattern;
+    public static ManaRender.Type manaRenderType;
+    public static ManaCharset manaCharset;
+    public static int pointsPerCharacter;
     public static boolean isCompression;
     public static byte compressionSize;
-    public static Text manabarPattern;
-    public static byte manabarType;
-    public static byte manabarPosition;
-    public static BossBar.Color manabarColor;
-    public static BossBar.Style manabarStyle;
-    public static int pointsPerCharacter;
-	public static List<List<Text>> manaCharacter;
+    public static boolean isVisible;
+    public static BossBar.Color manaBarColor;
+    public static BossBar.Style manaBarStyle;
 
     public static int manaPointLimit;
-    public static boolean isLoaded;
 
 	@Override
 	public void onInitialize() {
@@ -122,7 +127,7 @@ public class Pentamana implements ModInitializer {
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManabarCommand.register(dispatcher, registryAccess));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaBarCommand.register(dispatcher, registryAccess));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             reload(server);
@@ -140,153 +145,245 @@ public class Pentamana implements ModInitializer {
 		}
 
 		JsonObject config = new Gson().fromJson(configString, JsonObject.class);
+        MutableInt counter = new MutableInt(0);
 
-		manaPerPoint =
-            config.has("manaPerPoint") ? 
-            config.get("manaPerPoint").getAsInt() :
-            MANA_PER_POINT;
-        manaCapacityBase =
-            config.has("manaCapacityBase") ?
-            config.get("manaCapacityBase").getAsFloat() :
-            MANA_CAPACITY_BASE;
-        manaRegenBase =
-            config.has("manaRegenBase") ?
-            config.get("manaRegenBase").getAsFloat() :
-            MANA_REGEN_BASE;
-        enchantmentCapacityBase =
-            config.has("enchantmentCapacityBase") ?
-            config.get("enchantmentCapacityBase").getAsFloat() :
-            ENCHANTMENT_CAPACITY_BASE;
-        enchantmentStreamBase =
-            config.has("enchantmentStreamBase") ?
-            config.get("enchantmentStreamBase").getAsFloat() :
-            ENCHANTMENT_STREAM_BASE;
-        enchantmentUtilizationBase =
-            config.has("enchantmentUtilizationBase") ?
-            config.get("enchantmentUtilizationBase").getAsFloat() :
-            ENCHANTMENT_UTILIZATION_BASE;
-        enchantmentPotencyBase =
-            config.has("enchantmentPotencyBase") ?
-            config.get("enchantmentPotencyBase").getAsFloat() :
-            ENCHANTMENT_POTENCY_BASE;
-        statusEffectManaBoostBase =
-            config.has("statusEffectManaBoostBase") ?
-            config.get("statusEffectManaBoostBase").getAsFloat() :
-            STATUS_EFFECT_MANA_BOOST_BASE;
-        statusEffectManaReductionBase =
-            config.has("statusEffectManaReductionBase") ?
-            config.get("statusEffectManaReductionBase").getAsFloat() :
-            STATUS_EFFECT_MANA_REDUCTION_BASE;
-        statusEffectInstantManaBase =
-            config.has("statusEffectInstantManaBase") ?
-            config.get("statusEffectInstantManaBase").getAsFloat() :
-            STATUS_EFFECT_INSTANT_MANA_BASE;
-        statusEffectInstantDepleteBase =
-            config.has("statusEffectInstantDepleteBase") ?
-            config.get("statusEffectInstantDepleteBase").getAsFloat() :
-            STATUS_EFFECT_INSTANT_DEPLETE_BASE;
-        statusEffectManaPowerBase =
-            config.has("statusEffectManaPowerBase") ?
-            config.get("statusEffectManaPowerBase").getAsFloat() :
-            STATUS_EFFECT_MANA_POWER_BASE;
-        statusEffectManaSicknessBase =
-            config.has("statusEffectManaSicknessBase") ?
-            config.get("statusEffectManaSicknessBase").getAsFloat() :
-            STATUS_EFFECT_MANA_SICKNESS_BASE;
-        statusEffectManaRegenBase =
-            config.has("statusEffectManaRegenBase") ?
-            config.get("statusEffectManaRegenBase").getAsInt() :
-            STATUS_EFFECT_MANA_REGEN_BASE;
-        statusEffectManaInhibitionBase =
-            config.has("statusEffectManaInhibitionBase") ?
-            config.get("statusEffectManaInhibitionBase").getAsInt() :
-            STATUS_EFFECT_MANA_INHIBITION_BASE;
-        displayIdleInterval =
-            config.has("displayIdleInterval") ?
-            config.get("displayIdleInterval").getAsByte() :
-            DISPLAY_IDLE_INTERVAL;
-        displaySuppressionInterval =
-            config.has("displaySuppressionInterval") ?
-            config.get("displaySuppressionInterval").getAsByte() :
-            DISPLAY_SUPPRESSION_INTERVAL;
-        isForceEnabled =
-            config.has("isForceEnabled") ?
-            config.get("isForceEnabled").getAsBoolean() :
-            IS_FORCE_ENABLED;
-        isEnabled =
-            config.has("isEnabled") ?
-            config.get("isEnabled").getAsBoolean() :
-            IS_ENABLED;
-        isVisible =
-            config.has("isVisible") ?
-            config.get("isVisible").getAsBoolean() :
-            IS_VISIBLE;
-        isCompression =
-            config.has("isCompression") ?
-            config.get("isCompression").getAsBoolean() :
-            IS_COMPRESSION;
-        compressionSize =
-            config.has("compressionSize") ?
-            config.get("compressionSize").getAsByte() :
-            COMPRESSION_SIZE;
-        manabarPattern =
-            config.has("manabarPattern") ?
-            Text.Serialization.fromJsonTree(config.get("manabarPattern"), server.getRegistryManager()) :
-            MANABAR_PATTERN;
-        manabarType =
-            config.has("manabarType") ?
-            ManabarTypes.getIndex(config.get("manabarType").getAsString()) :
-            MANABAR_TYPE;
-        manabarPosition =
-            config.has("manabarPosition") ?
-            ManabarPositions.getIndex(config.get("manabarPosition").getAsString()) :
-            MANABAR_POSITION;
-        manabarColor =
-            config.has("manabarColor") ?
-            BossBar.Color.byName(config.get("manabarColor").getAsString()) :
-            MANABAR_COLOR;
-        manabarStyle =
-            config.has("manabarStyle") ?
-            BossBar.Style.byName(config.get("manabarStyle").getAsString()) :
-            MANABAR_STYLE;
-        pointsPerCharacter =
-            config.has("pointsPerCharacter") ? 
-            config.get("pointsPerCharacter").getAsInt() :
-            POINTS_PER_CHARACTER;
-        manaCharacter =
-            config.has("manaCharacter") ?
-            Stream.of(
-                config.get("manaCharacter").getAsJsonArray().asList().stream()
-                    .map(incompleteManaCharacterType -> incompleteManaCharacterType.getAsJsonArray().asList().stream()
-                        .map(manaCharacter -> Text.Serialization.fromJsonTree(manaCharacter, server.getRegistryManager()))
-                        .map(Text.class::cast)
-                        .collect(Collectors.toList())
-                    )
-                    .map(incompleteManaCharacterType -> incompleteManaCharacterType.size() <= MANA_CHARACTER_INDEX_LIMIT ?
-                        Stream.concat(
-                            incompleteManaCharacterType.stream(),
-                            Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1 - incompleteManaCharacterType.size(), incompleteManaCharacterType.getFirst()).stream()
-                        )
-                        .collect(Collectors.toList()) :
-                        incompleteManaCharacterType
-                    )
+        if (config.has("manaPerPoint")) {
+            manaPerPoint = config.get("manaPerPoint").getAsInt();
+            counter.increment();
+        } else {
+            manaPerPoint = MANA_PER_POINT;
+        }
+
+        if (config.has("manaCapacityBase")) {
+            manaCapacityBase = config.get("manaCapacityBase").getAsFloat();
+            counter.increment();
+        } else {
+            manaCapacityBase = MANA_CAPACITY_BASE;
+        }
+
+        if (config.has("manaRegenBase")) {
+            manaRegenBase = config.get("manaRegenBase").getAsFloat();
+            counter.increment();
+        } else {
+            manaRegenBase = MANA_REGEN_BASE;
+        }
+
+        if (config.has("enchantmentCapacityBase")) {
+            enchantmentCapacityBase = config.get("enchantmentCapacityBase").getAsFloat();
+            counter.increment();
+        } else {
+            enchantmentCapacityBase = ENCHANTMENT_CAPACITY_BASE;
+        }
+
+        if (config.has("enchantmentStreamBase")) {
+            enchantmentStreamBase = config.get("enchantmentStreamBase").getAsFloat();
+            counter.increment();
+        } else {
+            enchantmentStreamBase = ENCHANTMENT_STREAM_BASE;
+        }
+
+        if (config.has("enchantmentUtilizationBase")) {
+            enchantmentUtilizationBase = config.get("enchantmentUtilizationBase").getAsFloat();
+            counter.increment();
+        } else {
+            enchantmentUtilizationBase = ENCHANTMENT_UTILIZATION_BASE;
+        }
+
+        if (config.has("enchantmentPotencyBase")) {
+            enchantmentPotencyBase = config.get("enchantmentPotencyBase").getAsFloat();
+            counter.increment();
+        } else {
+            enchantmentPotencyBase = ENCHANTMENT_POTENCY_BASE;
+        }
+
+        if (config.has("statusEffectManaBoostBase")) {
+            statusEffectManaBoostBase = config.get("statusEffectManaBoostBase").getAsFloat();
+            counter.increment();
+        } else {
+            statusEffectManaBoostBase = STATUS_EFFECT_MANA_BOOST_BASE;
+        }
+
+        if (config.has("statusEffectManaReductionBase")) {
+            statusEffectManaReductionBase = config.get("statusEffectManaReductionBase").getAsFloat();
+            counter.increment();
+        } else {
+            statusEffectManaReductionBase = STATUS_EFFECT_MANA_REDUCTION_BASE;
+        }
+
+        if (config.has("statusEffectInstantManaBase")) {
+            statusEffectInstantManaBase = config.get("statusEffectInstantManaBase").getAsFloat();
+            counter.increment();
+        } else {
+            statusEffectInstantManaBase = STATUS_EFFECT_INSTANT_MANA_BASE;
+        }
+
+        if (config.has("statusEffectInstantDepleteBase")) {
+            statusEffectInstantDepleteBase = config.get("statusEffectInstantDepleteBase").getAsFloat();
+            counter.increment();
+        } else {
+            statusEffectInstantDepleteBase = STATUS_EFFECT_INSTANT_DEPLETE_BASE;
+        }
+
+        if (config.has("statusEffectManaPowerBase")) {
+            statusEffectManaPowerBase = config.get("statusEffectManaPowerBase").getAsFloat();
+            counter.increment();
+        } else {
+            statusEffectManaPowerBase = STATUS_EFFECT_MANA_POWER_BASE;
+        }
+
+        if (config.has("statusEffectManaSicknessBase")) {
+            statusEffectManaSicknessBase = config.get("statusEffectManaSicknessBase").getAsFloat();
+            counter.increment();
+        } else {
+            statusEffectManaSicknessBase = STATUS_EFFECT_MANA_SICKNESS_BASE;
+        }
+
+        if (config.has("statusEffectManaRegenBase")) {
+            statusEffectManaRegenBase = config.get("statusEffectManaRegenBase").getAsInt();
+            counter.increment();
+        } else {
+            statusEffectManaRegenBase = STATUS_EFFECT_MANA_REGEN_BASE;
+        }
+
+        if (config.has("statusEffectManaInhibitionBase")) {
+            statusEffectManaInhibitionBase = config.get("statusEffectManaInhibitionBase").getAsInt();
+            counter.increment();
+        } else {
+            statusEffectManaInhibitionBase = STATUS_EFFECT_MANA_INHIBITION_BASE;
+        }
+
+        if (config.has("displayIdleInterval")) {
+            displayIdleInterval = config.get("displayIdleInterval").getAsByte();
+            counter.increment();
+        } else {
+            displayIdleInterval = DISPLAY_IDLE_INTERVAL;
+        }
+
+        if (config.has("displaySuppressionInterval")) {
+            displaySuppressionInterval = config.get("displaySuppressionInterval").getAsByte();
+            counter.increment();
+        } else {
+            displaySuppressionInterval = DISPLAY_SUPPRESSION_INTERVAL;
+        }
+
+        if (config.has("isForceEnabled")) {
+            isForceEnabled = config.get("isForceEnabled").getAsBoolean();
+            counter.increment();
+        } else {
+            isForceEnabled = IS_FORCE_ENABLED;
+        }
+
+        if (config.has("isEnabled")) {
+            isEnabled = config.get("isEnabled").getAsBoolean();
+            counter.increment();
+        } else {
+            isEnabled = IS_ENABLED;
+        }
+
+        if (config.has("manaBarPosition")) {
+            manaBarPosition = ManaBar.Position.byName(config.get("manaBarPosition").getAsString());
+            counter.increment();
+        } else {
+            manaBarPosition = MANA_BAR_POSITION;
+        }
+
+        if (config.has("manaPattern")) {
+            manaPattern = new ManaPattern(
+                config.get("pattern").getAsJsonArray().asList().stream()
+                    .map(partialPattern -> Text.Serialization.fromJsonTree(partialPattern, server.getRegistryManager()))
+                    .map(Text.class::cast)
                     .collect(Collectors.toList())
-            )
-            .map(incompleteManaCharacter -> incompleteManaCharacter.size() <= MANA_CHARACTER_TYPE_INDEX_LIMIT ?
-                Stream.concat(
-                    incompleteManaCharacter.stream(),
-                    Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - incompleteManaCharacter.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
+            );
+            counter.increment();
+        } else {
+            manaPattern = MANA_PATTERN;
+        }
+
+        if (config.has("manaRenderType")) {
+            manaRenderType = ManaRender.Type.byName(config.get("manaRenderType").getAsString());
+            counter.increment();
+        } else {
+            manaRenderType = MANA_RENDER_TYPE;
+        }
+
+        if (config.has("manaCharset")) {
+            manaCharset = new ManaCharset(
+                Stream.of(
+                    config.get("charset").getAsJsonArray().asList().stream()
+                        .map(charsetType -> charsetType.getAsJsonArray().asList().stream()
+                            .map(character -> Text.Serialization.fromJsonTree(character, server.getRegistryManager()))
+                            .map(Text.class::cast)
+                            .collect(Collectors.toList())
+                        )
+                        .map(charsetType -> charsetType.size() <= MANA_CHARACTER_INDEX_LIMIT ?
+                            Stream.concat(
+                                charsetType.stream(),
+                                Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1 - charsetType.size(), charsetType.getFirst()).stream()
+                            )
+                            .collect(Collectors.toList()) :
+                            charsetType
+                        )
+                        .collect(Collectors.toList())
                 )
-                .collect(Collectors.toList()) :
-                incompleteManaCharacter
-            )
-            .findAny()
-            .orElse(MANA_CHARACTERS) :
-            MANA_CHARACTERS;
+                .map(charset -> charset.size() <= MANA_CHARACTER_TYPE_INDEX_LIMIT ?
+                    Stream.concat(
+                        charset.stream(),
+                        Collections.nCopies(MANA_CHARACTER_TYPE_INDEX_LIMIT + 1 - charset.size(), Collections.nCopies(MANA_CHARACTER_INDEX_LIMIT + 1, (Text)Text.literal("�"))).stream()
+                    )
+                    .collect(Collectors.toList()) :
+                    charset
+                )
+                .findAny()
+                .get()
+            );
+        } else {
+            manaCharset = MANA_CHARSET;
+        }
+
+        if (config.has("pointsPerCharacter")) {
+            pointsPerCharacter = config.get("pointsPerCharacter").getAsInt();
+            counter.increment();
+        } else {
+            pointsPerCharacter = POINTS_PER_CHARACTER;
+        }
+
+        if (config.has("isCompression")) {
+            isCompression = config.get("isCompression").getAsBoolean();
+            counter.increment();
+        } else {
+            isCompression = IS_COMPRESSION;
+        }
+
+        if (config.has("compressionSize")) {
+            compressionSize = config.get("compressionSize").getAsByte();
+            counter.increment();
+        } else {
+            compressionSize = COMPRESSION_SIZE;
+        }
+
+        if (config.has("isVisible")) {
+            isVisible = config.get("isVisible").getAsBoolean();
+            counter.increment();
+        } else {
+            isVisible = IS_VISIBLE;
+        }
+
+        if (config.has("manaBarColor")) {
+            manaBarColor = BossBar.Color.byName(config.get("manaBarColor").getAsString());
+            counter.increment();
+        } else {
+            manaBarColor = MANA_BAR_COLOR;
+        }
+
+        if (config.has("manaBarStyle")) {
+            manaBarStyle = BossBar.Style.byName(config.get("manaBarStyle").getAsString());
+            counter.increment();
+        } else {
+            manaBarStyle = MANA_BAR_STYLE;
+        }
 
         reCalc();
-        isLoaded = true;
-		return 2;
+		return counter.intValue();
 	}
 
 	public static void reset() {
@@ -309,16 +406,16 @@ public class Pentamana implements ModInitializer {
         displaySuppressionInterval          = DISPLAY_SUPPRESSION_INTERVAL;
         isForceEnabled                      = IS_FORCE_ENABLED;
         isEnabled                           = IS_ENABLED;
-        isVisible                           = IS_VISIBLE;
+        manaBarPosition                     = MANA_BAR_POSITION;
+        manaPattern                         = MANA_PATTERN;
+        manaRenderType                      = MANA_RENDER_TYPE;
+        manaCharset                         = MANA_CHARSET;
+        pointsPerCharacter                  = POINTS_PER_CHARACTER;
         isCompression                       = IS_COMPRESSION;
         compressionSize                     = COMPRESSION_SIZE;
-        manabarPattern                      = MANABAR_PATTERN;
-        manabarType                         = MANABAR_TYPE;
-        manabarPosition                     = MANABAR_POSITION;
-        manabarColor                        = MANABAR_COLOR;
-        manabarStyle                        = MANABAR_STYLE;
-        pointsPerCharacter                  = POINTS_PER_CHARACTER;
-        manaCharacter                       = MANA_CHARACTERS;
+        isVisible                           = IS_VISIBLE;
+        manaBarColor                        = MANA_BAR_COLOR;
+        manaBarStyle                        = MANA_BAR_STYLE;
 	}
 
     public static void reCalc() {

@@ -1,17 +1,19 @@
 package net.cookedseafood.pentamana.command;
 
-import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ManaDisplay;
-import net.cookedseafood.pentamana.component.ManaPreference;
-import net.cookedseafood.pentamana.component.ManaStatus;
-import net.cookedseafood.pentamana.component.ManaStatusEffect;
-import net.cookedseafood.pentamana.render.ManabarPositions;
-import net.cookedseafood.pentamana.render.ManabarTypes;
+import net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl;
+import net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl;
+import net.cookedseafood.pentamana.component.ServerManaBarComponentImpl;
+import net.cookedseafood.pentamana.mana.ManaCharset;
+import net.cookedseafood.pentamana.mana.ManaPattern;
+import net.cookedseafood.pentamana.mana.ManaRender;
+import net.cookedseafood.pentamana.mana.ManaStatusEffectManager;
+import net.cookedseafood.pentamana.mana.ManaTextual;
+import net.cookedseafood.pentamana.mana.ServerManaBar;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -44,33 +46,38 @@ public class PentamanaCommand {
 
     public static int executeDebugProfile(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaStatus manaStatus = ManaStatus.MANA_STATUS.get(player);
-        ManaDisplay manaDisplay = ManaDisplay.MANA_DISPLAY.get(player);
-        ManaStatusEffect manaStatusEffect = ManaStatusEffect.MANA_STATUS_EFFECT.get(player);
-        ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
-        List<List<Text>> manaCharacter = manaPreference.getManaCharacter();
+        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
+        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(player).getStatusEffectManager();
+        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ManaTextual textual = serverManaBar.getTextual();
+        ManaPattern pattern = textual.getPattern();
+        ManaRender render = textual.getRender();
+        ManaCharset charset = render.getCharset();
+        UUID uuid = serverManaBar.getUuid();
+        ServerPlayerEntity playerInServerManaBar = serverManaBar.getPlayer();
 
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
-        IntStream.range(0, 10).forEach(i -> profile.append(manaCharacter.get(i).get(i)));
-        profile.append(Text.literal("\n" + manaStatus.getManaSupply() + "/" + manaStatus.getManaCapacity()).formatted(Formatting.AQUA));
-        profile.append(Text.literal(" " + manaDisplay.getLastManaSupplyPoint() + "/" + manaDisplay.getLastManaCapacityPoint()).formatted(Formatting.YELLOW));
-        profile.append(Text.literal(" " + manaDisplay.getManabarLife()).formatted(Formatting.GRAY));
-        manaStatusEffect.getStatusEffects().keySet().stream()
-            .filter(id -> manaStatusEffect.hasStatusEffect(id))
+        IntStream.range(0, 10).forEach(i -> profile.append(charset.get(i).get(i)));
+        profile.append(Text.literal("\n" + serverManaBar.getSupply() + "/" + serverManaBar.getCapacity()).formatted(Formatting.AQUA));
+        profile.append(Text.literal(" " + serverManaBar.getLife()).formatted(Formatting.GRAY));
+        statusEffectManager.keySet().stream()
+            .filter(id -> statusEffectManager.has(id))
             .forEach(id -> {
-                int amplifier = manaStatusEffect.getActiveStatusEffectAmplifier(id);
+                int amplifier = statusEffectManager.getActiveStatusEffectAmplifier(id);
                 profile.append(Text.literal("\n" + id).formatted(Formatting.GRAY));
                 profile.append(Text.literal(" " + amplifier));
-                profile.append(Text.literal(" " + manaStatusEffect.getStatusEffectDuration(id, amplifier)));
+                profile.append(Text.literal(" " + statusEffectManager.getDuration(id, amplifier)));
             });
         profile.append(manaPreference.isEnabled() ? Text.literal("\nT").formatted(Formatting.GREEN) : Text.literal("\nF").formatted(Formatting.RED));
-        profile.append(manaPreference.isVisible() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
-        profile.append(manaPreference.isCompression() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
-        profile.append(Text.literal(" " + manaPreference.getCompressionSize()).formatted(Formatting.YELLOW));
-        profile.append(Text.literal(" " + manaPreference.getPointsPerCharacter()).formatted(Formatting.AQUA));
-        profile.append(Text.literal(" " + manaPreference.getManabarPattern().toString()));
-        profile.append(Text.literal(" " + ManabarTypes.getName((byte)manaPreference.getManabarType())).formatted(Formatting.YELLOW));
-        profile.append(Text.literal(" " + ManabarPositions.getName((byte)manaPreference.getManabarPosition())).formatted(Formatting.YELLOW));
+        profile.append(serverManaBar.isVisible() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
+        profile.append(render.isCompression() ? Text.literal(" T").formatted(Formatting.GREEN) : Text.literal(" F").formatted(Formatting.RED));
+        profile.append(Text.literal(" " + render.getCompressionSize()).formatted(Formatting.YELLOW));
+        profile.append(Text.literal(" " + render.getPointsPerCharacter()).formatted(Formatting.AQUA));
+        profile.append(Text.literal(" " + serverManaBar.getPosition().getName()).formatted(Formatting.YELLOW));
+        profile.append(Text.literal(" " + render.getType().getName()).formatted(Formatting.YELLOW));
+        profile.append(Text.literal("\n" + pattern.toText().toString()));
+        profile.append(uuid != null ? Text.literal("\n" + uuid.toString()).formatted(Formatting.DARK_GRAY) : Text.literal("\nNull").formatted(Formatting.RED));
+        profile.append(playerInServerManaBar != null ? Text.literal("\n" + playerInServerManaBar.toString()).formatted(Formatting.DARK_GRAY) : Text.literal("\nNull").formatted(Formatting.RED));
 
         source.sendFeedback(() -> profile, false);
         return 0;

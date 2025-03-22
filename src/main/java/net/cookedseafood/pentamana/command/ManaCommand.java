@@ -1,10 +1,13 @@
 package net.cookedseafood.pentamana.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ManaPreference;
+import net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl;
+import net.cookedseafood.pentamana.component.ServerManaBarComponentImpl;
+import net.cookedseafood.pentamana.mana.ServerManaBar;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -32,6 +35,27 @@ public class ManaCommand {
                 .executes(context -> executeEnable(context.getSource()))
             )
             .then(
+                CommandManager.literal("set")
+                .then(
+                    CommandManager.argument("amount", FloatArgumentType.floatArg())
+                    .executes(context -> executeSet(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
+                )
+            )
+            .then(
+                CommandManager.literal("add")
+                .then(
+                    CommandManager.argument("amount", FloatArgumentType.floatArg())
+                    .executes(context -> executeAdd(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
+                )
+            )
+            .then(
+                CommandManager.literal("subtract")
+                .then(
+                    CommandManager.argument("amount", FloatArgumentType.floatArg())
+                    .executes(context -> executeSubtract(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
+                )
+            )
+            .then(
                 CommandManager.literal("reload")
                 .requires(source -> source.hasPermissionLevel(2))
                 .executes(context -> executeReload(context.getSource()))
@@ -41,7 +65,7 @@ public class ManaCommand {
 
     public static int executeEnable(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
+        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
         if (manaPreference.isEnabled()) {
             throw OPTION_ALREADY_ENABLED_EXCEPTION.create();
         }
@@ -54,7 +78,7 @@ public class ManaCommand {
 
     public static int executeDisable(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreference manaPreference = ManaPreference.MANA_PREFERENCE.get(player);
+        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
         if (!manaPreference.isEnabled()) {
             throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
         }
@@ -67,6 +91,32 @@ public class ManaCommand {
         }
 
         return 1;
+    }
+
+    public static int executeSet(ServerCommandSource source, float amount) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        serverManaBar.setSupply(amount);
+        source.sendFeedback(() -> Text.literal("Set mana for player " + player.getNameForScoreboard() + " to " + amount + "."), false);
+        return (int)(amount / Pentamana.manaPerPoint);
+    }
+
+    public static int executeAdd(ServerCommandSource source, float amount) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        float targetSupply = serverManaBar.getSupply() + amount;
+        serverManaBar.setSupply(targetSupply);
+        source.sendFeedback(() -> Text.literal("Added " + amount + " mana for player " + player.getNameForScoreboard() + "."), false);
+        return (int)(targetSupply / Pentamana.manaPerPoint);
+    }
+
+    public static int executeSubtract(ServerCommandSource source, float amount) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        float targetSupply = serverManaBar.getSupply() - amount;
+        serverManaBar.setSupply(targetSupply);
+        source.sendFeedback(() -> Text.literal("Subtracted " + amount + " mana for player " + player.getNameForScoreboard() + "."), false);
+        return (int)(targetSupply / Pentamana.manaPerPoint);
     }
 
     public static int executeReload(ServerCommandSource source) {
