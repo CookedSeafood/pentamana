@@ -1,6 +1,7 @@
 package net.cookedseafood.pentamana.mana;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -80,12 +81,14 @@ public class ManaPattern {
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return new NbtCompound(
-            Map.<String,NbtElement>of(
-                "pattern",
-                this.stream()
-                    .map(text -> Text.Serialization.toJsonString(text, registryLookup))
-                    .map(NbtString::of)
-                    .collect(NbtList::new, NbtList::add, NbtList::addAll)
+            new HashMap<>(
+                Map.<String,NbtElement>of(
+                    "pattern",
+                    this.stream()
+                        .map(text -> Text.Serialization.toJsonString(text, registryLookup))
+                        .map(NbtString::of)
+                        .collect(NbtList::new, NbtList::add, NbtList::addAll)
+                )
             )
         );
     }

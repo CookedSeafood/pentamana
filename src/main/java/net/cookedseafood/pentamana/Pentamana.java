@@ -38,7 +38,7 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 6;
-    public static final byte VERSION_PATCH = 0;
+    public static final byte VERSION_PATCH = 1;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;

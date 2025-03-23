@@ -1,5 +1,6 @@
 package net.cookedseafood.pentamana.mana;
 
+import java.util.HashMap;
 import java.util.Map;
 import net.cookedseafood.pentamana.Pentamana;
 import net.minecraft.nbt.NbtCompound;
@@ -60,11 +61,13 @@ public class ManaTextual {
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return new NbtCompound(
-            Map.<String,NbtElement>of(
-                "pattern",
-                this.pattern.toNbt(registryLookup),
-                "render",
-                this.render.toNbt(registryLookup)
+            new HashMap<>(
+                Map.<String,NbtElement>of(
+                    "pattern",
+                    this.pattern.toNbt(registryLookup),
+                    "render",
+                    this.render.toNbt(registryLookup)
+                )
             )
         );
     }

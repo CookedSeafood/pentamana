@@ -1,6 +1,7 @@
 package net.cookedseafood.pentamana.mana;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.nbt.NbtByte;
@@ -111,21 +112,23 @@ public class ManaBar {
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return new NbtCompound(
-            Map.<String,NbtElement>of(
-                "capacity",
-                NbtFloat.of(this.capacity),
-                "supply",
-                NbtFloat.of(this.supply),
-                "position",
-                NbtString.of(this.position.name),
-                "textual",
-                this.textual.toNbt(registryLookup),
-                "isVisible",
-                NbtByte.of(this.isVisible),
-                "color",
-                NbtString.of(this.color.getName()),
-                "style",
-                NbtString.of(this.style.getName())
+            new HashMap<>(
+                Map.<String,NbtElement>of(
+                    "capacity",
+                    NbtFloat.of(this.capacity),
+                    "supply",
+                    NbtFloat.of(this.supply),
+                    "position",
+                    NbtString.of(this.position.name),
+                    "textual",
+                    this.textual.toNbt(registryLookup),
+                    "isVisible",
+                    NbtByte.of(this.isVisible),
+                    "color",
+                    NbtString.of(this.color.getName()),
+                    "style",
+                    NbtString.of(this.style.getName())
+                )
             )
         );
     }

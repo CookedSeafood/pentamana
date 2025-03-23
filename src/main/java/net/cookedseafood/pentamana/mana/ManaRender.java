@@ -1,6 +1,7 @@
 package net.cookedseafood.pentamana.mana;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import net.cookedseafood.pentamana.Pentamana;
 import net.minecraft.nbt.NbtByte;
@@ -132,17 +133,19 @@ public class ManaRender {
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return new NbtCompound(
-            Map.<String,NbtElement>of(
-                "type",
-                NbtString.of(this.type.name),
-                "charset",
-                this.charset.toNbt(registryLookup),
-                "pointsPerCharacter",
-                NbtInt.of(this.pointsPerCharacter),
-                "isCompression",
-                NbtByte.of(this.isCompression),
-                "compressionSize",
-                NbtByte.of(this.compressionSize)
+            new HashMap<>(
+                Map.<String,NbtElement>of(
+                    "type",
+                    NbtString.of(this.type.name),
+                    "charset",
+                    this.charset.toNbt(registryLookup),
+                    "pointsPerCharacter",
+                    NbtInt.of(this.pointsPerCharacter),
+                    "isCompression",
+                    NbtByte.of(this.isCompression),
+                    "compressionSize",
+                    NbtByte.of(this.compressionSize)
+                )
             )
         );
     }

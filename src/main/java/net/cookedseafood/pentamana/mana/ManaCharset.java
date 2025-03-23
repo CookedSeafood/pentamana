@@ -1,6 +1,7 @@
 package net.cookedseafood.pentamana.mana;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -81,15 +82,17 @@ public class ManaCharset {
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return new NbtCompound(
-            Map.<String,NbtElement>of(
-                "charset",
-                this.stream()
-                    .map(type -> type.stream()
-                        .map(character -> Text.Serialization.toJsonString(character, registryLookup))
-                        .map(NbtString::of)
+            new HashMap<>(
+                Map.<String,NbtElement>of(
+                    "charset",
+                    this.stream()
+                        .map(type -> type.stream()
+                            .map(character -> Text.Serialization.toJsonString(character, registryLookup))
+                            .map(NbtString::of)
+                            .collect(NbtList::new, NbtList::add, NbtList::addAll)
+                        )
                         .collect(NbtList::new, NbtList::add, NbtList::addAll)
-                    )
-                    .collect(NbtList::new, NbtList::add, NbtList::addAll)
+                )
             )
         );
     }

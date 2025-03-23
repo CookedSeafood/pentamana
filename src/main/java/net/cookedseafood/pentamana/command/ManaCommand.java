@@ -35,7 +35,16 @@ public class ManaCommand {
                 .executes(context -> executeEnable(context.getSource()))
             )
             .then(
+                CommandManager.literal("get")
+                .requires(source -> source.hasPermissionLevel(2))
+                .then(
+                    CommandManager.argument("amount", FloatArgumentType.floatArg())
+                    .executes(context -> executeSet(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
+                )
+            )
+            .then(
                 CommandManager.literal("set")
+                .requires(source -> source.hasPermissionLevel(2))
                 .then(
                     CommandManager.argument("amount", FloatArgumentType.floatArg())
                     .executes(context -> executeSet(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
@@ -43,6 +52,7 @@ public class ManaCommand {
             )
             .then(
                 CommandManager.literal("add")
+                .requires(source -> source.hasPermissionLevel(2))
                 .then(
                     CommandManager.argument("amount", FloatArgumentType.floatArg())
                     .executes(context -> executeAdd(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
@@ -50,6 +60,7 @@ public class ManaCommand {
             )
             .then(
                 CommandManager.literal("subtract")
+                .requires(source -> source.hasPermissionLevel(2))
                 .then(
                     CommandManager.argument("amount", FloatArgumentType.floatArg())
                     .executes(context -> executeSubtract(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
@@ -91,6 +102,14 @@ public class ManaCommand {
         }
 
         return 1;
+    }
+
+    public static int executeGet(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        float supply = serverManaBar.getSupply();
+        source.sendFeedback(() -> Text.literal(player.getNameForScoreboard() + " has " + supply + " mana."), false);
+        return (int)(supply / Pentamana.manaPerPoint);
     }
 
     public static int executeSet(ServerCommandSource source, float amount) throws CommandSyntaxException {

@@ -47,6 +47,10 @@ public final class ServerManaBar extends ManaBar {
         this.clientManaBar = new ManaBar(capacity, supply, position, textual, isVisible, color, style);
     }
 
+    public static ServerManaBar of(ManaBar manaBar) {
+        return new ServerManaBar(null, null, null, null, null, manaBar.getCapacity(), manaBar.getSupply(), manaBar.getPosition(), manaBar.getTextual(), manaBar.isVisible(), manaBar.getColor(), manaBar.getStyle());
+    }
+
     public void tick(ServerPlayerEntity player) {
         if (this.player == null) {
             this.player = player;
@@ -377,7 +381,7 @@ public final class ServerManaBar extends ManaBar {
      * @return ServerManaBar with no server, player, uuid, name and id.
      */
     public static ServerManaBar fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        return ((ServerManaBar)ManaBar.fromNbt(nbtCompound, registryLookup))
+        return ServerManaBar.of(ManaBar.fromNbt(nbtCompound, registryLookup))
             .withClientManaBar(ManaBar.fromNbt(nbtCompound.getCompound("clientManaBar"), registryLookup));
     }
 

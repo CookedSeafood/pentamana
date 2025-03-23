@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -164,19 +165,21 @@ public class ManaStatusEffectManager {
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return new NbtCompound(
-            Map.<String,NbtElement>of(
-                "statusEffects",
-                this.entrySet().stream()
-                    .collect(
-                        NbtCompound::new,
-                        (statusEffectsnbtCompound, entry) -> statusEffectsnbtCompound.put(
-                            entry.getKey(),
-                            entry.getValue().stream()
-                                .map(NbtInt::of)
-                                .collect(NbtList::new, NbtList::add, (left, right) -> left.addAll(right))
-                        ),
-                        (left, right) -> right.getKeys().forEach(key -> left.put(key, right.get(key)))
-                    )
+            new HashMap<>(
+                Map.<String,NbtElement>of(
+                    "statusEffects",
+                    this.entrySet().stream()
+                        .collect(
+                            NbtCompound::new,
+                            (statusEffectsnbtCompound, entry) -> statusEffectsnbtCompound.put(
+                                entry.getKey(),
+                                entry.getValue().stream()
+                                    .map(NbtInt::of)
+                                    .collect(NbtList::new, NbtList::add, (left, right) -> left.addAll(right))
+                            ),
+                            (left, right) -> right.getKeys().forEach(key -> left.put(key, right.get(key)))
+                        )
+                )
             )
         );
     }
