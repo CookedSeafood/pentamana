@@ -198,7 +198,7 @@ if (!"Magik Wand".equals(stack.getItemName().getString())) {
 Check if the player has mana enabled:
 
 ```java
-if (!ManaPreference.MANA_PREFERENCE.get(player).isEnabled()) {
+if (!ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player).isEnabled()) {
   return ActionResult.PASS;
 }
 ```
@@ -206,7 +206,7 @@ if (!ManaPreference.MANA_PREFERENCE.get(player).isEnabled()) {
 Consume the mana and fire your weapon if the consumption is successful. Consumption will succeed if the player has enough mana supply.
 
 ```java
-if (ManaStatus.MANA_STATUS.get(player).consum(player, 1) == 0.0f) {
+if (!ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().consum(1.0f)) {
   return ActionResult.PASS;
 }
 
