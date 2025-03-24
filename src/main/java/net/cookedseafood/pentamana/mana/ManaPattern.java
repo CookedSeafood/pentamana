@@ -70,10 +70,10 @@ public class ManaPattern {
 
     public static ManaPattern fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
         return new ManaPattern(
-            nbtCompound.getList("pattern", NbtList.LIST_TYPE).stream()
+            nbtCompound.getList("pattern", NbtList.STRING_TYPE).stream()
                 .map(NbtString.class::cast)
                 .map(NbtString::asString)
-                .map(partialPattern -> Text.Serialization.fromJson(partialPattern, registryLookup))
+                .map(text -> Text.Serialization.fromJson(text, registryLookup))
                 .map(Text.class::cast)
                 .collect(Collectors.toList())
         );

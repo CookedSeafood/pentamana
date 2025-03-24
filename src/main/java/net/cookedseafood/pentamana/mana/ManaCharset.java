@@ -69,7 +69,8 @@ public class ManaCharset {
     public static ManaCharset fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
         return new ManaCharset(
             nbtCompound.getList("charset", NbtList.LIST_TYPE).stream()
-                .map(manaCharacterType -> ((NbtList)manaCharacterType).stream()
+                .map(NbtList.class::cast)
+                .map(manaCharacterType -> manaCharacterType.stream()
                     .map(NbtString.class::cast)
                     .map(NbtString::asString)
                     .map(manaCharacter -> Text.Serialization.fromJson(manaCharacter, registryLookup))
