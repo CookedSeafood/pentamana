@@ -79,7 +79,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana disable` Disable this mod for yourself completely.
 - `/manabar set visibility <false|true>` Set the manabar visibility for yourself.
 - `/manabar set pattern <text>` Set the manabar pattern for yourself. Use `$` to represent mana render text. Text which not in `extra` is ignored.
-- `/manabar set type <character|numeric|percentage|none>` Set the manabar type for yourself.
+- `/manabar set type <character|numeric|percentage|none>` Set the mana render text type for yourself.
 - `/manabar set position <actionbar|bossbar|siderbar>` Set the manabar position for yourself.
 - `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the manabar color in bossbar for yourself.
 - `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set the manabar style in bossbar for yourself.
@@ -163,6 +163,44 @@ Below is an example status effect which increase the mana by 16(![2PointManaChar
 - Mana Inhibition: Decrease mana regeneration by `manaPerPoint / statusEffectManaInhibitionBase >> level`
 - Mana Power: Increase casting damage by `level * statusEffectManaPowerBase`.
 - Mana Sickness: Decrease casting damage by `level * statusEffectManaSicknessBase`.
+
+## Enchantments
+
+### Capacity
+
+- Maximum level: II
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 2
+
+Capacity adds extra mana capacity `level * enchantmentCapacityBase`.
+
+### Stream
+
+- Maximum level: III
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 5
+
+Stream adds extra mana regeneration by `level * enchantmentStreamBase`.
+
+### Potency
+
+- Maximum level: V
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 10
+
+Potency adds the casting damage by `(level + 1) * enchantmentPotencyBase`.
+
+### Utilization
+
+- Maximum level: V
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 5
+
+Utilization reduces the mana cost of casting by `level * enchantmentUtilizationBase` percent.
 
 ## Tutorial: Create your very own magic weapon
 
@@ -262,40 +300,12 @@ castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
 - `RegenManaCallback` Called when a player is regenerating mana. After the mana regeneration calculation, before regenerating mana.
 - `ConsumeManaCallback` Called when a player is consuming mana. After the mana consumption calculation, before consuming mana.
 
-## Enchantments
+## FAQ
 
-### Capacity
+### Containing in mod packs
 
-- Maximum level: II
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 2
+Yes, As long as the download source is modrinth.
 
-Capacity adds extra mana capacity `level * enchantmentCapacityBase`.
+### Back porting / porting to other mod loaders
 
-### Stream
-
-- Maximum level: III
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 5
-
-Stream adds extra mana regeneration by `level * enchantmentStreamBase`.
-
-### Potency
-
-- Maximum level: V
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 10
-
-Potency adds the casting damage by `(level + 1) * enchantmentPotencyBase`.
-
-### Utilization
-
-- Maximum level: V
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 5
-
-Utilization reduces the mana cost of casting by `level * enchantmentUtilizationBase` percent.
+No. You can port it yourself as long as you give credit to the original work.
