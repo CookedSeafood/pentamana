@@ -65,6 +65,7 @@ public final class ServerManaBar extends ManaBar {
         capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
         capacity += statusEffectManager.has("pentamana:mana_boost") ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_boost") + 1) : 0;
         capacity -= statusEffectManager.has("pentamana:mana_reduction") ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_reduction") + 1) : 0;
+        capacity += Pentamana.isConversionExperienceLevel ? Pentamana.conversionExperienceLevelBase * this.player.experienceLevel : 0;
         capacity = Math.max(capacity, 0.0f);
 
         TickManaCallback.EVENT.invoker().interact(this.player);
@@ -84,7 +85,7 @@ public final class ServerManaBar extends ManaBar {
     }
 
     /**
-     * Consume the {@link Pentamana#manaRegenBase} amount of mana after the custom modifiers
+     * Consume the {@link Pentamana#manaRegenerationBase} amount of mana after the custom modifiers
      * and enchantments are applied.
      * 
      * <p>Target supply is capped at capacity and 0.0f.
@@ -96,11 +97,11 @@ public final class ServerManaBar extends ManaBar {
     public boolean regen() {
         ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(this.player).getStatusEffectManager();
 
-        float regen = (float)this.player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenBase);
+        float regen = (float)this.player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenerationBase);
         regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
         regen += statusEffectManager.has("pentamana:instant_mana") ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveStatusEffectAmplifier("pentamana:instant_mana")) : 0;
         regen -= statusEffectManager.has("pentamana:instant_deplete") ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveStatusEffectAmplifier("pentamana:instant_deplete")) : 0;
-        regen += statusEffectManager.has("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_regeneration")) : 0;
+        regen += statusEffectManager.has("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_regeneration")) : 0;
         regen -= statusEffectManager.has("pentamana:mana_inhibition") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_inhibition")) : 0;
 
         RegenManaCallback.EVENT.invoker().interact(this.player);

@@ -38,7 +38,7 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 6;
-    public static final byte VERSION_PATCH = 2;
+    public static final byte VERSION_PATCH = 3;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -48,7 +48,7 @@ public class Pentamana implements ModInitializer {
 
     public static final int MANA_PER_POINT = 1;
     public static final float MANA_CAPACITY_BASE = 2.0f;
-    public static final float MANA_REGEN_BASE = 0.0625f;
+    public static final float MANA_REGENERATION_BASE = 0.0625f;
     public static final float ENCHANTMENT_CAPACITY_BASE = 2.0f;
     public static final float ENCHANTMENT_STREAM_BASE = 0.03125f;
     public static final float ENCHANTMENT_UTILIZATION_BASE = 0.1f;
@@ -59,8 +59,10 @@ public class Pentamana implements ModInitializer {
     public static final float STATUS_EFFECT_INSTANT_DEPLETE_BASE = 6.0f;
     public static final float STATUS_EFFECT_MANA_POWER_BASE = 3.0f;
     public static final float STATUS_EFFECT_MANA_SICKNESS_BASE = 4.0f;
-    public static final int STATUS_EFFECT_MANA_REGEN_BASE = 50;
+    public static final int STATUS_EFFECT_MANA_REGENERATION_BASE = 50;
     public static final int STATUS_EFFECT_MANA_INHIBITION_BASE = 40;
+    public static final boolean IS_CONVERSION_EXPERIENCE_LEVEL = false;
+    public static final float CONVERSION_EXPERIENCE_LEVEL_BASE = 0.5f;
     public static final byte DISPLAY_IDLE_INTERVAL = 40/* 20*2 */;
     public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
     public static final boolean IS_FORCE_ENABLED = false;
@@ -89,7 +91,7 @@ public class Pentamana implements ModInitializer {
 
 	public static int manaPerPoint;
 	public static float manaCapacityBase;
-    public static float manaRegenBase;
+    public static float manaRegenerationBase;
 	public static float enchantmentCapacityBase;
     public static float enchantmentStreamBase;
     public static float enchantmentUtilizationBase;
@@ -100,8 +102,10 @@ public class Pentamana implements ModInitializer {
     public static float statusEffectInstantDepleteBase;
     public static float statusEffectManaPowerBase;
     public static float statusEffectManaSicknessBase;
-    public static int statusEffectManaRegenBase;
+    public static int statusEffectManaRegenerationBase;
     public static int statusEffectManaInhibitionBase;
+    public static boolean isConversionExperienceLevel;
+    public static float conversionExperienceLevelBase;
     public static byte displayIdleInterval;
 	public static byte displaySuppressionInterval;
 	public static boolean isForceEnabled;
@@ -161,11 +165,11 @@ public class Pentamana implements ModInitializer {
             manaCapacityBase = MANA_CAPACITY_BASE;
         }
 
-        if (config.has("manaRegenBase")) {
-            manaRegenBase = config.get("manaRegenBase").getAsFloat();
+        if (config.has("manaRegenerationBase")) {
+            manaRegenerationBase = config.get("manaRegenerationBase").getAsFloat();
             counter.increment();
         } else {
-            manaRegenBase = MANA_REGEN_BASE;
+            manaRegenerationBase = MANA_REGENERATION_BASE;
         }
 
         if (config.has("enchantmentCapacityBase")) {
@@ -238,11 +242,11 @@ public class Pentamana implements ModInitializer {
             statusEffectManaSicknessBase = STATUS_EFFECT_MANA_SICKNESS_BASE;
         }
 
-        if (config.has("statusEffectManaRegenBase")) {
-            statusEffectManaRegenBase = config.get("statusEffectManaRegenBase").getAsInt();
+        if (config.has("statusEffectManaRegenerationBase")) {
+            statusEffectManaRegenerationBase = config.get("statusEffectManaRegenerationBase").getAsInt();
             counter.increment();
         } else {
-            statusEffectManaRegenBase = STATUS_EFFECT_MANA_REGEN_BASE;
+            statusEffectManaRegenerationBase = STATUS_EFFECT_MANA_REGENERATION_BASE;
         }
 
         if (config.has("statusEffectManaInhibitionBase")) {
@@ -250,6 +254,20 @@ public class Pentamana implements ModInitializer {
             counter.increment();
         } else {
             statusEffectManaInhibitionBase = STATUS_EFFECT_MANA_INHIBITION_BASE;
+        }
+
+        if (config.has("isConversionExperienceLevel")) {
+            isConversionExperienceLevel = config.get("isConversionExperienceLevel").getAsBoolean();
+            counter.increment();
+        } else {
+            isConversionExperienceLevel = IS_CONVERSION_EXPERIENCE_LEVEL;
+        }
+
+        if (config.has("conversionExperienceLevelBase")) {
+            conversionExperienceLevelBase = config.get("conversionExperienceLevelBase").getAsFloat();
+            counter.increment();
+        } else {
+            conversionExperienceLevelBase = CONVERSION_EXPERIENCE_LEVEL_BASE;
         }
 
         if (config.has("displayIdleInterval")) {
@@ -389,7 +407,7 @@ public class Pentamana implements ModInitializer {
 	public static void reset() {
         manaPerPoint                        = MANA_PER_POINT;
         manaCapacityBase                    = MANA_CAPACITY_BASE;
-        manaRegenBase                       = MANA_REGEN_BASE;
+        manaRegenerationBase                = MANA_REGENERATION_BASE;
         enchantmentCapacityBase             = ENCHANTMENT_CAPACITY_BASE;
         enchantmentStreamBase               = ENCHANTMENT_STREAM_BASE;
         enchantmentUtilizationBase          = ENCHANTMENT_UTILIZATION_BASE;
@@ -398,10 +416,12 @@ public class Pentamana implements ModInitializer {
         statusEffectManaReductionBase       = STATUS_EFFECT_MANA_REDUCTION_BASE;
         statusEffectInstantManaBase         = STATUS_EFFECT_INSTANT_MANA_BASE;
         statusEffectInstantDepleteBase      = STATUS_EFFECT_INSTANT_DEPLETE_BASE;
-        statusEffectManaRegenBase           = STATUS_EFFECT_MANA_REGEN_BASE;
+        statusEffectManaRegenerationBase           = STATUS_EFFECT_MANA_REGENERATION_BASE;
         statusEffectManaInhibitionBase      = STATUS_EFFECT_MANA_INHIBITION_BASE;
         statusEffectManaPowerBase           = STATUS_EFFECT_MANA_POWER_BASE;
         statusEffectManaSicknessBase        = STATUS_EFFECT_MANA_SICKNESS_BASE;
+        isConversionExperienceLevel         = IS_CONVERSION_EXPERIENCE_LEVEL;
+        conversionExperienceLevelBase       = CONVERSION_EXPERIENCE_LEVEL_BASE;
         displayIdleInterval                 = DISPLAY_IDLE_INTERVAL;
         displaySuppressionInterval          = DISPLAY_SUPPRESSION_INTERVAL;
         isForceEnabled                      = IS_FORCE_ENABLED;
