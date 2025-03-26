@@ -141,5 +141,5 @@ public class ManaCommand {
     public static int executeReload(ServerCommandSource source) {
         source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
         return Pentamana.reload(source.getServer());
-	}
+    }
 }

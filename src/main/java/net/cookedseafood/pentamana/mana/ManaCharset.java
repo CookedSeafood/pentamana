@@ -23,27 +23,44 @@ public class ManaCharset {
         this.charset = charset;
     }
 
-    public ManaCharset deepCopy() {
-        return new ManaCharset(this.stream()
-            .map(type -> type.stream()
-                .map(MutableText.class::cast)
-                .map(MutableText::deepCopy)
-                .collect(Collectors.toList())
-            )
-            .collect(Collectors.toList())
+    public Text toText() {
+        MutableText text = Text.empty();
+        this.forEach(charType -> 
+            charType.forEach(text::append)
         );
+        return text;
+    }
+
+    public List<List<Text>> getCharset() {
+        return charset;
+    }
+
+    public void setCharset(List<List<Text>> charset) {
+        this.charset = charset;
     }
 
     public List<Text> get(int index) {
         return this.charset.get(index);
     }
 
-    public boolean contains(List<Text> text) {
-        return this.charset.contains(text);
+    public boolean add(List<Text> charType) {
+        return this.charset.add(charType);
     }
 
-    public boolean containsAll(Collection<List<Text>> collection) {
-        return this.containsAll(collection);
+    public boolean addAll(Collection<List<Text>> charTypes) {
+        return this.charset.addAll(charTypes);
+    }
+
+    public boolean remove(List<Text> charType) {
+        return this.charset.remove(charType);
+    }
+
+    public boolean contains(List<Text> charType) {
+        return this.charset.contains(charType);
+    }
+
+    public boolean containsAll(Collection<List<Text>> charTypes) {
+        return this.containsAll(charTypes);
     }
 
     public void forEach(Consumer<? super List<Text>> action) {
@@ -58,12 +75,33 @@ public class ManaCharset {
         return this.charset.stream();
     }
 
-    public List<List<Text>> getCharset() {
-        return charset;
+    /**
+     * A shadow copy.
+     * 
+     * @return a new ManaCharset
+     * 
+     * @see #deepCopy()
+     */
+    public ManaCharset copy() {
+        return new ManaCharset(this.charset);
     }
 
-    public void setCharset(List<List<Text>> charset) {
-        this.charset = charset;
+    /**
+     * A deep copy.
+     * 
+     * @return a new ManaCharset
+     * 
+     * @see #copy()
+     */
+    public ManaCharset deepCopy() {
+        return new ManaCharset(this.stream()
+            .map(type -> type.stream()
+                .map(MutableText.class::cast)
+                .map(MutableText::deepCopy)
+                .collect(Collectors.toList())
+            )
+            .collect(Collectors.toList())
+        );
     }
 
     public static ManaCharset fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {

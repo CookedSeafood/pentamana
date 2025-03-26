@@ -1,165 +1,241 @@
 package net.cookedseafood.pentamana.mana;
 
-import com.google.common.collect.Maps;
-import java.util.ArrayList;
+import com.google.common.collect.Sets;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import net.cookedseafood.pentamana.Pentamana;
+import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class ManaStatusEffectManager {
-    private Map<String, List<Integer>> statusEffects;
+    private Set<ManaStatusEffect> statusEffects;
 
-    public ManaStatusEffectManager(Map<String, List<Integer>> statusEffects) {
+    public ManaStatusEffectManager(Set<ManaStatusEffect> statusEffects) {
         this.statusEffects = statusEffects;
     }
 
     public ManaStatusEffectManager() {
-        this.statusEffects = Maps.<String, List<Integer>>newHashMap();
+        this.statusEffects = Sets.<ManaStatusEffect>newHashSet();
     }
 
     public void tick() {
-        statusEffects.forEach((id, statusEffect) -> IntStream.range(0, statusEffect.size())
-            .filter(amplifier -> statusEffect.get(amplifier) > 0)
-            .forEach(amplifier -> statusEffect.set(amplifier, statusEffect.get(amplifier) - 1))
-        );
-    }
-
-    @Nullable
-    public List<Integer> get(String id) {
-        return this.statusEffects.get(id);
-    }
-
-    public boolean has(String id) {
-        return this.statusEffects.containsKey(id) ?
-            this.get(id).stream().anyMatch(duration -> duration > 0) :
-            false;
-    }
-
-    public int getActiveStatusEffectAmplifier(String id) {
-        if (!this.has(id)) {
-            return -1;
-        }
-
-        List<Integer> statusEffect = this.get(id);
-        return IntStream.iterate(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT, amplifier -> amplifier >= 0, amplifier -> --amplifier)
-            .filter(amplifier -> statusEffect.get(amplifier) > 0)
-            .findFirst()
-            .orElse(-1);
-    }
-
-    public int getDuration(String id, int amplifier) {
-        return this.has(id) ? this.get(id).get(amplifier) : 0;
+        this.forEach(statusEffect -> {
+            if (statusEffect.getDuration() > 0) {
+                statusEffect.incrementDuration(-1);
+            } else {
+                this.remove(statusEffect);
+            }
+        });
     }
 
     /**
-     * Add a status effect with 1 tick duration and 0 amplifier.
+     * Get a status effect based on the {@code id}.
      * 
      * @param id
-     * @return {@code true} if the player has less duration than {@code duration},
-     * otherwise {@code false}.
+     * @return {@code null} if there is no status effect with the {@code id}
      */
-    public boolean add(String id) {
+    @Nullable
+    public ManaStatusEffect get(Identifier id) {
+        return this.stream()
+            .filter(statusEffect -> id.equals(statusEffect.getId()))
+            .findAny()
+            .orElse(null);
+    }
+
+    /**
+     * Get a status effect based on the {@code id} and {@code amplifier}.
+     * 
+     * @param id
+     * @return {@code null} if there is no status effect with the {@code id} and {@code amplifier}
+     */
+    @Nullable
+    public ManaStatusEffect get(Identifier id, int amplifier) {
+        return this.stream()
+            .filter(statusEffect -> id.equals(statusEffect.getId()))
+            .filter(statusEffect -> amplifier == statusEffect.getAmplifier())
+            .findAny()
+            .orElse(null);
+    }
+
+    /**
+     * Check if there is any status effect in this manager has an id {@code i} satisfies
+     * {@code statusEffect.getId().equals(i)}.
+     * 
+     * @param statusEffect
+     * @return true if there is any status effect in this manager has an id {@code i} satisfies
+     * {@code statusEffect.getId().equals(i)}
+     * 
+     * @see #has(Identifier)
+     */
+    public boolean has(ManaStatusEffect statusEffect) {
+        return this.has(statusEffect.getId());
+    }
+
+    /**
+     * Check if there is any status effect in this manager has an id {@code i} satisfies
+     * {@code id.equals(i)}.
+     * 
+     * @param id
+     * @return true if there is any status effect in this manager has an id {@code i} satisfies
+     * {@code id.equals(i)}
+     * 
+     * @see #has(ManaStatusEffect)
+     */
+    public boolean has(Identifier id) {
+        return this.stream()
+            .anyMatch(statusEffect -> id.equals(statusEffect.getId()));
+    }
+
+    /**
+     * Check if there is any status effect in this manager has an id {@code i} satisfies
+     * {@code id.equals(i)} and an amplifier {@code a} satisfies {@code amplifier.equals(a)}.
+     * 
+     * @param id
+     * @return true if there is any status effect in this manager has an id {@code i} satisfies
+     * {@code id.equals(i)} and an amplifier {@code a} satisfies {@code amplifier.equals(a)}
+     */
+    public boolean has(Identifier id, int amplifier) {
+        return this.stream()
+            .filter(statusEffect -> id.equals(statusEffect.getId()))
+            .anyMatch(statusEffect -> amplifier == statusEffect.getAmplifier());
+    }
+
+    /**
+     * Get the largest amplifier from status effects in this manager has an id {@code i} satisfies
+     * {@code statusEffect.get(id).equals(i)}.
+     * 
+     * @param statusEffect
+     * @return -1 if there is no status effect in this manager has an id {@code i} satisfies
+     * {@code statusEffect.get(id).equals(i)}
+     */
+    public int getActiveAmplifier(ManaStatusEffect statusEffect) {
+        return this.getActiveAmplifier(statusEffect.getId());
+    }
+
+    /**
+     * Get the largest amplifier from status effects in this manager has an id {@code i} satisfies
+     * {@code id.equals(i)}.
+     * 
+     * @param id
+     * @return -1 if there is no status effect in this manager has an id {@code i} satisfies
+     * {@code id.equals(i)}
+     */
+    public int getActiveAmplifier(Identifier id) {
+        return this.stream()
+            .filter(statusEffect -> id.equals(statusEffect.getId()))
+            .map(ManaStatusEffect::getAmplifier)
+            .max(Integer::compare)
+            .orElse(-1);
+    }
+
+    /**
+     * Add a status effect to this manager if there is no status effect with the same id and amplifier,
+     * or set the duration to {@code duration} if the duration is less than {@code duration}.
+     * 
+     * <p>Duration is 1. Amplifier is 0.
+     * 
+     * @param id
+     * @return {@code true} if modified something
+     * 
+     * @see #add(Identifier, int)
+     * @see #add(Identifier, int, int)
+     */
+    public boolean add(Identifier id) {
         return this.add(id, 1);
     }
 
     /**
-     * Add a status effect with 0 amplifier.
+     * Add a status effect to this manager if there is no status effect with the same id and amplifier,
+     * or set the duration to {@code duration} if the duration is less than {@code duration}.
+     * 
+     * <p>Amplifier is 0.
      * 
      * @param id
-     * @param duration In ticks.
-     * @return {@code true} if the player has less duration than {@code duration},
-     * otherwise {@code false}.
+     * @param duration in ticks
+     * @return {@code true} if modified something
+     * 
+     * @see #add(Identifier, int, int)
      */
-    public boolean add(String id, int duration) {
+    public boolean add(Identifier id, int duration) {
         return this.add(id, duration, 0);
     }
 
     /**
-     * Add a status effect.
+     * Add a status effect to this manager if there is no status effect with the same id and amplifier,
+     * or set the duration to {@code duration} if the duration is less than {@code duration}.
      * 
      * @param id
-     * @param duration In ticks.
+     * @param duration in ticks
      * @param amplifier
-     * @return {@code true} if the player has less duration than {@code duration},
-     * otherwise {@code false}.
+     * @return {@code true} if modified something
      */
-    public boolean add(String id, int duration, int amplifier) {
-        if (!this.has(id)) {
-            this.statusEffects.put(id, new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)));
-        }
-
-        List<Integer> statusEffect = this.get(id);
-        if (statusEffect.get(amplifier) < duration) {
-            statusEffect.set(amplifier, duration);
+    public boolean add(Identifier id, int duration, int amplifier) {
+        ManaStatusEffect statusEffect = this.get(id, amplifier);
+        if (statusEffect == null) {
+            return this.add(new ManaStatusEffect(id, duration, amplifier));
+        } else if (duration > statusEffect.getDuration()) {
+            statusEffect.setDuration(duration);
             return true;
         }
 
         return false;
     }
 
-    public void set(String id) {
-        this.set(id, 1);
-    }
-
-    public void set(String id, int duration) {
-        this.set(id, duration, 0);
-    }
-
-    public void set(String id, int duration, int amplifier) {
-        if (!this.has(id)) {
-            this.statusEffects.put(id, new ArrayList<>(Collections.nCopies(Pentamana.MANA_STATUS_EFFECT_AMPLIFIER_LIMIT + 1, 0)));
-        }
-
-        this.get(id).set(amplifier, duration);
-    }
-
-    public Set<Map.Entry<String, List<Integer>>> entrySet() {
-        return this.statusEffects.entrySet();
-    }
-
-    public void forEach(BiConsumer<? super String, ? super List<Integer>> action) {
-        this.statusEffects.forEach(action);
-    }
-
-    public Set<String> keySet() {
-        return this.statusEffects.keySet();
-    }
-
-    public Collection<List<Integer>> values() {
-        return this.statusEffects.values();
-    }
-
-    public Map<String, List<Integer>> getStatusEffects() {
+    public Set<ManaStatusEffect> getStatusEffects() {
         return this.statusEffects;
     }
 
-    public void setStatusEffects(Map<String, List<Integer>> statusEffects) {
+    public void setStatusEffects(Set<ManaStatusEffect> statusEffects) {
         this.statusEffects = statusEffects;
+    }
+
+    public boolean add(ManaStatusEffect statusEffect) {
+        return this.statusEffects.add(statusEffect);
+    }
+
+    public boolean addAll(Collection<ManaStatusEffect> statusEffects) {
+        return this.statusEffects.addAll(statusEffects);
+    }
+
+    public boolean remove(ManaStatusEffect statusEffect) {
+        return this.statusEffects.remove(statusEffect);
+    }
+
+    public boolean contains(ManaStatusEffect statusEffect) {
+        return this.statusEffects.contains(statusEffect);
+    }
+
+    public boolean containsAll(Collection<ManaStatusEffect> statusEffects) {
+        return this.statusEffects.containsAll(statusEffects);
+    }
+
+    public void forEach(Consumer<? super ManaStatusEffect> action) {
+        this.statusEffects.forEach(action);
+    }
+
+    public Iterator<ManaStatusEffect> iterator() {
+        return this.statusEffects.iterator();
+    }
+
+    public Stream<ManaStatusEffect> stream() {
+        return this.statusEffects.stream();
     }
 
     public static ManaStatusEffectManager fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
         return new ManaStatusEffectManager(
-            nbtCompound.getCompound("statusEffects").getKeys().stream()
-                .collect(Collectors.toMap(
-                    id -> id,
-                    id -> nbtCompound.getCompound("statusEffects").getList(id, NbtElement.INT_ARRAY_TYPE).stream()
-                        .map(NbtInt.class::cast)
-                        .map(NbtInt::intValue)
-                        .collect(Collectors.toList())
-                ))
+            nbtCompound.getList("statusEffects", NbtElement.COMPOUND_TYPE).stream()
+                .map(NbtCompound.class::cast)
+                .map(statusEffect -> ManaStatusEffect.fromNbt(nbtCompound, registryLookup))
+                .collect(Collectors.toSet())
         );
     }
 
@@ -168,17 +244,9 @@ public class ManaStatusEffectManager {
             new HashMap<>(
                 Map.<String,NbtElement>of(
                     "statusEffects",
-                    this.entrySet().stream()
-                        .collect(
-                            NbtCompound::new,
-                            (statusEffectsnbtCompound, entry) -> statusEffectsnbtCompound.put(
-                                entry.getKey(),
-                                entry.getValue().stream()
-                                    .map(NbtInt::of)
-                                    .collect(NbtList::new, NbtList::add, (left, right) -> left.addAll(right))
-                            ),
-                            (left, right) -> right.getKeys().forEach(key -> left.put(key, right.get(key)))
-                        )
+                    this.stream()
+                        .map(statusEffects -> statusEffects.toNbt(registryLookup))
+                        .collect(NbtList::new, NbtList::add, NbtList::addAll)
                 )
             )
         );

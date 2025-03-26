@@ -18,10 +18,6 @@ public class ManaTextual {
         this.render = render;
     }
 
-    public ManaTextual deepCopy() {
-        return new ManaTextual(this.pattern.deepCopy(), this.render.deepCopy());
-    }
-
     public Text toText(float manaCapacity, float manaSupply) {
         if (!this.pattern.stream()
             .anyMatch(Pentamana.MANA_PATTERN_MATCHER::equals)) {
@@ -50,6 +46,28 @@ public class ManaTextual {
 
     public void setRender(ManaRender render) {
         this.render = render;
+    }
+
+    /**
+     * A shadow copy.
+     * 
+     * @return a new ManaTextual
+     * 
+     * @see #deepCopy()
+     */
+    public ManaTextual copy() {
+        return new ManaTextual(this.pattern, this.render);
+    }
+
+    /**
+     * A deep copy.
+     * 
+     * @return a new ManaTextual
+     * 
+     * @see #copy()
+     */
+    public ManaTextual deepCopy() {
+        return new ManaTextual(this.pattern.deepCopy(), this.render.deepCopy());
     }
 
     public static ManaTextual fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {

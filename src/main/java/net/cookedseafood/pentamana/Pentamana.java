@@ -1,6 +1,8 @@
 package net.cookedseafood.pentamana;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 6;
-    public static final byte VERSION_PATCH = 3;
+    public static final byte VERSION_PATCH = 4;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -89,10 +91,10 @@ public class Pentamana implements ModInitializer {
     public static final BossBar.Color MANA_BAR_COLOR = BossBar.Color.BLUE;
     public static final BossBar.Style MANA_BAR_STYLE = BossBar.Style.PROGRESS;
 
-	public static int manaPerPoint;
-	public static float manaCapacityBase;
+    public static int manaPerPoint;
+    public static float manaCapacityBase;
     public static float manaRegenerationBase;
-	public static float enchantmentCapacityBase;
+    public static float enchantmentCapacityBase;
     public static float enchantmentStreamBase;
     public static float enchantmentUtilizationBase;
     public static float enchantmentPotencyBase;
@@ -107,8 +109,8 @@ public class Pentamana implements ModInitializer {
     public static boolean isConversionExperienceLevel;
     public static float conversionExperienceLevelBase;
     public static byte displayIdleInterval;
-	public static byte displaySuppressionInterval;
-	public static boolean isForceEnabled;
+    public static byte displaySuppressionInterval;
+    public static boolean isForceEnabled;
     public static boolean isEnabled;
     public static ManaBar.Position manaBarPosition;
     public static ManaPattern manaPattern;
@@ -123,32 +125,32 @@ public class Pentamana implements ModInitializer {
 
     public static int manaPointLimit;
 
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+    @Override
+    public void onInitialize() {
+        // This code runs as soon as Minecraft is in a mod-load-ready state.
+        // However, some things (like resources) may still be uninitialized.
+        // Proceed with mild caution.
 
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaBarCommand.register(dispatcher, registryAccess));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             reload(server);
         });
-	}
+    }
 
-	public static int reload(MinecraftServer server) {
-		String configString;
-		try {
-			configString = FileUtils.readFileToString(new File("./config/pentamana.json"), StandardCharsets.UTF_8);
-		} catch (IOException e) {
+    public static int reload(MinecraftServer server) {
+        String configString;
+        try {
+            configString = FileUtils.readFileToString(new File("./config/pentamana.json"), StandardCharsets.UTF_8);
+        } catch (IOException e) {
             reset();
             reCalc();
-			return 1;
-		}
+            return 1;
+        }
 
-		JsonObject config = new Gson().fromJson(configString, JsonObject.class);
+        JsonObject config = new Gson().fromJson(configString, JsonObject.class);
         MutableInt counter = new MutableInt(0);
 
         if (config.has("manaPerPoint")) {
@@ -328,7 +330,9 @@ public class Pentamana implements ModInitializer {
             manaCharset = new ManaCharset(
                 Stream.of(
                     config.get("charset").getAsJsonArray().asList().stream()
-                        .map(charsetType -> charsetType.getAsJsonArray().asList().stream()
+                        .map(JsonElement::getAsJsonArray)
+                        .map(JsonArray::asList)
+                        .map(charsetType -> charsetType.stream()
                             .map(character -> Text.Serialization.fromJsonTree(character, server.getRegistryManager()))
                             .map(Text.class::cast)
                             .collect(Collectors.toList())
@@ -401,10 +405,10 @@ public class Pentamana implements ModInitializer {
         }
 
         reCalc();
-		return counter.intValue();
-	}
+        return counter.intValue();
+    }
 
-	public static void reset() {
+    public static void reset() {
         manaPerPoint                        = MANA_PER_POINT;
         manaCapacityBase                    = MANA_CAPACITY_BASE;
         manaRegenerationBase                = MANA_REGENERATION_BASE;
@@ -436,7 +440,7 @@ public class Pentamana implements ModInitializer {
         isVisible                           = IS_VISIBLE;
         manaBarColor                        = MANA_BAR_COLOR;
         manaBarStyle                        = MANA_BAR_STYLE;
-	}
+    }
 
     public static void reCalc() {
         manaPointLimit = MANA_CHARACTER_INDEX_LIMIT * manaPerPoint;

@@ -63,8 +63,8 @@ public final class ServerManaBar extends ManaBar {
 
         float capacity = (float)this.player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);
         capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
-        capacity += statusEffectManager.has("pentamana:mana_boost") ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_boost") + 1) : 0;
-        capacity -= statusEffectManager.has("pentamana:mana_reduction") ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_reduction") + 1) : 0;
+        capacity += statusEffectManager.has(ManaStatusEffects.MANA_BOOST) ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_BOOST) + 1) : 0;
+        capacity -= statusEffectManager.has(ManaStatusEffects.MANA_REDUCTION) ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_REDUCTION) + 1) : 0;
         capacity += Pentamana.isConversionExperienceLevel ? Pentamana.conversionExperienceLevelBase * this.player.experienceLevel : 0;
         capacity = Math.max(capacity, 0.0f);
 
@@ -74,8 +74,8 @@ public final class ServerManaBar extends ManaBar {
 
         if (this.supply == this.capacity) {
         } else if (this.supply < this.capacity && this.supply >= 0.0f) {
-			this.regen();
-		} else if (this.supply > this.capacity) {
+            this.regen();
+        } else if (this.supply > this.capacity) {
             this.supply = this.capacity;
         } else if (this.supply < 0) {
             this.supply = 0.0f;
@@ -99,10 +99,10 @@ public final class ServerManaBar extends ManaBar {
 
         float regen = (float)this.player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenerationBase);
         regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
-        regen += statusEffectManager.has("pentamana:instant_mana") ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveStatusEffectAmplifier("pentamana:instant_mana")) : 0;
-        regen -= statusEffectManager.has("pentamana:instant_deplete") ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveStatusEffectAmplifier("pentamana:instant_deplete")) : 0;
-        regen += statusEffectManager.has("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_regeneration")) : 0;
-        regen -= statusEffectManager.has("pentamana:mana_inhibition") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_inhibition")) : 0;
+        regen += statusEffectManager.has(ManaStatusEffects.INSTANT_MANA) ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(ManaStatusEffects.INSTANT_MANA)) : 0;
+        regen -= statusEffectManager.has(ManaStatusEffects.INSTANT_DEPLETE) ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(ManaStatusEffects.INSTANT_DEPLETE)) : 0;
+        regen += statusEffectManager.has(ManaStatusEffects.MANA_REGENERATION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_REGENERATION)) : 0;
+        regen -= statusEffectManager.has(ManaStatusEffects.MANA_INHIBITION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_INHIBITION)) : 0;
 
         RegenManaCallback.EVENT.invoker().interact(this.player);
 
@@ -140,10 +140,10 @@ public final class ServerManaBar extends ManaBar {
         ConsumManaCallback.EVENT.invoker().interact(this.player);
 
         float targetSupply = this.supply - targetConsum;
-		if (targetSupply >= 0.0f) {
-			this.supply = targetSupply;
+        if (targetSupply >= 0.0f) {
+            this.supply = targetSupply;
             return true;
-		}
+        }
 
         return false;
     }

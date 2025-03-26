@@ -30,10 +30,6 @@ public class ManaBar {
         this.style = style;
     }
 
-    public ManaBar deepCopy() {
-        return new ManaBar(this.capacity, this.supply, this.position, this.textual.deepCopy(), this.isVisible, this.color, this.style);
-    }
-
     public boolean isFull() {
         return this.supply == capacity;
     }
@@ -96,6 +92,28 @@ public class ManaBar {
 
     public void setStyle(BossBar.Style style) {
         this.style = style;
+    }
+
+    /**
+     * A shadow copy.
+     * 
+     * @return a new ManaBar
+     * 
+     * @see #deepCopy()
+     */
+    public ManaBar copy() {
+        return new ManaBar(this.capacity, this.supply, this.position, this.textual, this.isVisible, this.color, this.style);
+    }
+
+    /**
+     * A deep copy.
+     * 
+     * @return a new ManaBar
+     * 
+     * @see #copy()
+     */
+    public ManaBar deepCopy() {
+        return new ManaBar(this.capacity, this.supply, this.position, this.textual.deepCopy(), this.isVisible, this.color, this.style);
     }
 
     public static ManaBar fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {

@@ -23,13 +23,6 @@ public class ManaPattern {
         this.pattern = pattern;
     }
 
-    public ManaPattern deepCopy() {
-        return new ManaPattern(this.stream()
-            .map(MutableText.class::cast)
-            .map(MutableText::deepCopy)
-            .collect(Collectors.toList()));
-    }
-
     public Text toText() {
         MutableText text = Text.empty();
         this.forEach(text::append);
@@ -66,6 +59,31 @@ public class ManaPattern {
 
     public void setPattern(List<Text> pattern) {
         this.pattern = pattern;
+    }
+
+    /**
+     * A shadow copy.
+     * 
+     * @return a new ManaPattern
+     * 
+     * @see #deepCopy()
+     */
+    public ManaPattern copy() {
+        return new ManaPattern(this.pattern);
+    }
+
+    /**
+     * A deep copy.
+     * 
+     * @return a new ManaPattern
+     * 
+     * @see #copy()
+     */
+    public ManaPattern deepCopy() {
+        return new ManaPattern(this.stream()
+            .map(MutableText.class::cast)
+            .map(MutableText::deepCopy)
+            .collect(Collectors.toList()));
     }
 
     public static ManaPattern fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {

@@ -30,10 +30,6 @@ public class ManaRender {
         this.compressionSize = compressionSize;
     }
 
-    public ManaRender deepCopy() {
-        return new ManaRender(this.type, this.charset.deepCopy(), this.pointsPerCharacter, this.isCompression, this.compressionSize);
-    }
-
     public Text toText(float manaCapacity, float manaSupply) {
         return this.type == ManaRender.Type.CHARACTER ?
             this.toTextInCharacter(manaCapacity, manaSupply) :
@@ -74,7 +70,7 @@ public class ManaRender {
     }
 
     public Text toTextInPercentage(float manaCapacity, float manaSupply) {
-        return Text.literal((int)(manaSupply / manaCapacity) + "%").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+        return Text.literal((int)(manaSupply / manaCapacity * 100) + "%").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
     }
 
     public Text toTextInNone() {
@@ -119,6 +115,28 @@ public class ManaRender {
 
     public void setCompressionSize(byte compressionSize) {
         this.compressionSize = compressionSize;
+    }
+
+    /**
+     * A shadow copy.
+     * 
+     * @return a new ManaRender
+     * 
+     * @see #deepCopy()
+     */
+    public ManaRender copy() {
+        return new ManaRender(this.type, this.charset, this.pointsPerCharacter, this.isCompression, this.compressionSize);
+    }
+
+    /**
+     * A deep copy.
+     * 
+     * @return a new ManaRender
+     * 
+     * @see #copy()
+     */
+    public ManaRender deepCopy() {
+        return new ManaRender(this.type, this.charset.deepCopy(), this.pointsPerCharacter, this.isCompression, this.compressionSize);
     }
 
     public static ManaRender fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {

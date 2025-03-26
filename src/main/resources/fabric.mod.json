@@ -1,59 +1,59 @@
 {
-	"schemaVersion": 1,
-	"id": "pentamana",
-	"version": "${version}",
-	"name": "Pentamana",
-	"description": "An extraordinary customizable mana library for storing and modifying mana.",
-	"authors": [
-		{
-			"name": "CookedSeafood",
-			"contact": {
-				"homepage": "https://github.com/CookedSeafood"
-			}
-		}
-	],
-	"contact": {
-		"homepage": "https://modrinth.com/mod/pentamana",
-		"sources": "https://github.com/CookedSeafood/pentamana"
-	},
-	"license": "GNU-GPL-3.0",
-	"icon": "assets/pentamana/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"net.cookedseafood.pentamana.Pentamana"
-		],
-		"cardinal-components-entity": [
-			"net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl",
-			"net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl",
-			"net.cookedseafood.pentamana.component.ServerManaBarComponentImpl"
-		]
-	},
-	"mixins": [
-		"pentamana.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "1.21.4",
-		"java": ">=21",
-		"fabric-api": "*",
-		"cardinal-components-base": ">=6.2.2",
-		"candy-wrapper": ">=0.5.0"
-	},
-	"suggests": {
-		"another-mod": "*"
-	},
-	"custom": {
-		"loom:injected_interfaces": {
-			"net/minecraft/class_3222": [
-				"net/cookedseafood/pentamana/api/ServerPlayerEntityApi"
-			]
-		},
-		"cardinal-components": [
-			"pentamana:mana_preference",
-			"pentamana:mana_status_effect_manager",
-			"pentamana:server_mana_bar"
+    "schemaVersion": 1,
+    "id": "pentamana",
+    "version": "${version}",
+    "name": "Pentamana",
+    "description": "An extraordinary customizable mana library for storing and modifying mana.",
+    "authors": [
+        {
+            "name": "CookedSeafood",
+            "contact": {
+                "homepage": "https://github.com/CookedSeafood"
+            }
+        }
+    ],
+    "contact": {
+        "homepage": "https://modrinth.com/mod/pentamana",
+        "sources": "https://github.com/CookedSeafood/pentamana"
+    },
+    "license": "GNU-GPL-3.0",
+    "icon": "assets/pentamana/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "net.cookedseafood.pentamana.Pentamana"
+        ],
+        "cardinal-components-entity": [
+            "net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl",
+            "net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl",
+            "net.cookedseafood.pentamana.component.ServerManaBarComponentImpl"
         ]
-	},
-	"accessWidener": "pentamana.accesswidener"
+    },
+    "mixins": [
+        "pentamana.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.16.10",
+        "minecraft": "1.21.4",
+        "java": ">=21",
+        "fabric-api": "*",
+        "cardinal-components-base": ">=6.2.2",
+        "candy-wrapper": ">=0.5.0"
+    },
+    "suggests": {
+        "another-mod": "*"
+    },
+    "custom": {
+        "loom:injected_interfaces": {
+            "net/minecraft/class_3222": [
+                "net/cookedseafood/pentamana/api/ServerPlayerEntityApi"
+            ]
+        },
+        "cardinal-components": [
+            "pentamana:mana_preference",
+            "pentamana:mana_status_effect_manager",
+            "pentamana:server_mana_bar"
+        ]
+    },
+    "accessWidener": "pentamana.accesswidener"
 }
