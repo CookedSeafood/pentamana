@@ -2,7 +2,35 @@
 
 Pentamana is an extraordinary customizable mana library for storing and modifying mana that runs server-side.
 
-![manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/ef535fac56d849195a46117f9f21b6f5eaa7f5b0.png)
+## Installation
+
+`gradle.properties`:
+
+```properties
+pentamana_version=0.6.4
+```
+
+`build.gradle`:
+
+```gradle
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    modImplementation "maven.modrinth:pentamana:${project.pentamana_version}"
+}
+```
 
 ## Configuration
 
