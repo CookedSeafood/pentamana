@@ -40,11 +40,10 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 6;
-    public static final byte VERSION_PATCH = 4;
+    public static final byte VERSION_PATCH = 5;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
-    public static final int MANA_STATUS_EFFECT_AMPLIFIER_LIMIT = 255;
     public static final Text MANA_PATTERN_MATCHER = Text.of("$");
     public static final String MANA_BAR_NAME_PREFIX = "manabar.";
 

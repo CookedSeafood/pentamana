@@ -2,12 +2,15 @@ package net.cookedseafood.pentamana.mixin;
 
 import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.ServerPlayerEntityApi;
-import net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl;
-import net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl;
-import net.cookedseafood.pentamana.component.ServerManaBarComponentImpl;
-import net.cookedseafood.pentamana.mana.ManaStatusEffect;
-import net.cookedseafood.pentamana.mana.ManaStatusEffectManager;
-import net.cookedseafood.pentamana.mana.ManaStatusEffects;
+import net.cookedseafood.pentamana.attribute.PentamanaAttributeIdentifiers;
+import net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance;
+import net.cookedseafood.pentamana.component.CustomStatusEffectManagerComponentInstance;
+import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
+import net.cookedseafood.pentamana.effect.CustomStatusEffect;
+import net.cookedseafood.pentamana.effect.CustomStatusEffectIdentifier;
+import net.cookedseafood.pentamana.effect.PentamanaStatusEffectIdentifiers;
+import net.cookedseafood.pentamana.effect.CustomStatusEffectManager;
+import net.cookedseafood.pentamana.enchantment.PentamanaEnchantmentIdentifiers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.WitchEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -29,12 +32,12 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
     private void tickMana(CallbackInfo info) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
 
-        if (ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player).isEnabled() == false && !Pentamana.isForceEnabled) {
+        if (ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player).isEnabled() == false && !Pentamana.isForceEnabled) {
             return;
         }
 
-        ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(player).getStatusEffectManager().tick();;
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().tick(player);
+        CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(player).getStatusEffectManager().tick();
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().tick(player);
     }
 
     @Inject(
@@ -46,26 +49,26 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
         )
     )
     private void applyManaStatusEffects(CallbackInfo info) {
-        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get((ServerPlayerEntity)(Object)this).getStatusEffectManager();
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get((ServerPlayerEntity)(Object)this).getStatusEffectManager();
         ((ServerPlayerEntity)(Object)this).getActiveItem().getCustomStatusEffects().stream()
             .map(NbtCompound.class::cast)
-            .forEach(presentedStatusEffect -> statusEffectManager.add(new ManaStatusEffect(Identifier.of(presentedStatusEffect.getString("id")), presentedStatusEffect.getInt("duration"), presentedStatusEffect.getInt("amplifier"))));
+            .forEach(presentedStatusEffect -> statusEffectManager.add(new CustomStatusEffect(CustomStatusEffectIdentifier.of(Identifier.of(presentedStatusEffect.getString("id"))), presentedStatusEffect.getInt("duration"), presentedStatusEffect.getInt("amplifier"))));
     }
 
     @Override
     public float getCastingDamageAgainst(Entity entity, float baseDamage) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
-        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(player).getStatusEffectManager();
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(player).getStatusEffectManager();
 
-        float manaCapacity = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getCapacity();
-        int potencyLevel = player.getWeaponStack().getEnchantments().getLevel("pentamana:potency");
+        float manaCapacity = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getCapacity();
+        int potencyLevel = player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.POTENCY);
 
         float castingDamage = manaCapacity;
         castingDamage /= Pentamana.manaCapacityBase;
-        castingDamage *= (float)player.getCustomModifiedValue("pentamana:casting_damage", baseDamage);
+        castingDamage *= (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, baseDamage);
         castingDamage += potencyLevel != 0 ? ++potencyLevel * Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
-        castingDamage += statusEffectManager.has(ManaStatusEffects.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_POWER) + 1) * Pentamana.statusEffectManaPowerBase : 0;
-        castingDamage -= statusEffectManager.has(ManaStatusEffects.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_SICKNESS) + 1) * Pentamana.statusEffectManaSicknessBase : 0;
+        castingDamage += statusEffectManager.has(PentamanaStatusEffectIdentifiers.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * Pentamana.statusEffectManaPowerBase : 0;
+        castingDamage -= statusEffectManager.has(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * Pentamana.statusEffectManaSicknessBase : 0;
         castingDamage = Math.max(castingDamage, 0.0f);
         castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
         return castingDamage;

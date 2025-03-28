@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl;
-import net.cookedseafood.pentamana.component.ServerManaBarComponentImpl;
+import net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance;
+import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
 import net.cookedseafood.pentamana.mana.ServerManaBar;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -76,7 +76,7 @@ public class ManaCommand {
 
     public static int executeEnable(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
+        ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
         if (manaPreference.isEnabled()) {
             throw OPTION_ALREADY_ENABLED_EXCEPTION.create();
         }
@@ -89,7 +89,7 @@ public class ManaCommand {
 
     public static int executeDisable(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
+        ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
         if (!manaPreference.isEnabled()) {
             throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
         }
@@ -106,7 +106,7 @@ public class ManaCommand {
 
     public static int executeGet(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         float supply = serverManaBar.getSupply();
         source.sendFeedback(() -> Text.literal(player.getNameForScoreboard() + " has " + supply + " mana."), false);
         return (int)(supply / Pentamana.manaPerPoint);
@@ -114,7 +114,7 @@ public class ManaCommand {
 
     public static int executeSet(ServerCommandSource source, float amount) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         serverManaBar.setSupply(amount);
         source.sendFeedback(() -> Text.literal("Set mana for player " + player.getNameForScoreboard() + " to " + amount + "."), false);
         return (int)(amount / Pentamana.manaPerPoint);
@@ -122,7 +122,7 @@ public class ManaCommand {
 
     public static int executeAdd(ServerCommandSource source, float amount) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         float targetSupply = serverManaBar.getSupply() + amount;
         serverManaBar.setSupply(targetSupply);
         source.sendFeedback(() -> Text.literal("Added " + amount + " mana for player " + player.getNameForScoreboard() + "."), false);
@@ -131,7 +131,7 @@ public class ManaCommand {
 
     public static int executeSubtract(ServerCommandSource source, float amount) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         float targetSupply = serverManaBar.getSupply() - amount;
         serverManaBar.setSupply(targetSupply);
         source.sendFeedback(() -> Text.literal("Subtracted " + amount + " mana for player " + player.getNameForScoreboard() + "."), false);

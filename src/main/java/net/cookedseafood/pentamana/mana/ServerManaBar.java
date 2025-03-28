@@ -6,7 +6,11 @@ import net.cookedseafood.pentamana.Pentamana;
 import net.cookedseafood.pentamana.api.event.ConsumManaCallback;
 import net.cookedseafood.pentamana.api.event.RegenManaCallback;
 import net.cookedseafood.pentamana.api.event.TickManaCallback;
-import net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl;
+import net.cookedseafood.pentamana.attribute.PentamanaAttributeIdentifiers;
+import net.cookedseafood.pentamana.component.CustomStatusEffectManagerComponentInstance;
+import net.cookedseafood.pentamana.effect.PentamanaStatusEffectIdentifiers;
+import net.cookedseafood.pentamana.effect.CustomStatusEffectManager;
+import net.cookedseafood.pentamana.enchantment.PentamanaEnchantmentIdentifiers;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.BossBarManager;
 import net.minecraft.entity.boss.CommandBossBar;
@@ -47,6 +51,12 @@ public final class ServerManaBar extends ManaBar {
         this.clientManaBar = new ManaBar(capacity, supply, position, textual, isVisible, color, style);
     }
 
+    /**
+     * Shadow copy {@code manaBar}'s value.
+     * 
+     * @param manaBar
+     * @return a new ServerManaBar
+     */
     public static ServerManaBar of(ManaBar manaBar) {
         return new ServerManaBar(null, null, null, null, null, manaBar.getCapacity(), manaBar.getSupply(), manaBar.getPosition(), manaBar.getTextual(), manaBar.isVisible(), manaBar.getColor(), manaBar.getStyle());
     }
@@ -59,12 +69,12 @@ public final class ServerManaBar extends ManaBar {
             this.id = Identifier.of(Pentamana.MOD_ID, this.name);
         }
 
-        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(this.player).getStatusEffectManager();
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(this.player).getStatusEffectManager();
 
-        float capacity = (float)this.player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);
-        capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
-        capacity += statusEffectManager.has(ManaStatusEffects.MANA_BOOST) ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_BOOST) + 1) : 0;
-        capacity -= statusEffectManager.has(ManaStatusEffects.MANA_REDUCTION) ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_REDUCTION) + 1) : 0;
+        float capacity = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, Pentamana.manaCapacityBase);
+        capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
+        capacity += statusEffectManager.has(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0;
+        capacity -= statusEffectManager.has(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0;
         capacity += Pentamana.isConversionExperienceLevel ? Pentamana.conversionExperienceLevelBase * this.player.experienceLevel : 0;
         capacity = Math.max(capacity, 0.0f);
 
@@ -95,14 +105,14 @@ public final class ServerManaBar extends ManaBar {
      * @see #regen(float)
      */
     public boolean regen() {
-        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(this.player).getStatusEffectManager();
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(this.player).getStatusEffectManager();
 
-        float regen = (float)this.player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenerationBase);
-        regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
-        regen += statusEffectManager.has(ManaStatusEffects.INSTANT_MANA) ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(ManaStatusEffects.INSTANT_MANA)) : 0;
-        regen -= statusEffectManager.has(ManaStatusEffects.INSTANT_DEPLETE) ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(ManaStatusEffects.INSTANT_DEPLETE)) : 0;
-        regen += statusEffectManager.has(ManaStatusEffects.MANA_REGENERATION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_REGENERATION)) : 0;
-        regen -= statusEffectManager.has(ManaStatusEffects.MANA_INHIBITION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(ManaStatusEffects.MANA_INHIBITION)) : 0;
+        float regen = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, Pentamana.manaRegenerationBase);
+        regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
+        regen += statusEffectManager.has(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0;
+        regen -= statusEffectManager.has(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0;
+        regen += statusEffectManager.has(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0;
+        regen -= statusEffectManager.has(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0;
 
         RegenManaCallback.EVENT.invoker().interact(this.player);
 
@@ -134,8 +144,8 @@ public final class ServerManaBar extends ManaBar {
      * @return true if successful, otherwise false.
      */
     public boolean consum(float consum) {
-        float targetConsum = (float)player.getCustomModifiedValue("pentamana:mana_consumption", consum);
-        targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization");
+        float targetConsum = (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consum);
+        targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
 
         ConsumManaCallback.EVENT.invoker().interact(this.player);
 
@@ -373,7 +383,8 @@ public final class ServerManaBar extends ManaBar {
     }
 
     public byte incrementLife(byte value) {
-        return this.life += value;
+        this.setLife((byte)(this.life + value));
+        return this.life;
     }
 
     /**

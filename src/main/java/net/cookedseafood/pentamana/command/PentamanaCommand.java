@@ -5,23 +5,26 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl;
-import net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl;
-import net.cookedseafood.pentamana.component.ServerManaBarComponentImpl;
+import net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance;
+import net.cookedseafood.pentamana.component.CustomStatusEffectManagerComponentInstance;
+import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
+import net.cookedseafood.pentamana.effect.CustomStatusEffectIdentifier;
+import net.cookedseafood.pentamana.effect.CustomStatusEffectManager;
 import net.cookedseafood.pentamana.mana.ManaBar;
 import net.cookedseafood.pentamana.mana.ManaCharset;
 import net.cookedseafood.pentamana.mana.ManaPattern;
 import net.cookedseafood.pentamana.mana.ManaRender;
-import net.cookedseafood.pentamana.mana.ManaStatusEffectManager;
 import net.cookedseafood.pentamana.mana.ManaTextual;
 import net.cookedseafood.pentamana.mana.ServerManaBar;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
@@ -31,6 +34,8 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -44,12 +49,30 @@ public class PentamanaCommand {
             .then(
                 CommandManager.literal("debug")
                 .then(
-                    CommandManager.literal("server")
-                    .executes(context -> executeDebugServer(context.getSource()))
+                    CommandManager.literal("manabar")
+                    .then(
+                        CommandManager.literal("server")
+                        .executes(context -> executeDebugManaBarServer(context.getSource()))
+                        .then(
+                            CommandManager.argument("player", EntityArgumentType.player())
+                            .executes(context -> executeDebugManaBarServer(context.getSource(), EntityArgumentType.getPlayer(context, "player")))
+                        )
+                    )
+                    .then(
+                        CommandManager.literal("client")
+                        .executes(context -> executeDebugManaBarClient(context.getSource()))
+                        .then(
+                            CommandManager.argument("player", EntityArgumentType.player())
+                            .executes(context -> executeDebugManaBarClient(context.getSource(), EntityArgumentType.getPlayer(context, "player")))
+                        )
+                    )
                 )
                 .then(
-                    CommandManager.literal("client")
-                    .executes(context -> executeDebugClient(context.getSource()))
+                    CommandManager.literal("effect")
+                    .then(
+                        CommandManager.argument("effect", StringArgumentType.string())
+                        .executes(context -> executeDebugEffect(context.getSource(), StringArgumentType.getString(context, "effect")))
+                    )
                 )
                 .then(
                     CommandManager.literal("config")
@@ -63,11 +86,14 @@ public class PentamanaCommand {
         );
     }
 
-    public static int executeDebugServer(ServerCommandSource source) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
-        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(player).getStatusEffectManager();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+    public static int executeDebugManaBarServer(ServerCommandSource source) throws CommandSyntaxException {
+        return PentamanaCommand.executeDebugManaBarServer(source, source.getPlayerOrThrow());
+    }
+
+    public static int executeDebugManaBarServer(ServerCommandSource source, ServerPlayerEntity player) throws CommandSyntaxException {
+        ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(player).getStatusEffectManager();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         ManaTextual textual = serverManaBar.getTextual();
         ManaPattern pattern = textual.getPattern();
         ManaRender render = textual.getRender();
@@ -79,9 +105,10 @@ public class PentamanaCommand {
         profile.append(Text.literal("\n" + serverManaBar.getSupply() + "/" + serverManaBar.getCapacity()).formatted(Formatting.AQUA));
         profile.append(Text.literal(" " + serverManaBar.getLife()).formatted(Formatting.GRAY));
         statusEffectManager.forEach(statusEffect -> {
-            profile.append(Text.literal("\n" + statusEffect.getId().toString()).formatted(Formatting.YELLOW));
+            profile.append(Text.literal("\n" + statusEffect.getId().getId().toString()).formatted(Formatting.YELLOW));
             profile.append(Text.literal(" " + statusEffect.getDuration()).formatted(Formatting.GREEN));
             profile.append(Text.literal(" " + statusEffect.getAmplifier()).formatted(Formatting.LIGHT_PURPLE));
+            profile.append(Text.literal(" " + statusEffect.getId().getColor()).formatted(Formatting.GRAY));
         });
         profile.append(Text.literal("\n- isEnabled "));
         profile.append(manaPreference.isEnabled() ? Text.literal("true").formatted(Formatting.GREEN) : Text.literal("false").formatted(Formatting.RED));
@@ -112,11 +139,14 @@ public class PentamanaCommand {
         return 0;
     }
 
-    public static int executeDebugClient(ServerCommandSource source) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreferenceComponentImpl manaPreference = ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player);
-        ManaStatusEffectManager statusEffectManager = ManaStatusEffectManagerComponentImpl.MANA_STATUS_EFFECT.get(player).getStatusEffectManager();
-        ManaBar clientManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getClientManaBar();
+    public static int executeDebugManaBarClient(ServerCommandSource source) throws CommandSyntaxException {
+        return PentamanaCommand.executeDebugManaBarClient(source, source.getPlayerOrThrow());
+    }
+
+    public static int executeDebugManaBarClient(ServerCommandSource source, ServerPlayerEntity player) throws CommandSyntaxException {
+        ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(player).getStatusEffectManager();
+        ManaBar clientManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getClientManaBar();
         ManaTextual textual = clientManaBar.getTextual();
         ManaPattern pattern = textual.getPattern();
         ManaRender render = textual.getRender();
@@ -127,9 +157,10 @@ public class PentamanaCommand {
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
         profile.append(Text.literal("\n" + clientManaBar.getSupply() + "/" + clientManaBar.getCapacity()).formatted(Formatting.AQUA));
         statusEffectManager.forEach(statusEffect -> {
-            profile.append(Text.literal("\n" + statusEffect.getId().toString()).formatted(Formatting.YELLOW));
+            profile.append(Text.literal("\n" + statusEffect.getId().getId().toString()).formatted(Formatting.YELLOW));
             profile.append(Text.literal(" " + statusEffect.getDuration()).formatted(Formatting.GREEN));
             profile.append(Text.literal(" " + statusEffect.getAmplifier()).formatted(Formatting.LIGHT_PURPLE));
+            profile.append(Text.literal(" " + statusEffect.getId().getColor()).formatted(Formatting.GRAY));
         });
         profile.append(Text.literal("\n- isEnabled "));
         profile.append(manaPreference.isEnabled() ? Text.literal("true").formatted(Formatting.GREEN) : Text.literal("false").formatted(Formatting.RED));
@@ -155,6 +186,23 @@ public class PentamanaCommand {
         profile.append(Text.literal("" + color.getName()).formatted(Formatting.YELLOW));
         profile.append(Text.literal("\n- manaBarStyle "));
         profile.append(Text.literal("" + style.getName()).formatted(Formatting.YELLOW));
+
+        source.sendFeedback(() -> profile, false);
+        return 0;
+    }
+
+    public static int executeDebugEffect(ServerCommandSource source, String effect) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(player).getStatusEffectManager();
+        CustomStatusEffectIdentifier id = CustomStatusEffectIdentifier.of(Identifier.of(Pentamana.MOD_ID, effect));
+
+        MutableText profile = MutableText.of(PlainTextContent.EMPTY);
+        profile.append(Text.literal("\n" + id.getId().toString()));
+        profile.append(Text.literal(" " + id.getColor()).formatted(Formatting.GRAY));
+        profile.append(Text.literal("\n- has "));
+        profile.append(statusEffectManager.has(id) ? Text.literal("true").formatted(Formatting.GREEN) : Text.literal("false").formatted(Formatting.RED));
+        profile.append(Text.literal("\n- activeAmplifier "));
+        profile.append(Text.literal("" + statusEffectManager.getActiveAmplifier(id)).formatted(Formatting.GREEN));
 
         source.sendFeedback(() -> profile, false);
         return 0;

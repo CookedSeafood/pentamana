@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ServerManaBarComponentImpl;
+import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
 import net.cookedseafood.pentamana.mana.ManaBar;
 import net.cookedseafood.pentamana.mana.ManaCharset;
 import net.cookedseafood.pentamana.mana.ManaPattern;
@@ -250,7 +250,7 @@ public class ManaBarCommand {
 
     public static int executeSetVisibility(ServerCommandSource source, boolean isVisible) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         if (serverManaBar.isVisible() == isVisible) {
             throw OPTION_VISIBILITY_UNCHANGED_EXCEPTION.create(isVisible);
         }
@@ -263,7 +263,7 @@ public class ManaBarCommand {
 
     public static int executeSetPosition(ServerCommandSource source, ManaBar.Position manaBarPosition) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         if (serverManaBar.getPosition() == manaBarPosition) {
             throw OPTION_POSITION_UNCHANGED_EXCEPTION.create(manaBarPosition.getName());
         }
@@ -276,7 +276,7 @@ public class ManaBarCommand {
 
     public static int executeSetColor(ServerCommandSource source, BossBar.Color manaBarColor) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         if (serverManaBar.getColor() == manaBarColor) {
             throw OPTION_COLOR_UNCHANGED_EXCEPTION.create(manaBarColor.getName());
         }
@@ -289,7 +289,7 @@ public class ManaBarCommand {
 
     public static int executeSetStyle(ServerCommandSource source, BossBar.Style manaBarStyle) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         if (serverManaBar.getStyle() == manaBarStyle) {
             throw OPTION_STYLE_UNCHANGED_EXCEPTION.create(manaBarStyle.getName());
         }
@@ -302,7 +302,7 @@ public class ManaBarCommand {
 
     public static int executeSetPattern(ServerCommandSource source, Text manaBarPattern) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPattern manaPattern = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getPattern();
+        ManaPattern manaPattern = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getPattern();
         List<Text> targetManabarPattern = manaBarPattern.getSiblings();
         if (manaPattern.getPattern().equals(targetManabarPattern)) {
             throw OPTION_PATTERN_UNCHANGED_EXCEPTION.create(manaBarPattern.getString());
@@ -316,7 +316,7 @@ public class ManaBarCommand {
 
     public static int executeSetType(ServerCommandSource source, ManaRender.Type manaBarType) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
+        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
         if (manaRender.getType() == manaBarType) {
             throw OPTION_TYPE_UNCHANGED_EXCEPTION.create(manaBarType.getName());
         }
@@ -329,7 +329,7 @@ public class ManaBarCommand {
 
     public static int executeSetPointsPerCharacter(ServerCommandSource source, int pointsPerCharacter) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
+        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
         if (manaRender.getPointsPerCharacter() == pointsPerCharacter) {
             throw OPTION_POINTS_PER_CHARACTER_UNCHANGED_EXCEPTION.create(pointsPerCharacter);
         }
@@ -342,7 +342,7 @@ public class ManaBarCommand {
 
     public static int executeSetCompression(ServerCommandSource source, boolean isCompression) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
+        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
         if (manaRender.isCompression() == isCompression) {
             throw OPTION_COMPRESSION_UNCHANGED_EXCEPTION.create(isCompression);
         }
@@ -355,7 +355,7 @@ public class ManaBarCommand {
 
     public static int executeSetCompressionSize(ServerCommandSource source, byte compressionSize) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
+        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
         if (manaRender.getCompressionSize() == compressionSize) {
             throw OPTION_COMPRESSION_SIZE_UNCHANGED_EXCEPTION.create(compressionSize);
         }
@@ -376,7 +376,7 @@ public class ManaBarCommand {
 
     public static int executeSetCharacter(ServerCommandSource source, Text targetManaCharacter, int manaCharacterTypeIndex, int manaCharacterIndex) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaCharset manaCharset = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset();
+        ManaCharset manaCharset = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset();
         List<List<Text>> manaCharacter = manaCharset.getCharset();
 
         int startManaCharTypeIndex = manaCharacterTypeIndex == -1 ? 0 : manaCharacterTypeIndex;
@@ -405,7 +405,7 @@ public class ManaBarCommand {
 
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar();
+        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         ManaTextual textual = serverManaBar.getTextual();
         ManaPattern pattern = textual.getPattern();
         ManaRender render = textual.getRender();
@@ -427,7 +427,7 @@ public class ManaBarCommand {
 
     public static int executeResetVisibility(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().setIsVisible(Pentamana.isVisible);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setIsVisible(Pentamana.isVisible);
 
         source.sendFeedback(() -> Text.literal("Reset manabar visibility for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -435,7 +435,7 @@ public class ManaBarCommand {
 
     public static int executeResetPosition(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().setPosition(Pentamana.manaBarPosition);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setPosition(Pentamana.manaBarPosition);
 
         source.sendFeedback(() -> Text.literal("Reset manabar position for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -443,7 +443,7 @@ public class ManaBarCommand {
 
     public static int executeResetColor(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().setColor(Pentamana.manaBarColor);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setColor(Pentamana.manaBarColor);
 
         source.sendFeedback(() -> Text.literal("Reset manabar color for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -451,7 +451,7 @@ public class ManaBarCommand {
 
     public static int executeResetStyle(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().setStyle(Pentamana.manaBarStyle);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setStyle(Pentamana.manaBarStyle);
 
         source.sendFeedback(() -> Text.literal("Reset manabar style for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -459,7 +459,7 @@ public class ManaBarCommand {
 
     public static int executeResetPattern(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().setPattern(Pentamana.manaPattern);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().setPattern(Pentamana.manaPattern);
 
         source.sendFeedback(() -> Text.literal("Reset manabar pattern for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -467,7 +467,7 @@ public class ManaBarCommand {
 
     public static int executeResetType(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setType(Pentamana.manaRenderType);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setType(Pentamana.manaRenderType);
 
         source.sendFeedback(() -> Text.literal("Reset manabar type for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -475,7 +475,7 @@ public class ManaBarCommand {
 
     public static int executeResetPointsPerCharacter(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setPointsPerCharacter(Pentamana.pointsPerCharacter);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setPointsPerCharacter(Pentamana.pointsPerCharacter);
 
         source.sendFeedback(() -> Text.literal("Reset points per character for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -483,7 +483,7 @@ public class ManaBarCommand {
 
     public static int executeResetCompression(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setIsCompression(Pentamana.isCompression);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setIsCompression(Pentamana.isCompression);
 
         source.sendFeedback(() -> Text.literal("Reset manabar compression for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -491,7 +491,7 @@ public class ManaBarCommand {
 
     public static int executeResetCompressionSize(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setCompressionSize(Pentamana.compressionSize);
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setCompressionSize(Pentamana.compressionSize);
 
         source.sendFeedback(() -> Text.literal("Reset manabar compression size for player " + player.getNameForScoreboard() + "."), false);
         return 0;
@@ -499,7 +499,7 @@ public class ManaBarCommand {
 
     public static int executeResetCharacter(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset().setCharset(Pentamana.manaCharset.deepCopy().getCharset());
+        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset().setCharset(Pentamana.manaCharset.deepCopy().getCharset());
 
         source.sendFeedback(() -> Text.literal("Reset mana character for player " + player.getNameForScoreboard() + "."), false);
         return 0;

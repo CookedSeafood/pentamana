@@ -13,15 +13,15 @@ import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 import org.ladysnake.cca.api.v3.entity.RespawnableComponent;
 
-public class ManaPreferenceComponentImpl implements ManaPreferenceComponent, EntityComponentInitializer, RespawnableComponent<ManaPreferenceComponentImpl> {
-    public static final ComponentKey<ManaPreferenceComponentImpl> MANA_PREFERENCE =
-        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "mana_preference"), ManaPreferenceComponentImpl.class);
+public class ManaPreferenceComponentInstance implements ManaPreferenceComponent, EntityComponentInitializer, RespawnableComponent<ManaPreferenceComponentInstance> {
+    public static final ComponentKey<ManaPreferenceComponentInstance> MANA_PREFERENCE =
+        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "mana_preference"), ManaPreferenceComponentInstance.class);
     private boolean isEnbaled;
 
-    public ManaPreferenceComponentImpl() {
+    public ManaPreferenceComponentInstance() {
     }
 
-    public ManaPreferenceComponentImpl(PlayerEntity player) {
+    public ManaPreferenceComponentInstance(PlayerEntity player) {
         this.isEnbaled = Pentamana.isEnabled;
     }
 
@@ -49,6 +49,6 @@ public class ManaPreferenceComponentImpl implements ManaPreferenceComponent, Ent
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerForPlayers(MANA_PREFERENCE, ManaPreferenceComponentImpl::new, RespawnCopyStrategy.ALWAYS_COPY);
+        registry.registerForPlayers(MANA_PREFERENCE, ManaPreferenceComponentInstance::new, RespawnCopyStrategy.ALWAYS_COPY);
     }
 }

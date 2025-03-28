@@ -16,15 +16,15 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
-public class ServerManaBarComponentImpl implements ServerManaBarComponent, EntityComponentInitializer, RespawnableComponent<ServerManaBarComponentImpl> {
-    public static final ComponentKey<ServerManaBarComponentImpl> SERVER_MANA_BAR =
-        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "server_mana_bar"), ServerManaBarComponentImpl.class);
+public class ServerManaBarComponentInstance implements ServerManaBarComponent, EntityComponentInitializer, RespawnableComponent<ServerManaBarComponentInstance> {
+    public static final ComponentKey<ServerManaBarComponentInstance> SERVER_MANA_BAR =
+        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "server_mana_bar"), ServerManaBarComponentInstance.class);
     private ServerManaBar serverManaBar;
 
-    public ServerManaBarComponentImpl() {
+    public ServerManaBarComponentInstance() {
     }
 
-    public ServerManaBarComponentImpl(PlayerEntity player) {
+    public ServerManaBarComponentInstance(PlayerEntity player) {
         this.serverManaBar = new ServerManaBar(
             player.getServer(),
             null,
@@ -75,6 +75,6 @@ public class ServerManaBarComponentImpl implements ServerManaBarComponent, Entit
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerForPlayers(SERVER_MANA_BAR, ServerManaBarComponentImpl::new, RespawnCopyStrategy.ALWAYS_COPY);
+        registry.registerForPlayers(SERVER_MANA_BAR, ServerManaBarComponentInstance::new, RespawnCopyStrategy.ALWAYS_COPY);
     }
 }

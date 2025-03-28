@@ -24,9 +24,9 @@
             "net.cookedseafood.pentamana.Pentamana"
         ],
         "cardinal-components-entity": [
-            "net.cookedseafood.pentamana.component.ManaPreferenceComponentImpl",
-            "net.cookedseafood.pentamana.component.ManaStatusEffectManagerComponentImpl",
-            "net.cookedseafood.pentamana.component.ServerManaBarComponentImpl"
+            "net.cookedseafood.pentamana.component.CustomStatusEffectManagerComponentInstance",
+            "net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance",
+            "net.cookedseafood.pentamana.component.ServerManaBarComponentInstance"
         ]
     },
     "mixins": [
@@ -50,8 +50,8 @@
             ]
         },
         "cardinal-components": [
+            "pentamana:custom_status_effect_manager",
             "pentamana:mana_preference",
-            "pentamana:mana_status_effect_manager",
             "pentamana:server_mana_bar"
         ]
     },
