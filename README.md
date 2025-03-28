@@ -7,7 +7,7 @@ Pentamana is an extraordinary customizable mana library for storing and modifyin
 `gradle.properties`:
 
 ```properties
-pentamana_version=0.6.4
+pentamana_version=0.6.5
 ```
 
 `build.gradle`:
@@ -268,7 +268,7 @@ if (!"Magik Wand".equals(stack.getItemName().getString())) {
 Check if the player has mana enabled:
 
 ```java
-if (!ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player).isEnabled()) {
+if (!ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player).isEnabled()) {
   return ActionResult.PASS;
 }
 ```
@@ -276,7 +276,7 @@ if (!ManaPreferenceComponentImpl.MANA_PREFERENCE.get(player).isEnabled()) {
 Consume the mana and fire your weapon if the consumption is successful. Consumption will succeed if the player has enough mana supply.
 
 ```java
-if (!ServerManaBarComponentImpl.SERVER_MANA_BAR.get(player).getServerManaBar().consum(1.0f)) {
+if (!ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().consum(1.0f)) {
   return ActionResult.PASS;
 }
 
