@@ -39,9 +39,10 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 ```json
 {
   "manaPerPoint": 1,
-  "manaRegenerationBase": 2.0,
+  "manaCapacityBase": 2.0,
+  "manaRegenerationBase": 0.0625,
   "enchantmentCapacityBase": 2.0,
-  "enchantmentStreamBase": 0.0625,
+  "enchantmentStreamBase": 0.03125,
   "enchantmentUtilizationBase": 0.1,
   "enchantmentPotencyBase": 0.5,
   "statusEffectManaBoostBase": 4.0,
@@ -118,7 +119,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/manabar set points_per_character <value>` Set the amount of mana points to be considered as 1 mana character for yourself.
 - `/manabar set character <text> [<character_type_index>] [<character_index>]` Set the #`character_index` `character_type_index` point mana character for yourself.
 - `/manabar reset [<visibility|pattern|type|position|color|style|points_per_character|character>]` Reset manabar options for yourself.
-- `/pentamana debug config` Print config file. (from disk, NOT from loaded config)
+- `/pentamana debug config` Print config file. (from disk, _NOT_ from loaded config)
 - `/pentamana debug manabar server [<player>]` Print server manabar info of the player.
 - `/pentamana debug manabar client [<player>]` Print client manabar info of the player.
 
