@@ -42,7 +42,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "manaCapacityBase": 2.0,
   "manaRegenerationBase": 0.0625,
   "enchantmentCapacityBase": 2.0,
-  "enchantmentStreamBase": 0.03125,
+  "enchantmentStreamBase": 0.015625,
   "enchantmentUtilizationBase": 0.1,
   "enchantmentPotencyBase": 0.5,
   "statusEffectManaBoostBase": 4.0,
