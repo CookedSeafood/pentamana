@@ -40,7 +40,7 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 6;
-    public static final byte VERSION_PATCH = 5;
+    public static final byte VERSION_PATCH = 6;
 
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -51,7 +51,7 @@ public class Pentamana implements ModInitializer {
     public static final float MANA_CAPACITY_BASE = 2.0f;
     public static final float MANA_REGENERATION_BASE = 0.0625f;
     public static final float ENCHANTMENT_CAPACITY_BASE = 2.0f;
-    public static final float ENCHANTMENT_STREAM_BASE = 0.03125f;
+    public static final float ENCHANTMENT_STREAM_BASE = 0.015625f;
     public static final float ENCHANTMENT_UTILIZATION_BASE = 0.1f;
     public static final float ENCHANTMENT_POTENCY_BASE = 0.5f;
     public static final float STATUS_EFFECT_MANA_BOOST_BASE = 4.0f;
@@ -408,37 +408,37 @@ public class Pentamana implements ModInitializer {
     }
 
     public static void reset() {
-        manaPerPoint                        = MANA_PER_POINT;
-        manaCapacityBase                    = MANA_CAPACITY_BASE;
-        manaRegenerationBase                = MANA_REGENERATION_BASE;
-        enchantmentCapacityBase             = ENCHANTMENT_CAPACITY_BASE;
-        enchantmentStreamBase               = ENCHANTMENT_STREAM_BASE;
-        enchantmentUtilizationBase          = ENCHANTMENT_UTILIZATION_BASE;
-        enchantmentPotencyBase              = ENCHANTMENT_POTENCY_BASE;
-        statusEffectManaBoostBase           = STATUS_EFFECT_MANA_BOOST_BASE;
-        statusEffectManaReductionBase       = STATUS_EFFECT_MANA_REDUCTION_BASE;
-        statusEffectInstantManaBase         = STATUS_EFFECT_INSTANT_MANA_BASE;
-        statusEffectInstantDepleteBase      = STATUS_EFFECT_INSTANT_DEPLETE_BASE;
-        statusEffectManaRegenerationBase           = STATUS_EFFECT_MANA_REGENERATION_BASE;
-        statusEffectManaInhibitionBase      = STATUS_EFFECT_MANA_INHIBITION_BASE;
-        statusEffectManaPowerBase           = STATUS_EFFECT_MANA_POWER_BASE;
-        statusEffectManaSicknessBase        = STATUS_EFFECT_MANA_SICKNESS_BASE;
-        isConversionExperienceLevel         = IS_CONVERSION_EXPERIENCE_LEVEL;
-        conversionExperienceLevelBase       = CONVERSION_EXPERIENCE_LEVEL_BASE;
-        displayIdleInterval                 = DISPLAY_IDLE_INTERVAL;
-        displaySuppressionInterval          = DISPLAY_SUPPRESSION_INTERVAL;
-        isForceEnabled                      = IS_FORCE_ENABLED;
-        isEnabled                           = IS_ENABLED;
-        manaBarPosition                     = MANA_BAR_POSITION;
-        manaPattern                         = MANA_PATTERN;
-        manaRenderType                      = MANA_RENDER_TYPE;
-        manaCharset                         = MANA_CHARSET;
-        pointsPerCharacter                  = POINTS_PER_CHARACTER;
-        isCompression                       = IS_COMPRESSION;
-        compressionSize                     = COMPRESSION_SIZE;
-        isVisible                           = IS_VISIBLE;
-        manaBarColor                        = MANA_BAR_COLOR;
-        manaBarStyle                        = MANA_BAR_STYLE;
+        manaPerPoint = MANA_PER_POINT;
+        manaCapacityBase = MANA_CAPACITY_BASE;
+        manaRegenerationBase = MANA_REGENERATION_BASE;
+        enchantmentCapacityBase = ENCHANTMENT_CAPACITY_BASE;
+        enchantmentStreamBase = ENCHANTMENT_STREAM_BASE;
+        enchantmentUtilizationBase = ENCHANTMENT_UTILIZATION_BASE;
+        enchantmentPotencyBase = ENCHANTMENT_POTENCY_BASE;
+        statusEffectManaBoostBase = STATUS_EFFECT_MANA_BOOST_BASE;
+        statusEffectManaReductionBase = STATUS_EFFECT_MANA_REDUCTION_BASE;
+        statusEffectInstantManaBase = STATUS_EFFECT_INSTANT_MANA_BASE;
+        statusEffectInstantDepleteBase = STATUS_EFFECT_INSTANT_DEPLETE_BASE;
+        statusEffectManaRegenerationBase = STATUS_EFFECT_MANA_REGENERATION_BASE;
+        statusEffectManaInhibitionBase = STATUS_EFFECT_MANA_INHIBITION_BASE;
+        statusEffectManaPowerBase = STATUS_EFFECT_MANA_POWER_BASE;
+        statusEffectManaSicknessBase = STATUS_EFFECT_MANA_SICKNESS_BASE;
+        isConversionExperienceLevel = IS_CONVERSION_EXPERIENCE_LEVEL;
+        conversionExperienceLevelBase = CONVERSION_EXPERIENCE_LEVEL_BASE;
+        displayIdleInterval = DISPLAY_IDLE_INTERVAL;
+        displaySuppressionInterval = DISPLAY_SUPPRESSION_INTERVAL;
+        isForceEnabled = IS_FORCE_ENABLED;
+        isEnabled = IS_ENABLED;
+        manaBarPosition = MANA_BAR_POSITION;
+        manaPattern = MANA_PATTERN;
+        manaRenderType = MANA_RENDER_TYPE;
+        manaCharset = MANA_CHARSET;
+        pointsPerCharacter = POINTS_PER_CHARACTER;
+        isCompression = IS_COMPRESSION;
+        compressionSize = COMPRESSION_SIZE;
+        isVisible = IS_VISIBLE;
+        manaBarColor = MANA_BAR_COLOR;
+        manaBarStyle = MANA_BAR_STYLE;
     }
 
     public static void reCalc() {
