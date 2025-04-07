@@ -7,7 +7,7 @@ Pentamana is an extraordinary customizable mana library for storing and modifyin
 `gradle.properties`:
 
 ```properties
-pentamana_version=0.6.5
+pentamana_version=0.6.7
 ```
 
 `build.gradle`:
