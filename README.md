@@ -122,6 +122,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/pentamana debug config` Print config file. (from disk, _NOT_ from loaded config)
 - `/pentamana debug manabar server [<player>]` Print server manabar info of the player.
 - `/pentamana debug manabar client [<player>]` Print client manabar info of the player.
+- `/pentamana debug effect [<player>]` Print status effect info of the player.
 
 ### Commands Require Premission Level 2
 
@@ -130,6 +131,8 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana set` Set mana supply. Returns modified mana supply in point.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
+- `/custom effect give <players> <effect> [<duration|infinite>] [<amplifier>]` Give status effect.
+- `/custom effect clear <players> [<effect>]` Clear status effect.
 
 ## Modifiers
 
