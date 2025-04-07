@@ -39,9 +39,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public class PentamanaCommand {
-    public PentamanaCommand() {
-    }
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
             CommandManager.literal(Pentamana.MOD_ID)
@@ -71,6 +68,10 @@ public class PentamanaCommand {
                     .then(
                         CommandManager.argument("effect", StringArgumentType.string())
                         .executes(context -> executeDebugEffect(context.getSource(), StringArgumentType.getString(context, "effect")))
+                        .then(
+                            CommandManager.argument("player", EntityArgumentType.player())
+                            .executes(context -> executeDebugEffect(context.getSource(), StringArgumentType.getString(context, "effect"), EntityArgumentType.getPlayer(context, "player")))
+                        )
                     )
                 )
                 .then(
@@ -86,7 +87,7 @@ public class PentamanaCommand {
     }
 
     public static int executeDebugManaBarServer(ServerCommandSource source) throws CommandSyntaxException {
-        return PentamanaCommand.executeDebugManaBarServer(source, source.getPlayerOrThrow());
+        return executeDebugManaBarServer(source, source.getPlayerOrThrow());
     }
 
     public static int executeDebugManaBarServer(ServerCommandSource source, ServerPlayerEntity player) throws CommandSyntaxException {
@@ -139,7 +140,7 @@ public class PentamanaCommand {
     }
 
     public static int executeDebugManaBarClient(ServerCommandSource source) throws CommandSyntaxException {
-        return PentamanaCommand.executeDebugManaBarClient(source, source.getPlayerOrThrow());
+        return executeDebugManaBarClient(source, source.getPlayerOrThrow());
     }
 
     public static int executeDebugManaBarClient(ServerCommandSource source, ServerPlayerEntity player) throws CommandSyntaxException {
@@ -191,9 +192,12 @@ public class PentamanaCommand {
     }
 
     public static int executeDebugEffect(ServerCommandSource source, String effect) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
+        return executeDebugEffect(source, effect, source.getPlayerOrThrow());
+    }
+
+    public static int executeDebugEffect(ServerCommandSource source, String effect, ServerPlayerEntity player) throws CommandSyntaxException {
         CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(player).getStatusEffectManager();
-        CustomStatusEffectIdentifier id = CustomStatusEffectIdentifier.of(Identifier.of(Pentamana.MOD_ID, effect));
+        CustomStatusEffectIdentifier id = Pentamana.CUSTOM_STATUS_EFFECT_IDENTIFIER_REGISTRY.get(Identifier.of(Pentamana.MOD_ID, effect));
 
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
         profile.append(Text.literal("\n" + id.getId().toString()));

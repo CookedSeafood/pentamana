@@ -55,12 +55,20 @@ public class ManaCharset {
         return this.charset.remove(charType);
     }
 
+    public void clear() {
+        this.charset.clear();
+    }
+
     public boolean contains(List<Text> charType) {
         return this.charset.contains(charType);
     }
 
     public boolean containsAll(Collection<List<Text>> charTypes) {
         return this.containsAll(charTypes);
+    }
+
+    public boolean isEmpty() {
+        return this.charset.isEmpty();
     }
 
     public void forEach(Consumer<? super List<Text>> action) {

@@ -18,28 +18,6 @@ public class CustomStatusEffectIdentifier {
         this.color = color;
     }
 
-    public static CustomStatusEffectIdentifier of(Identifier id) {
-        int color =
-            id.equals(PentamanaStatusEffectIdentifiers.MANA_BOOST.id) ?
-            PentamanaStatusEffectIdentifiers.MANA_BOOST.color :
-            id.equals(PentamanaStatusEffectIdentifiers.MANA_REDUCTION.id) ?
-            PentamanaStatusEffectIdentifiers.MANA_REDUCTION.color :
-            id.equals(PentamanaStatusEffectIdentifiers.INSTANT_MANA.id) ?
-            PentamanaStatusEffectIdentifiers.INSTANT_MANA.color :
-            id.equals(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE.id) ?
-            PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE.color :
-            id.equals(PentamanaStatusEffectIdentifiers.MANA_POWER.id) ?
-            PentamanaStatusEffectIdentifiers.MANA_POWER.color :
-            id.equals(PentamanaStatusEffectIdentifiers.MANA_SICKNESS.id) ?
-            PentamanaStatusEffectIdentifiers.MANA_SICKNESS.color :
-            id.equals(PentamanaStatusEffectIdentifiers.MANA_REGENERATION.id) ?
-            PentamanaStatusEffectIdentifiers.MANA_REGENERATION.color :
-            id.equals(PentamanaStatusEffectIdentifiers.MANA_INHIBITION.id) ?
-            PentamanaStatusEffectIdentifiers.MANA_INHIBITION.color :
-            16777215;
-        return new CustomStatusEffectIdentifier(id, color);
-    }
-
     public Identifier getId() {
         return this.id;
     }

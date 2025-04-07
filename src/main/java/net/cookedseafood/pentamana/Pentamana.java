@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.cookedseafood.pentamana.command.CustomCommand;
 import net.cookedseafood.pentamana.command.ManaBarCommand;
 import net.cookedseafood.pentamana.command.ManaCommand;
 import net.cookedseafood.pentamana.command.PentamanaCommand;
+import net.cookedseafood.pentamana.effect.CustomStatusEffectIdentifierRegistry;
+import net.cookedseafood.pentamana.effect.PentamanaStatusEffectIdentifiers;
 import net.cookedseafood.pentamana.mana.ManaBar;
 import net.cookedseafood.pentamana.mana.ManaCharset;
 import net.cookedseafood.pentamana.mana.ManaPattern;
@@ -25,8 +28,8 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +43,9 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 6;
-    public static final byte VERSION_PATCH = 6;
+    public static final byte VERSION_PATCH = 7;
 
+    public static final CustomStatusEffectIdentifierRegistry CUSTOM_STATUS_EFFECT_IDENTIFIER_REGISTRY = new CustomStatusEffectIdentifierRegistry();
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final byte MANA_CHARACTER_INDEX_LIMIT = Byte.MAX_VALUE;
     public static final Text MANA_PATTERN_MATCHER = Text.of("$");
@@ -133,6 +137,20 @@ public class Pentamana implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> PentamanaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaCommand.register(dispatcher, registryAccess));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaBarCommand.register(dispatcher, registryAccess));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> CustomCommand.register(dispatcher, registryAccess));
+
+        CUSTOM_STATUS_EFFECT_IDENTIFIER_REGISTRY.addAll(
+            Stream.of(
+                PentamanaStatusEffectIdentifiers.MANA_BOOST,
+                PentamanaStatusEffectIdentifiers.MANA_REDUCTION,
+                PentamanaStatusEffectIdentifiers.INSTANT_MANA,
+                PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE,
+                PentamanaStatusEffectIdentifiers.MANA_POWER,
+                PentamanaStatusEffectIdentifiers.MANA_SICKNESS,
+                PentamanaStatusEffectIdentifiers.MANA_REGENERATION,
+                PentamanaStatusEffectIdentifiers.MANA_INHIBITION
+            ).collect(Collectors.toSet())
+        );
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             reload(server);

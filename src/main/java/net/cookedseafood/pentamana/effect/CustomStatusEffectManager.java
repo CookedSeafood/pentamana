@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>Can only contain one status effect with the same id and amplifier.
  */
 public class CustomStatusEffectManager {
-    private Set<CustomStatusEffect> statusEffects;
+    private final Set<CustomStatusEffect> statusEffects;
 
     public CustomStatusEffectManager(Set<CustomStatusEffect> statusEffects) {
         this.statusEffects = statusEffects;
@@ -36,6 +36,7 @@ public class CustomStatusEffectManager {
 
         while (iterator.hasNext()) {
             CustomStatusEffect statusEffect = iterator.next();
+
             if (statusEffect.getDuration() > 0) {
                 statusEffect.tick();
             } else {
@@ -48,7 +49,7 @@ public class CustomStatusEffectManager {
      * Get status effects with the same id
      * 
      * @param id
-     * @return status effects with the same id
+     * @return the specified status effect
      */
     public Set<CustomStatusEffect> get(CustomStatusEffectIdentifier id) {
         return this.stream()
@@ -60,7 +61,7 @@ public class CustomStatusEffectManager {
      * Get the <i>only</i> status effect with the same id and amplifier.
      * 
      * @param statusEffect
-     * @return {@code null} if there is no status effect with the same id and amplifier
+     * @return {@code null} if there is no specified status effect
      */
     @Nullable
     public CustomStatusEffect get(CustomStatusEffect statusEffect) {
@@ -78,7 +79,7 @@ public class CustomStatusEffectManager {
      * Check if there is any status effect with the same id.
      * 
      * @param id
-     * @return true if there is any status effect with the same id
+     * @return true if there is any specified status effect
      */
     public boolean has(CustomStatusEffectIdentifier id) {
         return this.stream()
@@ -89,7 +90,7 @@ public class CustomStatusEffectManager {
      * Check if there is any status effect with the same id and amplifier.
      * 
      * @param statusEffect
-     * @return true if there is any status effect with the same id and amplifier
+     * @return true if there is any specified status effect
      */
     public boolean has(CustomStatusEffect statusEffect) {
         CustomStatusEffectIdentifier id = statusEffect.getId();
@@ -104,7 +105,7 @@ public class CustomStatusEffectManager {
      * Get the largest amplifier from status effects with the same id.
      * 
      * @param id
-     * @return -1 if there is no status effect with the same id
+     * @return -1 if there is no specified status effect
      */
     public int getActiveAmplifier(CustomStatusEffectIdentifier id) {
         return this.stream()
@@ -118,15 +119,11 @@ public class CustomStatusEffectManager {
         return this.statusEffects;
     }
 
-    public void setStatusEffects(Set<CustomStatusEffect> statusEffects) {
-        this.statusEffects = statusEffects;
-    }
-
     /**
      * Add a status effect to this manager if there is no status effect with the same id and amplifier,
      * or set the duration to {@code duration} if the duration is less than {@code duration}.
      * 
-     * <p>To ensure there is <i>only</i> one status effects with the same id and amplifier.
+     * <p>This is to ensure there is <i>only</i> one status effects with the same id and amplifier.
      * 
      * @param statusEffect
      * @return {@code true} if modified something
@@ -159,8 +156,34 @@ public class CustomStatusEffectManager {
         statusEffects.forEach(this.statusEffects::add);
     }
 
+    /**
+     * Remove all the status effect with the same id.
+     * 
+     * @param id
+     * @return if this manager contained the specified status effect
+     */
+    public boolean remove(CustomStatusEffectIdentifier id) {
+        boolean contained = false;
+        Iterator<CustomStatusEffect> iterator = this.iterator();
+
+        while (iterator.hasNext()) {
+            CustomStatusEffect statusEffect = iterator.next();
+
+            if (statusEffect.getId().equals(id)) {
+                iterator.remove();
+                contained = true;
+            }
+        }
+
+        return contained;
+    }
+
     public boolean remove(CustomStatusEffect statusEffect) {
         return this.statusEffects.remove(statusEffect);
+    }
+
+    public void clear() {
+        this.statusEffects.clear();
     }
 
     public boolean contains(CustomStatusEffect statusEffect) {
@@ -169,6 +192,10 @@ public class CustomStatusEffectManager {
 
     public boolean containsAll(Collection<CustomStatusEffect> statusEffects) {
         return this.statusEffects.containsAll(statusEffects);
+    }
+
+    public boolean isEmpty() {
+        return this.statusEffects.isEmpty();
     }
 
     public void forEach(Consumer<? super CustomStatusEffect> action) {

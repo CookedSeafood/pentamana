@@ -20,9 +20,6 @@ public class ManaCommand {
     private static final SimpleCommandExceptionType OPTION_ALREADY_DISABLED_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
 
-    public ManaCommand() {
-    }
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
             CommandManager.literal("mana")

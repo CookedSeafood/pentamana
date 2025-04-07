@@ -7,7 +7,6 @@ import net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance;
 import net.cookedseafood.pentamana.component.CustomStatusEffectManagerComponentInstance;
 import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
 import net.cookedseafood.pentamana.effect.CustomStatusEffect;
-import net.cookedseafood.pentamana.effect.CustomStatusEffectIdentifier;
 import net.cookedseafood.pentamana.effect.PentamanaStatusEffectIdentifiers;
 import net.cookedseafood.pentamana.effect.CustomStatusEffectManager;
 import net.cookedseafood.pentamana.enchantment.PentamanaEnchantmentIdentifiers;
@@ -52,7 +51,7 @@ public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityApi {
         CustomStatusEffectManager statusEffectManager = CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get((ServerPlayerEntity)(Object)this).getStatusEffectManager();
         ((ServerPlayerEntity)(Object)this).getActiveItem().getCustomStatusEffects().stream()
             .map(NbtCompound.class::cast)
-            .forEach(presentedStatusEffect -> statusEffectManager.add(new CustomStatusEffect(CustomStatusEffectIdentifier.of(Identifier.of(presentedStatusEffect.getString("id"))), presentedStatusEffect.getInt("duration"), presentedStatusEffect.getInt("amplifier"))));
+            .forEach(presentedStatusEffect -> statusEffectManager.add(new CustomStatusEffect(Pentamana.CUSTOM_STATUS_EFFECT_IDENTIFIER_REGISTRY.get(Identifier.of(presentedStatusEffect.getString("id"))), presentedStatusEffect.getInt("duration"), presentedStatusEffect.getInt("amplifier"))));
     }
 
     @Override

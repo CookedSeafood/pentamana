@@ -46,9 +46,6 @@ public class ManaBarCommand {
     private static final Dynamic3CommandExceptionType OPTION_MANA_CHARACTER_UNCHANGED_EXCEPTION =
         new Dynamic3CommandExceptionType((manaCharacter, manaCharacterTypeIndex, manaCharacterIndex) -> Text.literal("Nothing changed. That player already has " + (String)manaCharacter + " for" + ((int)manaCharacterIndex == -1 ? "" : (" #" + (int)manaCharacterIndex)) + ((int)manaCharacterTypeIndex == -1 ? "" : (" " + (int)manaCharacterTypeIndex + " point")) + " mana character."));
 
-    public ManaBarCommand() {
-    }
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
             CommandManager.literal("manabar")

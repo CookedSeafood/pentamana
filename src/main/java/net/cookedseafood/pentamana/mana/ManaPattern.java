@@ -29,16 +29,44 @@ public class ManaPattern {
         return text;
     }
 
+    public List<Text> getPattern() {
+        return this.pattern;
+    }
+
+    public void setPattern(List<Text> pattern) {
+        this.pattern = pattern;
+    }
+
     public Text get(int index) {
         return this.pattern.get(index);
+    }
+
+    public boolean add(Text text) {
+        return this.pattern.add(text);
+    }
+
+    public boolean addAll(Collection<Text> texts) {
+        return this.pattern.addAll(texts);
+    }
+
+    public boolean remove(Text text) {
+        return this.pattern.remove(text);
+    }
+
+    public void clear() {
+        this.pattern.clear();
     }
 
     public boolean contains(Text text) {
         return this.pattern.contains(text);
     }
 
-    public boolean containsAll(Collection<Text> collection) {
-        return this.containsAll(collection);
+    public boolean containsAll(Collection<Text> texts) {
+        return this.pattern.containsAll(texts);
+    }
+
+    public boolean isEmpty() {
+        return this.pattern.isEmpty();
     }
 
     public void forEach(Consumer<? super Text> action) {
@@ -51,14 +79,6 @@ public class ManaPattern {
 
     public Stream<Text> stream() {
         return this.pattern.stream();
-    }
-
-    public List<Text> getPattern() {
-        return this.pattern;
-    }
-
-    public void setPattern(List<Text> pattern) {
-        this.pattern = pattern;
     }
 
     /**
