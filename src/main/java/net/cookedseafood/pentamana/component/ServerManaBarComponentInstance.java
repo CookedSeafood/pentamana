@@ -17,64 +17,64 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
 public class ServerManaBarComponentInstance implements ServerManaBarComponent, EntityComponentInitializer, RespawnableComponent<ServerManaBarComponentInstance> {
-    public static final ComponentKey<ServerManaBarComponentInstance> SERVER_MANA_BAR =
-        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "server_mana_bar"), ServerManaBarComponentInstance.class);
-    private ServerManaBar serverManaBar;
+	public static final ComponentKey<ServerManaBarComponentInstance> SERVER_MANA_BAR =
+		ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "server_mana_bar"), ServerManaBarComponentInstance.class);
+	private ServerManaBar serverManaBar;
 
-    public ServerManaBarComponentInstance() {
-    }
+	public ServerManaBarComponentInstance() {
+	}
 
-    public ServerManaBarComponentInstance(PlayerEntity player) {
-        this.serverManaBar = new ServerManaBar(
-            player.getServer(),
-            null,
-            null,
-            null,
-            null,
-            0.0f,
-            0.0f,
-            Pentamana.manaBarPosition,
-            new ManaTextual(
-                Pentamana.manaPattern,
-                new ManaRender(
-                    Pentamana.manaRenderType,
-                    Pentamana.manaCharset,
-                    Pentamana.pointsPerCharacter,
-                    Pentamana.isCompression,
-                    Pentamana.compressionSize
-                )
-            ),
-            Pentamana.isVisible,
-            Pentamana.manaBarColor,
-            Pentamana.manaBarStyle
-        );
-    }
+	public ServerManaBarComponentInstance(PlayerEntity player) {
+		this.serverManaBar = new ServerManaBar(
+			player.getServer(),
+			null,
+			null,
+			null,
+			null,
+			0.0f,
+			0.0f,
+			Pentamana.manaBarPosition,
+			new ManaTextual(
+				Pentamana.manaPattern,
+				new ManaRender(
+					Pentamana.manaRenderType,
+					Pentamana.manaCharset,
+					Pentamana.pointsPerCharacter,
+					Pentamana.isCompression,
+					Pentamana.compressionSize
+				)
+			),
+			Pentamana.isVisible,
+			Pentamana.manaBarColor,
+			Pentamana.manaBarStyle
+		);
+	}
 
-    @Override
-    public ServerManaBar getServerManaBar() {
-        return this.serverManaBar;
-    }
+	@Override
+	public ServerManaBar getServerManaBar() {
+		return this.serverManaBar;
+	}
 
-    @Override
-    public void setServerManaBar(ServerManaBar serverManaBar) {
-        this.serverManaBar = serverManaBar;
-    }
+	@Override
+	public void setServerManaBar(ServerManaBar serverManaBar) {
+		this.serverManaBar = serverManaBar;
+	}
 
-    @Override
-    public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        if (!nbtCompound.isEmpty()) {
-            this.serverManaBar = ServerManaBar.fromNbt(nbtCompound, registryLookup)
-                .withServer(this.serverManaBar.getServer());
-        }
-    }
+	@Override
+	public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
+		if (!nbtCompound.isEmpty()) {
+			this.serverManaBar = ServerManaBar.fromNbt(nbtCompound, registryLookup)
+				.withServer(this.serverManaBar.getServer());
+		}
+	}
 
-    @Override
-    public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        nbtCompound.copyFrom(this.serverManaBar.toNbt(registryLookup));
-    }
+	@Override
+	public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
+		nbtCompound.copyFrom(this.serverManaBar.toNbt(registryLookup));
+	}
 
-    @Override
-    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerForPlayers(SERVER_MANA_BAR, ServerManaBarComponentInstance::new, RespawnCopyStrategy.ALWAYS_COPY);
-    }
+	@Override
+	public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+		registry.registerForPlayers(SERVER_MANA_BAR, ServerManaBarComponentInstance::new, RespawnCopyStrategy.ALWAYS_COPY);
+	}
 }

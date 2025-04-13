@@ -21,214 +21,214 @@ import org.jetbrains.annotations.Nullable;
  * <p>Can only contain one status effect with the same id and amplifier.
  */
 public class CustomStatusEffectManager {
-    private final Set<CustomStatusEffect> statusEffects;
+	private final Set<CustomStatusEffect> statusEffects;
 
-    public CustomStatusEffectManager(Set<CustomStatusEffect> statusEffects) {
-        this.statusEffects = statusEffects;
-    }
+	public CustomStatusEffectManager(Set<CustomStatusEffect> statusEffects) {
+		this.statusEffects = statusEffects;
+	}
 
-    public CustomStatusEffectManager() {
-        this.statusEffects = Sets.<CustomStatusEffect>newHashSet();
-    }
+	public CustomStatusEffectManager() {
+		this.statusEffects = Sets.<CustomStatusEffect>newHashSet();
+	}
 
-    public void tick() {
-        Iterator<CustomStatusEffect> iterator = this.iterator();
+	public void tick() {
+		Iterator<CustomStatusEffect> iterator = this.iterator();
 
-        while (iterator.hasNext()) {
-            CustomStatusEffect statusEffect = iterator.next();
+		while (iterator.hasNext()) {
+			CustomStatusEffect statusEffect = iterator.next();
 
-            if (statusEffect.getDuration() > 0) {
-                statusEffect.tick();
-            } else {
-                iterator.remove();
-            }
-        }
-    }
+			if (statusEffect.getDuration() > 0) {
+				statusEffect.tick();
+			} else {
+				iterator.remove();
+			}
+		}
+	}
 
-    /**
-     * Get status effects with the same id
-     * 
-     * @param id
-     * @return the specified status effect
-     */
-    public Set<CustomStatusEffect> get(CustomStatusEffectIdentifier id) {
-        return this.stream()
-            .filter(statusEffect -> statusEffect.getId().equals(id))
-            .collect(Collectors.toSet());
-    }
+	/**
+	 * Get status effects with the same id
+	 * 
+	 * @param id
+	 * @return the specified status effect
+	 */
+	public Set<CustomStatusEffect> get(CustomStatusEffectIdentifier id) {
+		return this.stream()
+			.filter(statusEffect -> statusEffect.getId().equals(id))
+			.collect(Collectors.toSet());
+	}
 
-    /**
-     * Get the <i>only</i> status effect with the same id and amplifier.
-     * 
-     * @param statusEffect
-     * @return {@code null} if there is no specified status effect
-     */
-    @Nullable
-    public CustomStatusEffect get(CustomStatusEffect statusEffect) {
-        CustomStatusEffectIdentifier id = statusEffect.getId();
-        int amplifier = statusEffect.getAmplifier();
+	/**
+	 * Get the <i>only</i> status effect with the same id and amplifier.
+	 * 
+	 * @param statusEffect
+	 * @return {@code null} if there is no specified status effect
+	 */
+	@Nullable
+	public CustomStatusEffect get(CustomStatusEffect statusEffect) {
+		CustomStatusEffectIdentifier id = statusEffect.getId();
+		int amplifier = statusEffect.getAmplifier();
 
-        return this.stream()
-            .filter(statusEffect2 -> statusEffect2.getId().equals(id))
-            .filter(statusEffect2 -> statusEffect2.getAmplifier() == amplifier)
-            .findAny()
-            .orElse(null);
-    }
+		return this.stream()
+			.filter(statusEffect2 -> statusEffect2.getId().equals(id))
+			.filter(statusEffect2 -> statusEffect2.getAmplifier() == amplifier)
+			.findAny()
+			.orElse(null);
+	}
 
-    /**
-     * Check if there is any status effect with the same id.
-     * 
-     * @param id
-     * @return true if there is any specified status effect
-     */
-    public boolean has(CustomStatusEffectIdentifier id) {
-        return this.stream()
-            .anyMatch(statusEffect -> statusEffect.getId().equals(id));
-    }
+	/**
+	 * Check if there is any status effect with the same id.
+	 * 
+	 * @param id
+	 * @return true if there is any specified status effect
+	 */
+	public boolean has(CustomStatusEffectIdentifier id) {
+		return this.stream()
+			.anyMatch(statusEffect -> statusEffect.getId().equals(id));
+	}
 
-    /**
-     * Check if there is any status effect with the same id and amplifier.
-     * 
-     * @param statusEffect
-     * @return true if there is any specified status effect
-     */
-    public boolean has(CustomStatusEffect statusEffect) {
-        CustomStatusEffectIdentifier id = statusEffect.getId();
-        int amplifier = statusEffect.getAmplifier();
+	/**
+	 * Check if there is any status effect with the same id and amplifier.
+	 * 
+	 * @param statusEffect
+	 * @return true if there is any specified status effect
+	 */
+	public boolean has(CustomStatusEffect statusEffect) {
+		CustomStatusEffectIdentifier id = statusEffect.getId();
+		int amplifier = statusEffect.getAmplifier();
 
-        return this.stream()
-            .filter(statusEffect2 -> statusEffect2.getId().equals(id))
-            .anyMatch(statusEffect2 -> statusEffect2.getAmplifier() == amplifier);
-    }
+		return this.stream()
+			.filter(statusEffect2 -> statusEffect2.getId().equals(id))
+			.anyMatch(statusEffect2 -> statusEffect2.getAmplifier() == amplifier);
+	}
 
-    /**
-     * Get the largest amplifier from status effects with the same id.
-     * 
-     * @param id
-     * @return -1 if there is no specified status effect
-     */
-    public int getActiveAmplifier(CustomStatusEffectIdentifier id) {
-        return this.stream()
-            .filter(statusEffect -> statusEffect.getId().equals(id))
-            .map(CustomStatusEffect::getAmplifier)
-            .max(Integer::compare)
-            .orElse(-1);
-    }
+	/**
+	 * Get the largest amplifier from status effects with the same id.
+	 * 
+	 * @param id
+	 * @return -1 if there is no specified status effect
+	 */
+	public int getActiveAmplifier(CustomStatusEffectIdentifier id) {
+		return this.stream()
+			.filter(statusEffect -> statusEffect.getId().equals(id))
+			.map(CustomStatusEffect::getAmplifier)
+			.max(Integer::compare)
+			.orElse(-1);
+	}
 
-    public Set<CustomStatusEffect> getStatusEffects() {
-        return this.statusEffects;
-    }
+	public Set<CustomStatusEffect> getStatusEffects() {
+		return this.statusEffects;
+	}
 
-    /**
-     * Add a status effect to this manager if there is no status effect with the same id and amplifier,
-     * or set the duration to {@code duration} if the duration is less than {@code duration}.
-     * 
-     * <p>This is to ensure there is <i>only</i> one status effects with the same id and amplifier.
-     * 
-     * @param statusEffect
-     * @return {@code true} if modified something
-     */
-    public boolean add(CustomStatusEffect statusEffect) {
-        CustomStatusEffect presentedStatusEffect = this.get(statusEffect);
-        if (presentedStatusEffect == null) {
-            return this.statusEffects.add(statusEffect);
-        }
+	/**
+	 * Add a status effect to this manager if there is no status effect with the same id and amplifier,
+	 * or set the duration to {@code duration} if the duration is less than {@code duration}.
+	 * 
+	 * <p>This is to ensure there is <i>only</i> one status effects with the same id and amplifier.
+	 * 
+	 * @param statusEffect
+	 * @return {@code true} if modified something
+	 */
+	public boolean add(CustomStatusEffect statusEffect) {
+		CustomStatusEffect presentedStatusEffect = this.get(statusEffect);
+		if (presentedStatusEffect == null) {
+			return this.statusEffects.add(statusEffect);
+		}
 
-        int duration = statusEffect.getDuration();
-        if (duration > presentedStatusEffect.getDuration()) {
-            presentedStatusEffect.setDuration(duration);
-            return true;
-        }
+		int duration = statusEffect.getDuration();
+		if (duration > presentedStatusEffect.getDuration()) {
+			presentedStatusEffect.setDuration(duration);
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * For each status effect {@code s} in the collection, add {@code s} to this manager if there is no
-     * status effect with the same id and amplifier, or set the duration to {@code duration} if the duration
-     * is less than {@code duration}.
-     * 
-     * @param statusEffects
-     * 
-     * @see #add(CustomStatusEffect)
-     */
-    public void addAll(Collection<CustomStatusEffect> statusEffects) {
-        statusEffects.forEach(this.statusEffects::add);
-    }
+	/**
+	 * For each status effect {@code s} in the collection, add {@code s} to this manager if there is no
+	 * status effect with the same id and amplifier, or set the duration to {@code duration} if the duration
+	 * is less than {@code duration}.
+	 * 
+	 * @param statusEffects
+	 * 
+	 * @see #add(CustomStatusEffect)
+	 */
+	public void addAll(Collection<CustomStatusEffect> statusEffects) {
+		statusEffects.forEach(this.statusEffects::add);
+	}
 
-    /**
-     * Remove all the status effect with the same id.
-     * 
-     * @param id
-     * @return if this manager contained the specified status effect
-     */
-    public boolean remove(CustomStatusEffectIdentifier id) {
-        boolean contained = false;
-        Iterator<CustomStatusEffect> iterator = this.iterator();
+	/**
+	 * Remove all the status effect with the same id.
+	 * 
+	 * @param id
+	 * @return if this manager contained the specified status effect
+	 */
+	public boolean remove(CustomStatusEffectIdentifier id) {
+		boolean contained = false;
+		Iterator<CustomStatusEffect> iterator = this.iterator();
 
-        while (iterator.hasNext()) {
-            CustomStatusEffect statusEffect = iterator.next();
+		while (iterator.hasNext()) {
+			CustomStatusEffect statusEffect = iterator.next();
 
-            if (statusEffect.getId().equals(id)) {
-                iterator.remove();
-                contained = true;
-            }
-        }
+			if (statusEffect.getId().equals(id)) {
+				iterator.remove();
+				contained = true;
+			}
+		}
 
-        return contained;
-    }
+		return contained;
+	}
 
-    public boolean remove(CustomStatusEffect statusEffect) {
-        return this.statusEffects.remove(statusEffect);
-    }
+	public boolean remove(CustomStatusEffect statusEffect) {
+		return this.statusEffects.remove(statusEffect);
+	}
 
-    public void clear() {
-        this.statusEffects.clear();
-    }
+	public void clear() {
+		this.statusEffects.clear();
+	}
 
-    public boolean contains(CustomStatusEffect statusEffect) {
-        return this.statusEffects.contains(statusEffect);
-    }
+	public boolean contains(CustomStatusEffect statusEffect) {
+		return this.statusEffects.contains(statusEffect);
+	}
 
-    public boolean containsAll(Collection<CustomStatusEffect> statusEffects) {
-        return this.statusEffects.containsAll(statusEffects);
-    }
+	public boolean containsAll(Collection<CustomStatusEffect> statusEffects) {
+		return this.statusEffects.containsAll(statusEffects);
+	}
 
-    public boolean isEmpty() {
-        return this.statusEffects.isEmpty();
-    }
+	public boolean isEmpty() {
+		return this.statusEffects.isEmpty();
+	}
 
-    public void forEach(Consumer<? super CustomStatusEffect> action) {
-        this.statusEffects.forEach(action);
-    }
+	public void forEach(Consumer<? super CustomStatusEffect> action) {
+		this.statusEffects.forEach(action);
+	}
 
-    public Iterator<CustomStatusEffect> iterator() {
-        return this.statusEffects.iterator();
-    }
+	public Iterator<CustomStatusEffect> iterator() {
+		return this.statusEffects.iterator();
+	}
 
-    public Stream<CustomStatusEffect> stream() {
-        return this.statusEffects.stream();
-    }
+	public Stream<CustomStatusEffect> stream() {
+		return this.statusEffects.stream();
+	}
 
-    public static CustomStatusEffectManager fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-        return new CustomStatusEffectManager(
-            nbtCompound.getList("statusEffects", NbtElement.COMPOUND_TYPE).stream()
-                .map(NbtCompound.class::cast)
-                .map(statusEffect -> CustomStatusEffect.fromNbt(nbtCompound, registryLookup))
-                .collect(Collectors.toSet())
-        );
-    }
+	public static CustomStatusEffectManager fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
+		return new CustomStatusEffectManager(
+			nbtCompound.getList("statusEffects", NbtElement.COMPOUND_TYPE).stream()
+				.map(NbtCompound.class::cast)
+				.map(statusEffect -> CustomStatusEffect.fromNbt(nbtCompound, registryLookup))
+				.collect(Collectors.toSet())
+		);
+	}
 
-    public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return new NbtCompound(
-            new HashMap<>(
-                Map.<String,NbtElement>of(
-                    "statusEffects",
-                    this.stream()
-                        .map(statusEffects -> statusEffects.toNbt(registryLookup))
-                        .collect(NbtList::new, NbtList::add, NbtList::addAll)
-                )
-            )
-        );
-    }
+	public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
+		return new NbtCompound(
+			new HashMap<>(
+				Map.<String,NbtElement>of(
+					"statusEffects",
+					this.stream()
+						.map(statusEffects -> statusEffects.toNbt(registryLookup))
+						.collect(NbtList::new, NbtList::add, NbtList::addAll)
+				)
+			)
+		);
+	}
 }

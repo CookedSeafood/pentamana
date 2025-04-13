@@ -4,7 +4,7 @@ import net.cookedseafood.pentamana.effect.CustomStatusEffectManager;
 import org.ladysnake.cca.api.v3.component.Component;
 
 public interface CustomStatusEffectManagerComponent extends Component {
-    CustomStatusEffectManager getStatusEffectManager();
+	CustomStatusEffectManager getStatusEffectManager();
 
-    void setStatusEffectManager(CustomStatusEffectManager statusEffectManager);
+	void setStatusEffectManager(CustomStatusEffectManager statusEffectManager);
 }

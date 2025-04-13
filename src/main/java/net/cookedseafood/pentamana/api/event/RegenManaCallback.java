@@ -6,18 +6,18 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 
 public interface RegenManaCallback {
-    Event<RegenManaCallback> EVENT = EventFactory.createArrayBacked(RegenManaCallback.class,
-        (callbacks) -> (player) -> {
-            for (RegenManaCallback callback : callbacks) {
-                ActionResult result = callback.interact(player);
+	Event<RegenManaCallback> EVENT = EventFactory.createArrayBacked(RegenManaCallback.class,
+		(callbacks) -> (player) -> {
+			for (RegenManaCallback callback : callbacks) {
+				ActionResult result = callback.interact(player);
  
-                if(result != ActionResult.PASS) {
-                    return result;
-                }
-            }
+				if(result != ActionResult.PASS) {
+					return result;
+				}
+			}
  
-        return ActionResult.PASS;
-    });
+		return ActionResult.PASS;
+	});
  
-    ActionResult interact(PlayerEntity player);
+	ActionResult interact(PlayerEntity player);
 }
