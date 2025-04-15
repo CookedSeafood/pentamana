@@ -1,13 +1,25 @@
 # Pentamana
 
-Pentamana is an extraordinary customizable mana library for storing and modifying mana that runs server-side.
+Pentamana is a very customizable mana library for storing, modifying, and displaying mana that runs server-side.
+
+If you'd like to add a feature, feel free to open an issue [here](https://github.com/CookedSeafood/pentamana/issues).
+
+## Feature
+
+- 1 manabar.
+- 4 attribute modifiers.
+- 4 enchantments.
+- 8 status effects.
+- Datapack interactable.
+- Very configurable.
+- Nothing presented unless turning on or generating by yourself.
 
 ## Installation
 
 `gradle.properties`:
 
 ```properties
-pentamana_version=0.6.8
+pentamana_version=0.6.9
 ```
 
 `build.gradle`:
