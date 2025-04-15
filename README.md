@@ -134,7 +134,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/pentamana debug config` Print config file. (from disk, _NOT_ from loaded config)
 - `/pentamana debug manabar server [<player>]` Print server manabar info of the player.
 - `/pentamana debug manabar client [<player>]` Print client manabar info of the player.
-- `/pentamana debug effect <effect> [<player>]` Print the `effect` status effect info of the player.
+- `/pentamana debug effect <effect> [<player>]` Print the `<effect>` status effect info of the player.
 
 ### Commands Require Premission Level 2
 
