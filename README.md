@@ -134,7 +134,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/pentamana debug config` Print config file. (from disk, _NOT_ from loaded config)
 - `/pentamana debug manabar server [<player>]` Print server manabar info of the player.
 - `/pentamana debug manabar client [<player>]` Print client manabar info of the player.
-- `/pentamana debug effect [<player>]` Print status effect info of the player.
+- `/pentamana debug effect <effect> [<player>]` Print the `effect` status effect info of the player.
 
 ### Commands Require Premission Level 2
 
@@ -143,7 +143,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/mana set` Set mana supply. Returns modified mana supply in point.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
-- `/custom effect give <players> <effect> [<duration|infinite>] [<amplifier>]` Give status effect.
+- `/custom effect give <players> <effect> [<duration|infinite>] [<amplifier>]` Give status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power`, `pentamana.mana_sick`.
 - `/custom effect clear <players> [<effect>]` Clear status effect.
 
 ## Modifiers
@@ -189,7 +189,7 @@ Status effects can be added or removed from items using custom data components. 
    \- [int] amplifier: value.
 ```
 
-Below is an example status effect which increase the mana by 16(![2PointManaChar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
+Below is an example status effect which increase the mana regeneration by 16(![2PointManaChar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
 
 ```component
 [
