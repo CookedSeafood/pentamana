@@ -6,7 +6,7 @@ If you'd like to add a feature, feel free to open an issue [here](https://github
 
 ## Feature
 
-- 1 manabar.
+- 1 manabar (1 text pattern, 3 display position, 4 render type).
 - 4 attribute modifiers.
 - 4 enchantments.
 - 8 status effects.
