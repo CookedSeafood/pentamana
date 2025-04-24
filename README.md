@@ -118,7 +118,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 
 Enchantments are written in json and registered using datapack. It can be directly modified.
 
-## Commands
+## Command
 
 - `/mana enbale` Enable this mod for yourself.
 - `/mana disable` Disable this mod for yourself completely.
@@ -136,7 +136,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/pentamana debug manabar client [<player>]` Print client manabar info of the player.
 - `/pentamana debug effect <effect> [<player>]` Print the `<effect>` status effect info of the player.
 
-### Commands Require Premission Level 2
+The commands following require premission level 2 to execute.
 
 - `/mana reload` Reload config file.
 - `/mana get` Get mana supply. Returns mana supply in point.
@@ -146,7 +146,7 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/custom effect give <players> <effect> [<duration|infinite>] [<amplifier>]` Give status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power`, `pentamana.mana_sick`.
 - `/custom effect clear <players> [<effect>]` Clear status effect.
 
-## Modifiers
+## Modifier
 
 Modifiers can be added or removed from items using custom data components. They are active when equipped in the written slot.
 
@@ -177,7 +177,7 @@ Below is an example modifier which increase mana capacity by 120(![2PointManaCha
 ]
 ```
 
-## Status Effects
+## Status Effect
 
 Status effects can be added or removed from items using custom data components. They are applied when the item is consumed.
 
@@ -214,7 +214,7 @@ Below is an example status effect which increase the mana regeneration by 16(![2
 - Mana Power: Increase casting damage by `level * statusEffectManaPowerBase`.
 - Mana Sickness: Decrease casting damage by `level * statusEffectManaSicknessBase`.
 
-## Enchantments
+## Enchantment
 
 ### Capacity
 
