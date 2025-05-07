@@ -14,41 +14,41 @@ import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 import org.ladysnake.cca.api.v3.entity.RespawnableComponent;
 
 public class ManaPreferenceComponentInstance implements ManaPreferenceComponent, EntityComponentInitializer, RespawnableComponent<ManaPreferenceComponentInstance> {
-	public static final ComponentKey<ManaPreferenceComponentInstance> MANA_PREFERENCE =
-		ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_ID, "mana_preference"), ManaPreferenceComponentInstance.class);
-	private boolean isEnbaled;
+    public static final ComponentKey<ManaPreferenceComponentInstance> MANA_PREFERENCE =
+        ComponentRegistry.getOrCreate(Identifier.of(Pentamana.MOD_NAMESPACE, "mana_preference"), ManaPreferenceComponentInstance.class);
+    private boolean isEnbaled;
 
-	public ManaPreferenceComponentInstance() {
-	}
+    public ManaPreferenceComponentInstance() {
+    }
 
-	public ManaPreferenceComponentInstance(PlayerEntity player) {
-		this.isEnbaled = Pentamana.isEnabled;
-	}
+    public ManaPreferenceComponentInstance(PlayerEntity player) {
+        this.isEnbaled = Pentamana.isEnabled;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return this.isEnbaled;
-	}
+    @Override
+    public boolean isEnabled() {
+        return this.isEnbaled;
+    }
 
-	@Override
-	public void setIsEnabled(boolean isEnabled) {
-		this.isEnbaled = isEnabled;
-	}
+    @Override
+    public void setIsEnabled(boolean isEnabled) {
+        this.isEnbaled = isEnabled;
+    }
 
-	@Override
-	public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-		if (!nbtCompound.isEmpty()) {
-			this.isEnbaled = nbtCompound.getBoolean("isEnbaled");
-		}
-	}
+    @Override
+    public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+        if (!nbtCompound.isEmpty()) {
+            this.isEnbaled = nbtCompound.getBoolean("isEnbaled");
+        }
+    }
 
-	@Override
-	public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup registryLookup) {
-		nbtCompound.putBoolean("isEnbaled", this.isEnbaled);
-	}
+    @Override
+    public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+        nbtCompound.putBoolean("isEnbaled", this.isEnbaled);
+    }
 
-	@Override
-	public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-		registry.registerForPlayers(MANA_PREFERENCE, ManaPreferenceComponentInstance::new, RespawnCopyStrategy.ALWAYS_COPY);
-	}
+    @Override
+    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerForPlayers(MANA_PREFERENCE, ManaPreferenceComponentInstance::new, RespawnCopyStrategy.ALWAYS_COPY);
+    }
 }

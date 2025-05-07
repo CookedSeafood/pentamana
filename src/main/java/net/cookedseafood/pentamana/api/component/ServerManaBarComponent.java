@@ -4,7 +4,7 @@ import net.cookedseafood.pentamana.mana.ServerManaBar;
 import org.ladysnake.cca.api.v3.component.Component;
 
 public interface ServerManaBarComponent extends Component {
-	ServerManaBar getServerManaBar();
+    ServerManaBar getServerManaBar();
 
-	void setServerManaBar(ServerManaBar serverManaBar);
+    void setServerManaBar(ServerManaBar serverManaBar);
 }

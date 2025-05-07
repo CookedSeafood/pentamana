@@ -6,18 +6,18 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 
 public interface ConsumManaCallback {
-	Event<ConsumManaCallback> EVENT = EventFactory.createArrayBacked(ConsumManaCallback.class,
-		(callbacks) -> (player) -> {
-			for (ConsumManaCallback callback : callbacks) {
-				ActionResult result = callback.interact(player);
+    Event<ConsumManaCallback> EVENT = EventFactory.createArrayBacked(ConsumManaCallback.class,
+        (callbacks) -> (player) -> {
+            for (ConsumManaCallback callback : callbacks) {
+                ActionResult result = callback.interact(player);
  
-				if(result != ActionResult.PASS) {
-					return result;
-				}
-			}
+                if(result != ActionResult.PASS) {
+                    return result;
+                }
+            }
  
-		return ActionResult.PASS;
-	});
+        return ActionResult.PASS;
+    });
  
-	ActionResult interact(PlayerEntity player);
+    ActionResult interact(PlayerEntity player);
 }

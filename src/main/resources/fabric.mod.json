@@ -21,24 +21,27 @@
     "environment": "*",
     "entrypoints": {
         "main": [
+            "net.cookedseafood.genericregistry.GenericRegistry",
+            "net.cookedseafood.inferiordata.InferiorData",
             "net.cookedseafood.pentamana.Pentamana"
         ],
         "cardinal-components-entity": [
-            "net.cookedseafood.pentamana.component.CustomStatusEffectManagerComponentInstance",
+            "net.cookedseafood.inferiordata.component.CustomStatusEffectManagerComponentInstance",
             "net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance",
             "net.cookedseafood.pentamana.component.ServerManaBarComponentInstance"
         ]
     },
     "mixins": [
+        "inferiordata.mixins.json",
         "pentamana.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.16.13",
+        "fabricloader": ">=0.16.14",
         "minecraft": "~1.21.4",
         "java": ">=21",
         "fabric-api": "*",
         "cardinal-components-base": ">=6.2.2",
-        "candy-wrapper": ">=0.5.6"
+        "candy-wrapper": ">=0.5.18"
     },
     "suggests": {
         "another-mod": "*"
@@ -50,7 +53,7 @@
             ]
         },
         "cardinal-components": [
-            "pentamana:custom_status_effect_manager",
+            "inferior_data:custom_status_effect_manager",
             "pentamana:mana_preference",
             "pentamana:server_mana_bar"
         ]
