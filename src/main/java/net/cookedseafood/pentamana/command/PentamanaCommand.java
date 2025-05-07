@@ -90,11 +90,11 @@ public class PentamanaCommand {
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
         profile.append(Text.literal("\n" + serverManaBar.getSupply() + "/" + serverManaBar.getCapacity()).formatted(Formatting.AQUA));
         profile.append(Text.literal(" " + serverManaBar.getLife()).formatted(Formatting.GRAY));
-        statusEffectManager.values().forEach(statusEffect -> {
-            profile.append(Text.literal("\n" + statusEffect.getId().getId().toString()).formatted(Formatting.YELLOW));
-            profile.append(Text.literal(" " + statusEffect.getActiveDuration()).formatted(Formatting.GREEN));
-            profile.append(Text.literal(" " + statusEffect.getActiveAmplifier()).formatted(Formatting.LIGHT_PURPLE));
-            profile.append(Text.literal(" " + statusEffect.getId().getColor()).formatted(Formatting.GRAY));
+        statusEffectManager.values().forEach(playlist -> {
+            profile.append(Text.literal("\n" + playlist.getId().getId().toString()).formatted(Formatting.YELLOW));
+            profile.append(Text.literal(" " + playlist.getActiveDuration()).formatted(Formatting.GREEN));
+            profile.append(Text.literal(" " + playlist.getActiveAmplifier()).formatted(Formatting.LIGHT_PURPLE));
+            profile.append(Text.literal(" " + playlist.getId().getColor()).formatted(Formatting.GRAY));
         });
         profile.append(Text.literal("\n- isEnabled "));
         profile.append(manaPreference.isEnabled() ? Text.literal("true").formatted(Formatting.GREEN) : Text.literal("false").formatted(Formatting.RED));
@@ -142,11 +142,11 @@ public class PentamanaCommand {
 
         MutableText profile = MutableText.of(PlainTextContent.EMPTY);
         profile.append(Text.literal("\n" + clientManaBar.getSupply() + "/" + clientManaBar.getCapacity()).formatted(Formatting.AQUA));
-        statusEffectManager.values().forEach(statusEffect -> {
-            profile.append(Text.literal("\n" + statusEffect.getId().getId().toString()).formatted(Formatting.YELLOW));
-            profile.append(Text.literal(" " + statusEffect.getActiveDuration()).formatted(Formatting.GREEN));
-            profile.append(Text.literal(" " + statusEffect.getActiveAmplifier()).formatted(Formatting.LIGHT_PURPLE));
-            profile.append(Text.literal(" " + statusEffect.getId().getColor()).formatted(Formatting.GRAY));
+        statusEffectManager.values().forEach(playlist -> {
+            profile.append(Text.literal("\n" + playlist.getId().getId().toString()).formatted(Formatting.YELLOW));
+            profile.append(Text.literal(" " + playlist.getActiveDuration()).formatted(Formatting.GREEN));
+            profile.append(Text.literal(" " + playlist.getActiveAmplifier()).formatted(Formatting.LIGHT_PURPLE));
+            profile.append(Text.literal(" " + playlist.getId().getColor()).formatted(Formatting.GRAY));
         });
         profile.append(Text.literal("\n- isEnabled "));
         profile.append(manaPreference.isEnabled() ? Text.literal("true").formatted(Formatting.GREEN) : Text.literal("false").formatted(Formatting.RED));

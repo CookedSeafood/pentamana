@@ -80,7 +80,7 @@ public class ManaCommand {
 
         manaPreference.setIsEnabled(true);
 
-        source.sendFeedback(() -> Text.literal("Enabled mana for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Enabled mana for player ").append(player.getDisplayName()).append("."), false);
         return 1;
     }
 
@@ -93,7 +93,7 @@ public class ManaCommand {
 
         manaPreference.setIsEnabled(false);
 
-        source.sendFeedback(() -> Text.literal("Disabled mana for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Disabled mana for player ").append(player.getDisplayName()).append("."), false);
         if (Pentamana.isForceEnabled) {
             source.sendFeedback(() -> Text.literal("Mana calculation will continue due to the force enabled mode is turned on in server."), false);
         }
@@ -113,7 +113,7 @@ public class ManaCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         serverManaBar.setSupply(amount);
-        source.sendFeedback(() -> Text.literal("Set mana for player " + player.getNameForScoreboard() + " to " + amount + "."), false);
+        source.sendFeedback(() -> Text.literal("Set mana for player ").append(player.getDisplayName()).append(" to " + amount + "."), false);
         return (int)(amount / Pentamana.manaPerPoint);
     }
 
@@ -122,7 +122,7 @@ public class ManaCommand {
         ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         float targetSupply = serverManaBar.getSupply() + amount;
         serverManaBar.setSupply(targetSupply);
-        source.sendFeedback(() -> Text.literal("Added " + amount + " mana for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Added " + amount + " mana for player ").append(player.getDisplayName()).append("."), false);
         return (int)(targetSupply / Pentamana.manaPerPoint);
     }
 
@@ -131,7 +131,7 @@ public class ManaCommand {
         ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
         float targetSupply = serverManaBar.getSupply() - amount;
         serverManaBar.setSupply(targetSupply);
-        source.sendFeedback(() -> Text.literal("Subtracted " + amount + " mana for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Subtracted " + amount + " mana for player ").append(player.getDisplayName()).append("."), false);
         return (int)(targetSupply / Pentamana.manaPerPoint);
     }
 

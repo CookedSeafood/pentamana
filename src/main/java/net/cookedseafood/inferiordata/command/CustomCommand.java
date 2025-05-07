@@ -11,6 +11,7 @@ import net.cookedseafood.genericregistry.registry.Registries;
 import net.cookedseafood.inferiordata.component.CustomStatusEffectManagerComponentInstance;
 import net.cookedseafood.inferiordata.effect.CustomStatusEffect;
 import net.cookedseafood.inferiordata.effect.CustomStatusEffectIdentifier;
+import net.cookedseafood.inferiordata.effect.CustomStatusEffectManager;
 import net.cookedseafood.inferiordata.suggestion.CustomStatusEffectSuggestionProvider;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -31,6 +32,7 @@ public class CustomCommand {
                 CommandManager.literal("effect")
                 .then(
                     CommandManager.literal("add")
+                    .requires(source -> source.hasPermissionLevel(2))
                     .then(
                         CommandManager.argument("entities", EntityArgumentType.entities())
                         .then(
@@ -58,6 +60,7 @@ public class CustomCommand {
                 )
                 .then(
                     CommandManager.literal("clear")
+                    .requires(source -> source.hasPermissionLevel(2))
                     .then(
                         CommandManager.argument("entities", EntityArgumentType.entities())
                         .executes(context -> executeClearEffect(context.getSource(), EntityArgumentType.getEntities(context, "entities")))
@@ -67,6 +70,14 @@ public class CustomCommand {
                             .executes(context -> executeClearEffect(context.getSource(), EntityArgumentType.getEntities(context, "entities"), StringArgumentType.getString(context, "effect")))
                         )
                     )
+                )
+            )
+            .then(
+                CommandManager.literal("reset")
+                .executes(context -> executeReset(context.getSource()))
+                .then(
+                    CommandManager.literal("effect")
+                    .executes(context -> executeResetEffect(context.getSource()))
                 )
             )
         );
@@ -95,7 +106,7 @@ public class CustomCommand {
 
         int count = targets.size();
         if (count == 1) {
-            source.sendFeedback(() -> Text.literal("Applied effect " + effectId.getName() + " to " + targets.iterator().next().getDisplayName() + "."), true);
+            source.sendFeedback(() -> Text.literal("Applied effect " + effectId.getName() + " to ").append(targets.iterator().next().getDisplayName()).append("."), true);
         } else {
             source.sendFeedback(() -> Text.literal("Applied effect " + effectId.getName() + " to " + count + " targets."), true);
         }
@@ -113,7 +124,7 @@ public class CustomCommand {
 
         int count = targets.size();
         if (count == 1) {
-            source.sendFeedback(() -> Text.literal("Removed every effect from " + targets.iterator().next().getDisplayName() + "."), true);
+            source.sendFeedback(() -> Text.literal("Removed every effect from ").append(targets.iterator().next().getDisplayName()).append("."), true);
         } else {
             source.sendFeedback(() -> Text.literal("Removed every effect from " + count + " targets."), true);
         }
@@ -136,11 +147,21 @@ public class CustomCommand {
 
         int count = targets.size();
         if (count == 1) {
-            source.sendFeedback(() -> Text.literal("Removed effect " + effectId.getName() + " from " + targets.iterator().next().getDisplayName() + "."), true);
+            source.sendFeedback(() -> Text.literal("Removed effect " + effectId.getName() + " from ").append(targets.iterator().next().getDisplayName()).append("."), true);
         } else {
             source.sendFeedback(() -> Text.literal("Removed effect " + effectId.getName() + " from " + count + " targets."), true);
         }
 
+        return 1;
+    }
+
+    public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
+        executeResetEffect(source);
+        return 1;
+    }
+
+    public static int executeResetEffect(ServerCommandSource source) throws CommandSyntaxException {
+        CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(source.getPlayerOrThrow()).setStatusEffectManager(new CustomStatusEffectManager());
         return 1;
     }
 }

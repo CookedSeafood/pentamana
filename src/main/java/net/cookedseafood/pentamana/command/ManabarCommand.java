@@ -254,7 +254,7 @@ public class ManaBarCommand {
 
         serverManaBar.setIsVisible(isVisible);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar visibility for player " + player.getNameForScoreboard() + " to " + isVisible + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar visibility for player ").append(player.getDisplayName()).append(" to " + isVisible + "."), false);
         return 1;
     }
 
@@ -267,7 +267,7 @@ public class ManaBarCommand {
 
         serverManaBar.setPosition(manaBarPosition);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar position for player " + player.getNameForScoreboard() + " to " + manaBarPosition.getName() + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar position for player ").append(player.getDisplayName()).append(" to " + manaBarPosition.getName() + "."), false);
         return 1;
     }
 
@@ -280,7 +280,7 @@ public class ManaBarCommand {
 
         serverManaBar.setColor(manaBarColor);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar color for player " + player.getNameForScoreboard() + " to " + manaBarColor.getName() + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar color for player ").append(player.getDisplayName()).append(" to " + manaBarColor.getName() + "."), false);
         return 1;
     }
 
@@ -293,7 +293,7 @@ public class ManaBarCommand {
 
         serverManaBar.setStyle(manaBarStyle);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar style for player " + player.getNameForScoreboard() + " to " + manaBarStyle.getName() + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar style for player ").append(player.getDisplayName()).append(" to " + manaBarStyle.getName() + "."), false);
         return 1;
     }
 
@@ -307,7 +307,7 @@ public class ManaBarCommand {
 
         manaPattern.setPattern(targetManabarPattern);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar pattern for player" + player.getNameForScoreboard() + " to " + manaBarPattern.getString() + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar pattern for player").append(player.getDisplayName()).append(" to " + manaBarPattern.getString() + "."), false);
         return 1;
     }
 
@@ -320,7 +320,7 @@ public class ManaBarCommand {
 
         manaRender.setType(manaBarType);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar type for player " + player.getNameForScoreboard() + " to " + manaBarType.getName() + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar type for player ").append(player.getDisplayName()).append(" to " + manaBarType.getName() + "."), false);
         return 1;
     }
 
@@ -333,7 +333,7 @@ public class ManaBarCommand {
 
         manaRender.setPointsPerCharacter(pointsPerCharacter);
 
-        source.sendFeedback(() -> Text.literal("Updated points per character for player " + player.getNameForScoreboard() + " to " + pointsPerCharacter + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated points per character for player ").append(player.getDisplayName()).append(" to " + pointsPerCharacter + "."), false);
         return 1;
     }
 
@@ -346,7 +346,7 @@ public class ManaBarCommand {
 
         manaRender.setIsCompression(isCompression);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar compression for player " + player.getNameForScoreboard() + " to " + isCompression + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar compression for player ").append(player.getDisplayName()).append(" to " + isCompression + "."), false);
         return 1;
     }
 
@@ -359,7 +359,7 @@ public class ManaBarCommand {
 
         manaRender.setCompressionSize(compressionSize);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar compression size for player " + player.getNameForScoreboard() + " to " + compressionSize + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated manabar compression size for player ").append(player.getDisplayName()).append(" to " + compressionSize + "."), false);
         return 1;
     }
 
@@ -396,7 +396,7 @@ public class ManaBarCommand {
             throw OPTION_MANA_CHARACTER_UNCHANGED_EXCEPTION.create(targetManaCharacter, manaCharacterTypeIndex, manaCharacterIndex);
         }
 
-        source.sendFeedback(() -> Text.literal("Updated " + (manaCharacterIndex == -1 ? "" : (" #" + manaCharacterIndex)) + (manaCharacterTypeIndex == -1 ? "" : (" " + manaCharacterTypeIndex + " point")) + " mana character for player " + player.getNameForScoreboard() + " to " + targetManaCharacter.getString() + "."), false);
+        source.sendFeedback(() -> Text.literal("Updated " + (manaCharacterIndex == -1 ? "" : (" #" + manaCharacterIndex)) + (manaCharacterTypeIndex == -1 ? "" : (" " + manaCharacterTypeIndex + " point")) + " mana character for player ").append(player.getDisplayName()).append(" to " + targetManaCharacter.getString() + "."), false);
         return 1;
     }
 
@@ -418,7 +418,7 @@ public class ManaBarCommand {
         render.setCompressionSize(Pentamana.compressionSize);
         charset.setCharset(Pentamana.manaCharset.deepCopy().getCharset());
 
-        source.sendFeedback(() -> Text.literal("Reset manabar options for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar options for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -426,7 +426,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setIsVisible(Pentamana.isVisible);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar visibility for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar visibility for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -434,7 +434,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setPosition(Pentamana.manaBarPosition);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar position for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar position for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -442,7 +442,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setColor(Pentamana.manaBarColor);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar color for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar color for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -450,7 +450,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setStyle(Pentamana.manaBarStyle);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar style for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar style for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -458,7 +458,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().setPattern(Pentamana.manaPattern);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar pattern for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar pattern for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -466,7 +466,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setType(Pentamana.manaRenderType);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar type for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar type for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -474,7 +474,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setPointsPerCharacter(Pentamana.pointsPerCharacter);
 
-        source.sendFeedback(() -> Text.literal("Reset points per character for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset points per character for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -482,7 +482,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setIsCompression(Pentamana.isCompression);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar compression for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar compression for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -490,7 +490,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setCompressionSize(Pentamana.compressionSize);
 
-        source.sendFeedback(() -> Text.literal("Reset manabar compression size for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset manabar compression size for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
@@ -498,7 +498,7 @@ public class ManaBarCommand {
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset().setCharset(Pentamana.manaCharset.deepCopy().getCharset());
 
-        source.sendFeedback(() -> Text.literal("Reset mana character for player " + player.getNameForScoreboard() + "."), false);
+        source.sendFeedback(() -> Text.literal("Reset mana character for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 }

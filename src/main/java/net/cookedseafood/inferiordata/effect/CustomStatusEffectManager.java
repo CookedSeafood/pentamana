@@ -75,7 +75,7 @@ public class CustomStatusEffectManager {
     }
 
     public boolean add(CustomStatusEffect statusEffect) {
-        return this.getOrPut(statusEffect.getId().deepCopy()).add(statusEffect);
+        return this.getOrPut(statusEffect.getId()).add(statusEffect);
     }
 
     public Map<CustomStatusEffectIdentifier, CustomStatusEffectPlaylist> getStatusEffects() {
