@@ -19,7 +19,7 @@ If you'd like to add a feature, feel free to open an issue [here](https://github
 `gradle.properties`:
 
 ```properties
-pentamana_version=0.6.9
+pentamana_version=0.7.0
 ```
 
 `build.gradle`:
@@ -134,7 +134,6 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/pentamana debug config` Print config file. (from disk, _NOT_ from loaded config)
 - `/pentamana debug manabar server [<player>]` Print server manabar info of the player.
 - `/pentamana debug manabar client [<player>]` Print client manabar info of the player.
-- `/pentamana debug effect <effect> [<player>]` Print the `<effect>` status effect info of the player.
 
 The commands following require premission level 2 to execute.
 
@@ -306,29 +305,30 @@ if (!ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar
 ### Mana Capacity
 
 ```java
-float capacity = (float)this.player.getCustomModifiedValue("pentamana:mana_capacity", Pentamana.manaCapacityBase);
-capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:capacity");
-capacity += statusEffectManager.has("pentamana:mana_boost") ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_boost") + 1) : 0;
-capacity -= statusEffectManager.has("pentamana:mana_reduction") ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_reduction") + 1) : 0;
+float capacity = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, Pentamana.manaCapacityBase);
+capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
+capacity += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0;
+capacity -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0;
+capacity += Pentamana.isConversionExperienceLevel ? Pentamana.conversionExperienceLevelBase * this.player.experienceLevel : 0;
 capacity = Math.max(capacity, 0.0f);
 ```
 
 ### Mana Regeneration
 
 ```java
-float regen = (float)this.player.getCustomModifiedValue("pentamana:mana_regeneration", Pentamana.manaRegenerationBase);
-regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel("pentamana:stream");
-regen += statusEffectManager.has("pentamana:instant_mana") ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveStatusEffectAmplifier("pentamana:instant_mana")) : 0;
-regen -= statusEffectManager.has("pentamana:instant_deplete") ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveStatusEffectAmplifier("pentamana:instant_deplete")) : 0;
-regen += statusEffectManager.has("pentamana:mana_regeneration") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_regeneration")) : 0;
-regen -= statusEffectManager.has("pentamana:mana_inhibition") ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_inhibition")) : 0;
+float regen = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, Pentamana.manaRegenerationBase);
+regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
+regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0;
+regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0;
+regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0;
+regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0;
 ```
 
 ### Mana Consumption
 
 ```java
-float targetConsum = (float)player.getCustomModifiedValue("pentamana:mana_consumption", consum);
-targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel("pentamana:utilization");
+float targetConsum = (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consum);
+targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
 ```
 
 ### Casting Damage
@@ -336,10 +336,10 @@ targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack
 ```java
 float castingDamage = manaCapacity;
 castingDamage /= Pentamana.manaCapacityBase;
-castingDamage *= (float)player.getCustomModifiedValue("pentamana:casting_damage", baseDamage);
+castingDamage *= (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, baseDamage);
 castingDamage += potencyLevel != 0 ? ++potencyLevel * Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
-castingDamage += statusEffectManager.has("pentamana:mana_power") ? (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_power") + 1) * Pentamana.statusEffectManaPowerBase : 0;
-castingDamage -= statusEffectManager.has("pentamana:mana_sickness") ? (statusEffectManager.getActiveStatusEffectAmplifier("pentamana:mana_sickness") + 1) * Pentamana.statusEffectManaSicknessBase : 0;
+castingDamage += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * Pentamana.statusEffectManaPowerBase : 0;
+castingDamage -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * Pentamana.statusEffectManaSicknessBase : 0;
 castingDamage = Math.max(castingDamage, 0.0f);
 castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
 ```
