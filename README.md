@@ -19,7 +19,7 @@ If you'd like to add a feature, feel free to open an issue [here](https://github
 `gradle.properties`:
 
 ```properties
-pentamana_version=0.7.0
+pentamana_version=0.7.1
 ```
 
 `build.gradle`:
