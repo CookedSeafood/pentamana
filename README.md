@@ -84,39 +84,107 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
 }
 ```
 
-- `manaPerPoint` Amount of mana to be considered as 1 mana point.
-- `manaCapacityBase` Initial mana capacity.
-- `manaRegenerationBase` Initial mana regen amount per tick.
-- `enchantmentCapacityBase` Level multiplier, the result will be added to mana capacity.
-- `enchantmentStreamBase` Level multiplier, the result will be added to mana regeneration.
-- `enchantmentUtilizationBase` Level multiplier, the result in 100% will be saved.
-- `enchantmentPotencyBase` Level multiplier, the result will be added to casting damage.
-- `statusEffectManaBoostBase` Level multiplier, the result will be added to mana capacity.
-- `statusEffectManaReductionBase` Level multiplier, the result will be substracted from mana capacity.
-- `statusEffectInstantManaBase` Level multiplier, the result will be added to mana regeneration.
-- `statusEffectInstantDepleteBase` Level multiplier, the result will be substracted from mana regeneration.
-- `statusEffectManaRegenerationBase` Mana point divisor, the result will be added to regeneration.
-- `statusEffectManaInhibitionBase` Mana point divisor, the result will be substracted from regeneration.
-- `statusEffectManaPowerBase` Amplifier multiplier, the result will be added to casting damage.
-- `statusEffectManaSicknessBase` Amplifier multiplier, the result will be added to casting damage.
-- `isConversionExperienceLevel` Increase mana capacity by experience level.
-- `conversionExperienceLevel` Level multiplier, the result will be added to mana capacity.
-- `displayIdleInterval` Ticks actionbar not updating if idle.
-- `displaySuppressionInterval` Ticks actionbar not updating if interrupted.
-- `isForceEnabled` Make the mod enabled for every player when setting to ture, do not modify their own preference.
-- `isEnabled` Default preference.
-- `isVisible` Default preference.
-- `isCompression` Default preference.
-- `compressionSize` Default preference, in character.
-- `manaPattern` Default preference. Use `$` to represent mana render text.
-- `manaRenderType` Default preference. Can be character, numeric, percentage and none.
-- `manaBarPosition` Default preference. Can be actionbar, bossbar and siderbar.
-- `manaBarColor` Default preference.
-- `manaBarStyle` Default preference.
-- `pointsPerCharacter` Default preference. Amount of mana points to be considered as 1 mana character.
-- `manaCharset` Default preference. from 100% to 0% point character.
+### `manaPerPoint`
 
-Enchantments are written in json and registered using datapack. It can be directly modified.
+Amount of mana to be considered as 1 mana point.
+
+### `manaCapacityBase`, `enchantmentCapacityBase`, `statusEffectManaBoostBase`, `statusEffectManaReductionBase`, `isConversionExperienceLevel`, `conversionExperienceLevel`
+
+```java
+float capacity = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, Pentamana.manaCapacityBase);
+capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
+capacity += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0;
+capacity -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0;
+capacity += Pentamana.isConversionExperienceLevel ? Pentamana.conversionExperienceLevelBase * this.player.experienceLevel : 0;
+capacity = Math.max(capacity, 0.0f);
+```
+
+### `manaRegenerationBase`, `enchantmentStreamBase`, `statusEffectInstantManaBase`, `statusEffectInstantDepleteBase`, `statusEffectManaRegenerationBase`, `statusEffectManaInhibitionBase`
+
+```java
+float regen = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, Pentamana.manaRegenerationBase);
+regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
+regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0;
+regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0;
+regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0;
+regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0;
+```
+
+### `enchantmentUtilizationBase`
+
+```java
+float targetConsum = (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consum);
+targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
+```
+
+### `enchantmentPotencyBase`, `statusEffectManaPowerBase`, `statusEffectManaSicknessBase`
+
+```java
+float castingDamage = manaCapacity;
+castingDamage /= Pentamana.manaCapacityBase;
+castingDamage *= (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, baseDamage);
+castingDamage += potencyLevel != 0 ? ++potencyLevel * Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
+castingDamage += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * Pentamana.statusEffectManaPowerBase : 0;
+castingDamage -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * Pentamana.statusEffectManaSicknessBase : 0;
+castingDamage = Math.max(castingDamage, 0.0f);
+castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
+```
+
+### `displayIdleInterval`
+
+Ticks actionbar not updating if idle.
+
+### `displaySuppressionInterval`
+
+Ticks actionbar not updating if interrupted.
+
+### `isForceEnabled`
+
+Make the mod enabled for every player when setting to ture, do not modify their own preference.
+
+### `isEnabled`
+
+Default player preference. True if mana should be ticked for the player.
+
+### `isVisible`
+
+Default player preference. True if manabar should be visible for the player.
+
+### `isCompression`
+
+Default player preference. True if `character` type manabar should be in fixed size for the player.
+
+### `compressionSize`
+
+Default player preference. The size of the `character` type manabar if `isCompression` is true.
+
+### `manaPattern`
+
+Default player preference. Use `$` to represent mana render text.
+
+### `manaRenderType`
+
+Default player preference. Can be `character`, `numeric`, `percentage` and `none`.
+
+### `manaBarPosition`
+
+Default player preference. Can be `actionbar`, `bossbar` and `siderbar`.
+
+### `manaBarColor`
+
+Default player preference. The color of `bossbar` position manabar.
+
+### `manaBarStyle`
+
+Default player preference. The style of `bossbar` position manabar.
+
+### `pointsPerCharacter`
+
+Default player preference. Amount of mana points to be considered as 1 mana character.
+
+### `manaCharset`
+
+Default player preference. from 100% to 0% point character.
 
 ## Command
 
@@ -126,8 +194,8 @@ Enchantments are written in json and registered using datapack. It can be direct
 - `/manabar set pattern <text>` Set the manabar pattern for yourself. Use `$` to represent mana render text. Text which not in `extra` is ignored.
 - `/manabar set type <character|numeric|percentage|none>` Set the mana render text type for yourself.
 - `/manabar set position <actionbar|bossbar|siderbar>` Set the manabar position for yourself.
-- `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the manabar color in bossbar for yourself.
-- `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set the manabar style in bossbar for yourself.
+- `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the color of `bossbar` position manabar for yourself.
+- `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set the style of `bossbar` position manabar for yourself.
 - `/manabar set points_per_character <value>` Set the amount of mana points to be considered as 1 mana character for yourself.
 - `/manabar set character <text> [<character_type_index>] [<character_index>]` Set the #`[<character_index>]` `[<character_type_index>]` point mana character for yourself.
 - `/manabar reset [<visibility|pattern|type|position|color|style|points_per_character|character>]` Reset manabar options for yourself.
@@ -143,8 +211,8 @@ The commands following require premission level 2 to execute.
 - `/mana set` Set mana supply. Returns modified mana supply in point.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
-- `/custom effect give <players> <effect> [<duration|infinite>] [<amplifier>]` Give status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power`, `pentamana.mana_sick`.
-- `/custom effect clear <players> [<effect>]` Clear status effect.
+- `/custom effect give <players> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power`, `pentamana.mana_sick`.
+- `/custom effect clear <players> [<effect>]` Clear custom status effect.
 
 ## Modifier
 
@@ -301,51 +369,7 @@ if (!ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar
 // Your code here
 ```
 
-## Formulas
-
-### Mana Capacity
-
-```java
-float capacity = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, Pentamana.manaCapacityBase);
-capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
-capacity += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? Pentamana.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0;
-capacity -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? Pentamana.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0;
-capacity += Pentamana.isConversionExperienceLevel ? Pentamana.conversionExperienceLevelBase * this.player.experienceLevel : 0;
-capacity = Math.max(capacity, 0.0f);
-```
-
-### Mana Regeneration
-
-```java
-float regen = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, Pentamana.manaRegenerationBase);
-regen += Pentamana.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
-regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? Pentamana.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0;
-regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? Pentamana.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0;
-regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0;
-regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? Pentamana.manaPerPoint / (float)Math.max(1, Pentamana.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0;
-```
-
-### Mana Consumption
-
-```java
-float targetConsum = (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consum);
-targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
-```
-
-### Casting Damage
-
-```java
-float castingDamage = manaCapacity;
-castingDamage /= Pentamana.manaCapacityBase;
-castingDamage *= (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, baseDamage);
-castingDamage += potencyLevel != 0 ? ++potencyLevel * Pentamana.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
-castingDamage += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * Pentamana.statusEffectManaPowerBase : 0;
-castingDamage -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * Pentamana.statusEffectManaSicknessBase : 0;
-castingDamage = Math.max(castingDamage, 0.0f);
-castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
-```
-
-## Events
+## Event
 
 - `TickManaCallback` Called after the mana capacity calculation, before everything else.
 - `RegenManaCallback` Called when a player is regenerating mana. After the mana regeneration calculation, before regenerating mana.
