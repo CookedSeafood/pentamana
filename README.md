@@ -90,6 +90,8 @@ Amount of mana to be considered as 1 mana point.
 
 ### `manaCapacityBase`, `enchantmentCapacityBase`, `statusEffectManaBoostBase`, `statusEffectManaReductionBase`, `isConversionExperienceLevel`, `conversionExperienceLevel`
 
+Are used by the formula below:
+
 ```java
 float capacity = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, Pentamana.manaCapacityBase);
 capacity += Pentamana.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
@@ -100,6 +102,8 @@ capacity = Math.max(capacity, 0.0f);
 ```
 
 ### `manaRegenerationBase`, `enchantmentStreamBase`, `statusEffectInstantManaBase`, `statusEffectInstantDepleteBase`, `statusEffectManaRegenerationBase`, `statusEffectManaInhibitionBase`
+
+Are used by the formula below:
 
 ```java
 float regen = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, Pentamana.manaRegenerationBase);
@@ -112,12 +116,16 @@ regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_I
 
 ### `enchantmentUtilizationBase`
 
+Is used by the formula below:
+
 ```java
 float targetConsum = (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consum);
 targetConsum *= 1 - Pentamana.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
 ```
 
 ### `enchantmentPotencyBase`, `statusEffectManaPowerBase`, `statusEffectManaSicknessBase`
+
+Are used by the formula below:
 
 ```java
 float castingDamage = manaCapacity;
@@ -140,7 +148,7 @@ Ticks actionbar not updating if interrupted.
 
 ### `isForceEnabled`
 
-Make the mod enabled for every player when setting to ture, do not modify their own preference.
+True if mana should be ticked for every player, regardless of their own preference. This do not modify player preference.
 
 ### `isEnabled`
 
