@@ -70,6 +70,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "displayIdleInterval": 40,
   "displaySuppressionInterval": 40,
   "isForceEnabled": false,
+  "isEnabledToggleable": true,
   "isEnabled": true,
   "isVisible": true,
   "isCompression": false,
@@ -149,6 +150,10 @@ Ticks actionbar not updating if interrupted.
 ### `isForceEnabled`
 
 True if mana should be ticked for every player, regardless of their own preference. This do not modify player preference.
+
+### `isEnabledToggleable`
+
+True if `/mana enabled` and `/mana disable` can be used to toggle `isEnabled` player preference.
 
 ### `isEnabled`
 
