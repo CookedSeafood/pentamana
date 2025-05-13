@@ -40,7 +40,7 @@ public class Pentamana implements ModInitializer {
 
     public static final byte VERSION_MAJOR = 0;
     public static final byte VERSION_MINOR = 7;
-    public static final byte VERSION_PATCH = 1;
+    public static final byte VERSION_PATCH = 2;
 
 	public static final String MOD_NAMESPACE = "pentamana";
     public static final byte MANA_CHARACTER_TYPE_INDEX_LIMIT = Byte.MAX_VALUE;
@@ -68,6 +68,7 @@ public class Pentamana implements ModInitializer {
     public static final byte DISPLAY_IDLE_INTERVAL = 40/* 20*2 */;
     public static final byte DISPLAY_SUPPRESSION_INTERVAL = 40/* 20*2 */;
     public static final boolean IS_FORCE_ENABLED = false;
+    public static final boolean IS_ENABLED_TOGGLEABLE = true;
     public static final boolean IS_ENABLED = true;
     public static final ManaBar.Position MANA_BAR_POSITION = ManaBar.Position.ACTIONBAR;
     public static final ManaPattern MANA_PATTERN = new ManaPattern(Stream.of(Text.literal("$")).collect(Collectors.toList()));
@@ -111,6 +112,7 @@ public class Pentamana implements ModInitializer {
     public static byte displayIdleInterval;
     public static byte displaySuppressionInterval;
     public static boolean isForceEnabled;
+    public static boolean isEnabledToggleable;
     public static boolean isEnabled;
     public static ManaBar.Position manaBarPosition;
     public static ManaPattern manaPattern;
@@ -293,6 +295,13 @@ public class Pentamana implements ModInitializer {
             isForceEnabled = IS_FORCE_ENABLED;
         }
 
+        if (config.has("isEnabledToggleable")) {
+            isEnabledToggleable = config.get("isEnabledToggleable").getAsBoolean();
+            counter.increment();
+        } else {
+            isEnabledToggleable = IS_ENABLED_TOGGLEABLE;
+        }
+
         if (config.has("isEnabled")) {
             isEnabled = config.get("isEnabled").getAsBoolean();
             counter.increment();
@@ -429,6 +438,7 @@ public class Pentamana implements ModInitializer {
         displayIdleInterval = DISPLAY_IDLE_INTERVAL;
         displaySuppressionInterval = DISPLAY_SUPPRESSION_INTERVAL;
         isForceEnabled = IS_FORCE_ENABLED;
+        isEnabledToggleable = IS_ENABLED_TOGGLEABLE;
         isEnabled = IS_ENABLED;
         manaBarPosition = MANA_BAR_POSITION;
         manaPattern = MANA_PATTERN;

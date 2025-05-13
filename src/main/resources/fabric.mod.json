@@ -21,7 +21,6 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "net.cookedseafood.genericregistry.GenericRegistry",
             "net.cookedseafood.inferiordata.InferiorData",
             "net.cookedseafood.pentamana.Pentamana"
         ],

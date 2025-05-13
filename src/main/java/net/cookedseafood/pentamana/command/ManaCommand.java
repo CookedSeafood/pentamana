@@ -15,10 +15,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class ManaCommand {
-    private static final SimpleCommandExceptionType OPTION_ALREADY_ENABLED_EXCEPTION =
+    private static final SimpleCommandExceptionType ALREADY_ENABLED_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already enabled for that player."));
-    private static final SimpleCommandExceptionType OPTION_ALREADY_DISABLED_EXCEPTION =
+    private static final SimpleCommandExceptionType ALREADY_DISABLED_EXCEPTION =
         new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
+    private static final SimpleCommandExceptionType NOT_TOGGLEABLE_EXCEPTION =
+        new SimpleCommandExceptionType(Text.literal("Nothing changed. Toggling Mana is disabled in server."));
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
@@ -72,10 +74,14 @@ public class ManaCommand {
     }
 
     public static int executeEnable(ServerCommandSource source) throws CommandSyntaxException {
+        if (!Pentamana.isEnabledToggleable) {
+            throw NOT_TOGGLEABLE_EXCEPTION.create();
+        }
+
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
         if (manaPreference.isEnabled()) {
-            throw OPTION_ALREADY_ENABLED_EXCEPTION.create();
+            throw ALREADY_ENABLED_EXCEPTION.create();
         }
 
         manaPreference.setIsEnabled(true);
@@ -85,10 +91,14 @@ public class ManaCommand {
     }
 
     public static int executeDisable(ServerCommandSource source) throws CommandSyntaxException {
+        if (!Pentamana.isEnabledToggleable) {
+            throw NOT_TOGGLEABLE_EXCEPTION.create();
+        }
+
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
         if (!manaPreference.isEnabled()) {
-            throw OPTION_ALREADY_DISABLED_EXCEPTION.create();
+            throw ALREADY_DISABLED_EXCEPTION.create();
         }
 
         manaPreference.setIsEnabled(false);
