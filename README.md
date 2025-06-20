@@ -92,11 +92,11 @@ Amount of mana to be considered as 1 mana point.
 Are used by the formula below:
 
 ```java
-float capacity = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, PentamanaConfig.manaCapacityBase);
-capacity += PentamanaConfig.enchantmentCapacityBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
+float capacity = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, PentamanaConfig.manaCapacityBase);
+capacity += PentamanaConfig.enchantmentCapacityBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
 capacity += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? PentamanaConfig.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0;
 capacity -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? PentamanaConfig.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0;
-capacity += PentamanaConfig.shouldConvertExperienceLevel ? PentamanaConfig.experienceLevelConversionBase * this.player.experienceLevel : 0;
+capacity += PentamanaConfig.shouldConvertExperienceLevel && entity instanceof ServerPlayerEntity ? PentamanaConfig.experienceLevelConversionBase * ((ServerPlayerEntity)entity).experienceLevel : 0;
 capacity = Math.max(capacity, 0.0f);
 ```
 
@@ -105,8 +105,8 @@ capacity = Math.max(capacity, 0.0f);
 Are used by the formula below:
 
 ```java
-float regen = (float)this.player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, PentamanaConfig.manaRegenerationBase);
-regen += PentamanaConfig.enchantmentStreamBase * this.player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
+float regen = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, PentamanaConfig.manaRegenerationBase);
+regen += PentamanaConfig.enchantmentStreamBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
 regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? PentamanaConfig.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0;
 regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? PentamanaConfig.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0;
 regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? PentamanaConfig.manaPerPoint / (float)Math.max(1, PentamanaConfig.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0;
@@ -118,8 +118,8 @@ regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_I
 Is used by the formula below:
 
 ```java
-float targetConsum = (float)player.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, amount);
-targetConsum *= 1 - PentamanaConfig.enchantmentUtilizationBase * player.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
+float targetConsum = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, amount);
+targetConsum *= 1 - PentamanaConfig.enchantmentUtilizationBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
 ```
 
 ### `enchantmentPotencyBase`, `statusEffectManaPowerBase`, `statusEffectManaSicknessBase`
