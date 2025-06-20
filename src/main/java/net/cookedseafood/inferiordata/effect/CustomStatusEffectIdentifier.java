@@ -6,7 +6,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
 public class CustomStatusEffectIdentifier {
@@ -18,6 +17,10 @@ public class CustomStatusEffectIdentifier {
         this.id = id;
         this.name = name;
         this.color = color;
+    }
+
+    public CustomStatusEffectPlaylist removeFrom(CustomStatusEffectManager manager) {
+        return manager.remove(this);
     }
 
     public Identifier getId() {
@@ -94,15 +97,15 @@ public class CustomStatusEffectIdentifier {
         return new CustomStatusEffectIdentifier(Identifier.of(this.id.getNamespace(), this.id.getPath()), this.name, this.color);
     }
 
-    public static CustomStatusEffectIdentifier fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+    public static CustomStatusEffectIdentifier fromNbt(NbtCompound nbtCompound) {
         return new CustomStatusEffectIdentifier(
-            Identifier.of(nbtCompound.getString("id")),
-            nbtCompound.getString("name"),
-            nbtCompound.getInt("color")
+            Identifier.of(nbtCompound.getString("id", "")),
+            nbtCompound.getString("name", ""),
+            nbtCompound.getInt("color", 0)
         );
     }
 
-    public NbtCompound toNbt(RegistryWrapper.WrapperLookup wrapperLookup) {
+    public NbtCompound toNbt() {
         return new NbtCompound(
             new HashMap<>(
                 Map.<String, NbtElement>of(

@@ -8,13 +8,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
-import net.cookedseafood.pentamana.mana.ManaBar;
-import net.cookedseafood.pentamana.mana.ManaCharset;
-import net.cookedseafood.pentamana.mana.ManaPattern;
-import net.cookedseafood.pentamana.mana.ManaRender;
-import net.cookedseafood.pentamana.mana.ManaTextual;
-import net.cookedseafood.pentamana.mana.ServerManaBar;
+import net.cookedseafood.pentamana.data.PentamanaConfig;
+import net.cookedseafood.pentamana.render.ManaBar;
+import net.cookedseafood.pentamana.render.ManaCharset;
+import net.cookedseafood.pentamana.render.ManaPattern;
+import net.cookedseafood.pentamana.render.ManaRender;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.entity.boss.BossBar;
@@ -27,8 +25,10 @@ import org.apache.commons.lang3.mutable.MutableInt;
 public class ManaBarCommand {
     private static final DynamicCommandExceptionType OPTION_VISIBILITY_UNCHANGED_EXCEPTION =
         new DynamicCommandExceptionType(isVisible -> Text.literal("Nothing changed. That player already has " + (boolean)isVisible + " for manabar visibility."));
+    private static final DynamicCommandExceptionType OPTION_SUPPRESSION_UNCHANGED_EXCEPTION =
+        new DynamicCommandExceptionType(isSuppressed -> Text.literal("Nothing changed. That player already has " + (boolean)isSuppressed + " for manabar suppression."));
     private static final DynamicCommandExceptionType OPTION_COMPRESSION_UNCHANGED_EXCEPTION =
-        new DynamicCommandExceptionType(isCompression -> Text.literal("Nothing changed. That player already has " + (boolean)isCompression + " for manabar compression."));
+        new DynamicCommandExceptionType(isCompressed -> Text.literal("Nothing changed. That player already has " + (boolean)isCompressed + " for manabar compression."));
     private static final DynamicCommandExceptionType OPTION_COMPRESSION_SIZE_UNCHANGED_EXCEPTION =
         new DynamicCommandExceptionType(compressionSize -> Text.literal("Nothing changed. That player already has " + (boolean)compressionSize + " for manabar compression size."));
     private static final DynamicCommandExceptionType OPTION_PATTERN_UNCHANGED_EXCEPTION =
@@ -42,9 +42,9 @@ public class ManaBarCommand {
     private static final DynamicCommandExceptionType OPTION_STYLE_UNCHANGED_EXCEPTION =
         new DynamicCommandExceptionType(style -> Text.literal("Nothing changed. That player already has " + (String)style + " for manabar style."));
     private static final DynamicCommandExceptionType OPTION_POINTS_PER_CHARACTER_UNCHANGED_EXCEPTION =
-        new DynamicCommandExceptionType(pointsPerCharacter -> Text.literal("Nothing changed. That player already has " + (int)pointsPerCharacter + " for points per character."));
+        new DynamicCommandExceptionType(pointsPerCharacter -> Text.literal("Nothing changed. That player already has " + (int)pointsPerCharacter + " for mana points per character."));
     private static final Dynamic3CommandExceptionType OPTION_MANA_CHARACTER_UNCHANGED_EXCEPTION =
-        new Dynamic3CommandExceptionType((manaCharacter, manaCharacterTypeIndex, manaCharacterIndex) -> Text.literal("Nothing changed. That player already has " + (String)manaCharacter + " for" + ((int)manaCharacterIndex == -1 ? "" : (" #" + (int)manaCharacterIndex)) + ((int)manaCharacterTypeIndex == -1 ? "" : (" " + (int)manaCharacterTypeIndex + " point")) + " mana character."));
+        new Dynamic3CommandExceptionType((manaCharacter, charTypeIndex, charIndex) -> Text.literal("Nothing changed. That player already has " + (String)manaCharacter + " for" + ((int)charIndex == -1 ? "" : (" #" + (int)charIndex)) + ((int)charTypeIndex == -1 ? "" : (" " + (int)charTypeIndex + " point")) + " mana character."));
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
@@ -63,6 +63,17 @@ public class ManaBarCommand {
                     )
                 )
                 .then(
+                    CommandManager.literal("suppression")
+                    .then(
+                        CommandManager.literal("false")
+                        .executes(context -> executeSetSuppression(context.getSource(), false))
+                    )
+                    .then(
+                        CommandManager.literal("true")
+                        .executes(context -> executeSetSuppression(context.getSource(), true))
+                    )
+                )
+                .then(
                     CommandManager.literal("position")
                     .then(
                         CommandManager.literal("actionbar")
@@ -75,6 +86,72 @@ public class ManaBarCommand {
                     .then(
                         CommandManager.literal("siderbar")
                         .executes(context -> executeSetPosition(context.getSource(), ManaBar.Position.SIDERBAR))
+                    )
+                )
+                .then(
+                    CommandManager.literal("type")
+                    .then(
+                        CommandManager.literal("character")
+                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.CHARACTER))
+                    )
+                    .then(
+                        CommandManager.literal("numeric")
+                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.NUMERIC))
+                    )
+                    .then(
+                        CommandManager.literal("percentage")
+                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.PERCENTAGE))
+                    )
+                    .then(
+                        CommandManager.literal("none")
+                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.NONE))
+                    )
+                )
+                .then(
+                    CommandManager.literal("pattern")
+                    .then(
+                        CommandManager.argument("text", TextArgumentType.text(registryAccess))
+                        .executes(context -> executeSetPattern(context.getSource(), TextArgumentType.getTextArgument(context, "text")))
+                    )
+                )
+                .then(
+                    CommandManager.literal("points_per_character")
+                    .then(
+                        CommandManager.argument("value", IntegerArgumentType.integer(1))
+                        .executes(context -> executeSetPointsPerCharacter(context.getSource(), IntegerArgumentType.getInteger(context, "value")))
+                    )
+                )
+                .then(
+                    CommandManager.literal("compression")
+                    .then(
+                        CommandManager.literal("false")
+                        .executes(context -> executeSetCompression(context.getSource(), false))
+                    )
+                    .then(
+                        CommandManager.literal("true")
+                        .executes(context -> executeSetCompression(context.getSource(), true))
+                    )
+                )
+                .then(
+                    CommandManager.literal("compression_size")
+                    .then(
+                        CommandManager.argument("size", IntegerArgumentType.integer(1, Pentamana.MANA_CHARACTER_INDEX_LIMIT + 1))
+                        .executes(context -> executeSetCompressionSize(context.getSource(), (byte)IntegerArgumentType.getInteger(context, "size")))
+                    )
+                )
+                .then(
+                    CommandManager.literal("character")
+                    .then(
+                        CommandManager.argument("text", TextArgumentType.text(registryAccess))
+                        .executes(context -> executeSetCharacter(context.getSource(), TextArgumentType.getTextArgument(context, "text")))
+                        .then(
+                            CommandManager.argument("character_type_index", IntegerArgumentType.integer(0, Pentamana.MANA_CHARACTER_TYPE_INDEX_LIMIT))
+                            .executes(context -> executeSetCharacter(context.getSource(), TextArgumentType.getTextArgument(context, "text"), IntegerArgumentType.getInteger(context, "type_index")))
+                            .then(
+                                CommandManager.argument("character_index", IntegerArgumentType.integer(0, Pentamana.MANA_CHARACTER_INDEX_LIMIT))
+                                .executes(context -> executeSetCharacter(context.getSource(), TextArgumentType.getTextArgument(context, "text"), IntegerArgumentType.getInteger(context, "type_index"), IntegerArgumentType.getInteger(context, "character_index")))
+                            )
+                        )
                     )
                 )
                 .then(
@@ -131,72 +208,6 @@ public class ManaBarCommand {
                         .executes(context -> executeSetStyle(context.getSource(), BossBar.Style.NOTCHED_20))
                     )
                 )
-                .then(
-                    CommandManager.literal("pattern")
-                    .then(
-                        CommandManager.argument("text", TextArgumentType.text(registryAccess))
-                        .executes(context -> executeSetPattern(context.getSource(), TextArgumentType.getTextArgument(context, "text")))
-                    )
-                )
-                .then(
-                    CommandManager.literal("type")
-                    .then(
-                        CommandManager.literal("character")
-                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.CHARACTER))
-                    )
-                    .then(
-                        CommandManager.literal("numeric")
-                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.NUMERIC))
-                    )
-                    .then(
-                        CommandManager.literal("percentage")
-                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.PERCENTAGE))
-                    )
-                    .then(
-                        CommandManager.literal("none")
-                        .executes(context -> executeSetType(context.getSource(), ManaRender.Type.NONE))
-                    )
-                )
-                .then(
-                    CommandManager.literal("points_per_character")
-                    .then(
-                        CommandManager.argument("value", IntegerArgumentType.integer(1))
-                        .executes(context -> executeSetPointsPerCharacter(context.getSource(), IntegerArgumentType.getInteger(context, "value")))
-                    )
-                )
-                .then(
-                    CommandManager.literal("compression")
-                    .then(
-                        CommandManager.literal("false")
-                        .executes(context -> executeSetCompression(context.getSource(), false))
-                    )
-                    .then(
-                        CommandManager.literal("true")
-                        .executes(context -> executeSetCompression(context.getSource(), true))
-                    )
-                )
-                .then(
-                    CommandManager.literal("compression_size")
-                    .then(
-                        CommandManager.argument("size", IntegerArgumentType.integer(1, Pentamana.MANA_CHARACTER_INDEX_LIMIT + 1))
-                        .executes(context -> executeSetCompressionSize(context.getSource(), (byte)IntegerArgumentType.getInteger(context, "size")))
-                    )
-                )
-                .then(
-                    CommandManager.literal("character")
-                    .then(
-                        CommandManager.argument("text", TextArgumentType.text(registryAccess))
-                        .executes(context -> executeSetCharacter(context.getSource(), TextArgumentType.getTextArgument(context, "text")))
-                        .then(
-                            CommandManager.argument("character_type_index", IntegerArgumentType.integer(0, Pentamana.MANA_CHARACTER_TYPE_INDEX_LIMIT))
-                            .executes(context -> executeSetCharacter(context.getSource(), TextArgumentType.getTextArgument(context, "text"), IntegerArgumentType.getInteger(context, "type_index")))
-                            .then(
-                                CommandManager.argument("character_index", IntegerArgumentType.integer(0, Pentamana.MANA_CHARACTER_INDEX_LIMIT))
-                                .executes(context -> executeSetCharacter(context.getSource(), TextArgumentType.getTextArgument(context, "text"), IntegerArgumentType.getInteger(context, "type_index"), IntegerArgumentType.getInteger(context, "character_index")))
-                            )
-                        )
-                    )
-                )
             )
             .then(
                 CommandManager.literal("reset")
@@ -204,6 +215,26 @@ public class ManaBarCommand {
                 .then(
                     CommandManager.literal("visibility")
                     .executes(context -> executeResetVisibility(context.getSource()))
+                )
+                .then(
+                    CommandManager.literal("suppression")
+                    .executes(context -> executeResetSuppression(context.getSource()))
+                )
+                .then(
+                    CommandManager.literal("position")
+                    .executes(context -> executeResetPosition(context.getSource()))
+                )
+                .then(
+                    CommandManager.literal("type")
+                    .executes(context -> executeResetType(context.getSource()))
+                )
+                .then(
+                    CommandManager.literal("pattern")
+                    .executes(context -> executeResetPattern(context.getSource()))
+                )
+                .then(
+                    CommandManager.literal("points_per_character")
+                    .executes(context -> executeResetPointsPerCharacter(context.getSource()))
                 )
                 .then(
                     CommandManager.literal("compression")
@@ -214,16 +245,8 @@ public class ManaBarCommand {
                     .executes(context -> executeResetCompressionSize(context.getSource()))
                 )
                 .then(
-                    CommandManager.literal("pattern")
-                    .executes(context -> executeResetPattern(context.getSource()))
-                )
-                .then(
-                    CommandManager.literal("type")
-                    .executes(context -> executeResetType(context.getSource()))
-                )
-                .then(
-                    CommandManager.literal("position")
-                    .executes(context -> executeResetPosition(context.getSource()))
+                    CommandManager.literal("character")
+                    .executes(context -> executeResetCharacter(context.getSource()))
                 )
                 .then(
                     CommandManager.literal("color")
@@ -233,190 +256,310 @@ public class ManaBarCommand {
                     CommandManager.literal("style")
                     .executes(context -> executeResetStyle(context.getSource()))
                 )
-                .then(
-                    CommandManager.literal("points_per_character")
-                    .executes(context -> executeResetPointsPerCharacter(context.getSource()))
-                )
-                .then(
-                    CommandManager.literal("character")
-                    .executes(context -> executeResetCharacter(context.getSource()))
-                )
             )
         );
     }
 
     public static int executeSetVisibility(ServerCommandSource source, boolean isVisible) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        if (serverManaBar.isVisible() == isVisible) {
+        if (player.isManaBarVisible() == isVisible) {
             throw OPTION_VISIBILITY_UNCHANGED_EXCEPTION.create(isVisible);
         }
 
-        serverManaBar.setIsVisible(isVisible);
+        player.setManaBarVisibility(isVisible);
+
+        if (!player.isManaBarSuppressed()) {
+            if (isVisible) {
+                player.putManaBarDisplay();
+            } else {
+                player.removeManaBarDisplay();
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Updated manabar visibility for player ").append(player.getDisplayName()).append(" to " + isVisible + "."), false);
         return 1;
     }
 
-    public static int executeSetPosition(ServerCommandSource source, ManaBar.Position manaBarPosition) throws CommandSyntaxException {
+    public static int executeSetSuppression(ServerCommandSource source, boolean isSuppressed) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        if (serverManaBar.getPosition() == manaBarPosition) {
-            throw OPTION_POSITION_UNCHANGED_EXCEPTION.create(manaBarPosition.getName());
+        if (player.isManaBarSuppressed() == isSuppressed) {
+            throw OPTION_SUPPRESSION_UNCHANGED_EXCEPTION.create(isSuppressed);
         }
 
-        serverManaBar.setPosition(manaBarPosition);
+        player.setManaBarSuppression(isSuppressed);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar position for player ").append(player.getDisplayName()).append(" to " + manaBarPosition.getName() + "."), false);
+        if (player.isManaBarVisible()) {
+            if (isSuppressed) {
+                player.removeManaBarDisplay();
+            } else {
+                player.putManaBarDisplay();
+            }
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated manabar suppression for player ").append(player.getDisplayName()).append(" to " + isSuppressed + "."), false);
         return 1;
     }
 
-    public static int executeSetColor(ServerCommandSource source, BossBar.Color manaBarColor) throws CommandSyntaxException {
+    public static int executeSetPosition(ServerCommandSource source, ManaBar.Position position) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        if (serverManaBar.getColor() == manaBarColor) {
-            throw OPTION_COLOR_UNCHANGED_EXCEPTION.create(manaBarColor.getName());
+        if (player.getManaBarPosition() == position) {
+            throw OPTION_POSITION_UNCHANGED_EXCEPTION.create(position.getName());
         }
 
-        serverManaBar.setColor(manaBarColor);
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.removeManaBarDisplay();
+            player.putManaBarDisplay(position);
+        }
 
-        source.sendFeedback(() -> Text.literal("Updated manabar color for player ").append(player.getDisplayName()).append(" to " + manaBarColor.getName() + "."), false);
+        player.setManaBarPosition(position);
+
+        source.sendFeedback(() -> Text.literal("Updated manabar position for player ").append(player.getDisplayName()).append(" to " + position.getName() + "."), false);
         return 1;
     }
 
-    public static int executeSetStyle(ServerCommandSource source, BossBar.Style manaBarStyle) throws CommandSyntaxException {
+    public static int executeSetType(ServerCommandSource source, ManaRender.Type type) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        if (serverManaBar.getStyle() == manaBarStyle) {
-            throw OPTION_STYLE_UNCHANGED_EXCEPTION.create(manaBarStyle.getName());
+        if (player.getManaRenderType() == type) {
+            throw OPTION_TYPE_UNCHANGED_EXCEPTION.create(type.getName());
         }
 
-        serverManaBar.setStyle(manaBarStyle);
+        player.setManaRenderType(type);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar style for player ").append(player.getDisplayName()).append(" to " + manaBarStyle.getName() + "."), false);
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated manabar type for player ").append(player.getDisplayName()).append(" to " + type.getName() + "."), false);
         return 1;
     }
 
-    public static int executeSetPattern(ServerCommandSource source, Text manaBarPattern) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPattern manaPattern = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getPattern();
-        List<Text> targetManabarPattern = manaBarPattern.getSiblings();
-        if (manaPattern.getPattern().equals(targetManabarPattern)) {
-            throw OPTION_PATTERN_UNCHANGED_EXCEPTION.create(manaBarPattern.getString());
-        }
-
-        manaPattern.setPattern(targetManabarPattern);
-
-        source.sendFeedback(() -> Text.literal("Updated manabar pattern for player").append(player.getDisplayName()).append(" to " + manaBarPattern.getString() + "."), false);
-        return 1;
+    public static int executeSetPattern(ServerCommandSource source, Text wrappedPattern) throws CommandSyntaxException {
+        return executeSetPattern(source, wrappedPattern.getSiblings());
     }
 
-    public static int executeSetType(ServerCommandSource source, ManaRender.Type manaBarType) throws CommandSyntaxException {
+    public static int executeSetPattern(ServerCommandSource source, List<Text> pattern) throws CommandSyntaxException {
+        return executeSetPattern(source, new ManaPattern(pattern));
+    }
+
+    public static int executeSetPattern(ServerCommandSource source, ManaPattern pattern) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
-        if (manaRender.getType() == manaBarType) {
-            throw OPTION_TYPE_UNCHANGED_EXCEPTION.create(manaBarType.getName());
+        if (player.getManaPattern().equals(pattern)) {
+            throw OPTION_PATTERN_UNCHANGED_EXCEPTION.create(pattern.toText().getString());
         }
 
-        manaRender.setType(manaBarType);
+        player.setManaPattern(pattern);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar type for player ").append(player.getDisplayName()).append(" to " + manaBarType.getName() + "."), false);
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated manabar pattern for player").append(player.getDisplayName()).append(" to " + pattern.toText().getString() + "."), false);
         return 1;
     }
 
     public static int executeSetPointsPerCharacter(ServerCommandSource source, int pointsPerCharacter) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
-        if (manaRender.getPointsPerCharacter() == pointsPerCharacter) {
+        if (player.getManaPointsPerCharacter() == pointsPerCharacter) {
             throw OPTION_POINTS_PER_CHARACTER_UNCHANGED_EXCEPTION.create(pointsPerCharacter);
         }
 
-        manaRender.setPointsPerCharacter(pointsPerCharacter);
+        player.setManaPointsPerCharacter(pointsPerCharacter);
 
-        source.sendFeedback(() -> Text.literal("Updated points per character for player ").append(player.getDisplayName()).append(" to " + pointsPerCharacter + "."), false);
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated mana points per character for player ").append(player.getDisplayName()).append(" to " + pointsPerCharacter + "."), false);
         return 1;
     }
 
-    public static int executeSetCompression(ServerCommandSource source, boolean isCompression) throws CommandSyntaxException {
+    public static int executeSetCompression(ServerCommandSource source, boolean isCompressed) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
-        if (manaRender.isCompression() == isCompression) {
-            throw OPTION_COMPRESSION_UNCHANGED_EXCEPTION.create(isCompression);
+        if (player.isManaRenderCompressed() == isCompressed) {
+            throw OPTION_COMPRESSION_UNCHANGED_EXCEPTION.create(isCompressed);
         }
 
-        manaRender.setIsCompression(isCompression);
+        player.setManaRenderCompression(isCompressed);
 
-        source.sendFeedback(() -> Text.literal("Updated manabar compression for player ").append(player.getDisplayName()).append(" to " + isCompression + "."), false);
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated manabar compression for player ").append(player.getDisplayName()).append(" to " + isCompressed + "."), false);
         return 1;
     }
 
     public static int executeSetCompressionSize(ServerCommandSource source, byte compressionSize) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaRender manaRender = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender();
-        if (manaRender.getCompressionSize() == compressionSize) {
+        if (player.getManaRenderCompressionSize() == compressionSize) {
             throw OPTION_COMPRESSION_SIZE_UNCHANGED_EXCEPTION.create(compressionSize);
         }
 
-        manaRender.setCompressionSize(compressionSize);
+        player.setManaRenderCompressionSize(compressionSize);
+
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
 
         source.sendFeedback(() -> Text.literal("Updated manabar compression size for player ").append(player.getDisplayName()).append(" to " + compressionSize + "."), false);
         return 1;
     }
 
-    public static int executeSetCharacter(ServerCommandSource source, Text targetManaCharacter) throws CommandSyntaxException {
-        return executeSetCharacter(source, targetManaCharacter, -1);
+    public static int executeSetCharacter(ServerCommandSource source, Text targetChar) throws CommandSyntaxException {
+        return executeSetCharacter(source, targetChar, -1);
     }
 
-    public static int executeSetCharacter(ServerCommandSource source, Text targetManaCharacter, int manaCharacterTypeIndex) throws CommandSyntaxException {
-        return executeSetCharacter(source, targetManaCharacter, manaCharacterTypeIndex, -1);
+    public static int executeSetCharacter(ServerCommandSource source, Text targetChar, int charTypeIndex) throws CommandSyntaxException {
+        return executeSetCharacter(source, targetChar, charTypeIndex, -1);
     }
 
-    public static int executeSetCharacter(ServerCommandSource source, Text targetManaCharacter, int manaCharacterTypeIndex, int manaCharacterIndex) throws CommandSyntaxException {
+    public static int executeSetCharacter(ServerCommandSource source, Text targetChar, int charTypeIndex, int charIndex) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaCharset manaCharset = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset();
-        List<List<Text>> manaCharacter = manaCharset.getCharset();
+        ManaCharset manaCharset = player.getManaCharset();
 
-        int startManaCharTypeIndex = manaCharacterTypeIndex == -1 ? 0 : manaCharacterTypeIndex;
-        int endManaCharTypeIndex = manaCharacterTypeIndex == -1 ? Pentamana.MANA_CHARACTER_TYPE_INDEX_LIMIT : manaCharacterTypeIndex;
-        int startManaCharIndex = manaCharacterIndex == -1 ? 0 : manaCharacterIndex;
-        int endManaCharIndex = manaCharacterIndex == -1 ? Pentamana.MANA_CHARACTER_INDEX_LIMIT : manaCharacterIndex;
+        int startCharTypeIndex = charTypeIndex == -1 ? 0 : charTypeIndex;
+        int endCharTypeIndex = charTypeIndex == -1 ? Pentamana.MANA_CHARACTER_TYPE_INDEX_LIMIT : charTypeIndex;
+        int startCharIndex = charIndex == -1 ? 0 : charIndex;
+        int endCharIndex = charIndex == -1 ? Pentamana.MANA_CHARACTER_INDEX_LIMIT : charIndex;
 
         MutableInt miss = new MutableInt(0);
-        IntStream.rangeClosed(startManaCharTypeIndex, endManaCharTypeIndex)
-            .forEach(cti -> IntStream.rangeClosed(startManaCharIndex, endManaCharIndex)
+        IntStream.rangeClosed(startCharTypeIndex, endCharTypeIndex)
+            .forEach(cti -> IntStream.rangeClosed(startCharIndex, endCharIndex)
                 .forEach(ci -> {
-                    if (!manaCharacter.get(cti).get(ci).equals(targetManaCharacter)) {
+                    if (!manaCharset.get(cti).get(ci).equals(targetChar)) {
                         miss.increment();
-                        manaCharacter.get(cti).set(ci, targetManaCharacter);
+                        manaCharset.get(cti).set(ci, targetChar);
                     }
                 })
             );
 
         if (miss.intValue() == 0) {
-            throw OPTION_MANA_CHARACTER_UNCHANGED_EXCEPTION.create(targetManaCharacter, manaCharacterTypeIndex, manaCharacterIndex);
+            throw OPTION_MANA_CHARACTER_UNCHANGED_EXCEPTION.create(targetChar, charTypeIndex, charIndex);
         }
 
-        source.sendFeedback(() -> Text.literal("Updated " + (manaCharacterIndex == -1 ? "" : (" #" + manaCharacterIndex)) + (manaCharacterTypeIndex == -1 ? "" : (" " + manaCharacterTypeIndex + " point")) + " mana character for player ").append(player.getDisplayName()).append(" to " + targetManaCharacter.getString() + "."), false);
+        player.setManaCharset(manaCharset);
+
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated " + (charIndex == -1 ? "" : (" #" + charIndex)) + (charTypeIndex == -1 ? "" : (" " + charTypeIndex + " point")) + " mana character for player ").append(player.getDisplayName()).append(" to " + targetChar.getString() + "."), false);
+        return 1;
+    }
+
+    public static int executeSetColor(ServerCommandSource source, BossBar.Color color) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        if (player.getManaBarColor() == color) {
+            throw OPTION_COLOR_UNCHANGED_EXCEPTION.create(color.getName());
+        }
+
+        player.setManaBarColor(color);
+
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated manabar color for player ").append(player.getDisplayName()).append(" to " + color.getName() + "."), false);
+        return 1;
+    }
+
+    public static int executeSetStyle(ServerCommandSource source, BossBar.Style style) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        if (player.getManaBarStyle() == style) {
+            throw OPTION_STYLE_UNCHANGED_EXCEPTION.create(style.getName());
+        }
+
+        player.setManaBarStyle(style);
+
+        if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
+
+        source.sendFeedback(() -> Text.literal("Updated manabar style for player ").append(player.getDisplayName()).append(" to " + style.getName() + "."), false);
         return 1;
     }
 
     public static int executeReset(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        ManaTextual textual = serverManaBar.getTextual();
-        ManaPattern pattern = textual.getPattern();
-        ManaRender render = textual.getRender();
-        ManaCharset charset = render.getCharset();
-        serverManaBar.setIsVisible(Pentamana.isVisible);
-        serverManaBar.setPosition(Pentamana.manaBarPosition);
-        serverManaBar.setColor(Pentamana.manaBarColor);
-        serverManaBar.setStyle(Pentamana.manaBarStyle);
-        pattern.setPattern(Pentamana.manaPattern.deepCopy().getPattern());
-        render.setType(Pentamana.manaRenderType);
-        render.setPointsPerCharacter(Pentamana.pointsPerCharacter);
-        render.setIsCompression(Pentamana.isCompression);
-        render.setCompressionSize(Pentamana.compressionSize);
-        charset.setCharset(Pentamana.manaCharset.deepCopy().getCharset());
+
+        if (player.isManaBarVisible() != PentamanaConfig.DefaultPreference.isVisible) {
+            player.setManaBarVisibility(PentamanaConfig.DefaultPreference.isVisible);
+
+            if (!player.isManaBarSuppressed()) {
+                if (PentamanaConfig.DefaultPreference.isVisible) {
+                    player.putManaBarDisplay();
+                } else {
+                    player.removeManaBarDisplay();
+                }
+            }
+        }
+
+        if (player.isManaBarSuppressed() != PentamanaConfig.DefaultPreference.isSuppressed) {
+            player.setManaBarSuppression(PentamanaConfig.DefaultPreference.isSuppressed);
+
+            if (player.isManaBarVisible()) {
+                if (PentamanaConfig.DefaultPreference.isSuppressed) {
+                    player.removeManaBarDisplay();
+                } else {
+                    player.putManaBarDisplay();
+                }
+            }
+        }
+
+        if (player.getManaBarPosition() != PentamanaConfig.DefaultPreference.position) {
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.removeManaBarDisplay();
+                player.putManaBarDisplay(PentamanaConfig.DefaultPreference.position);
+            }
+
+            executeSetPosition(source, PentamanaConfig.DefaultPreference.position);
+        }
+
+        boolean different = false;
+
+        if (player.getManaRenderType() != PentamanaConfig.DefaultPreference.type) {
+            player.setManaRenderType(PentamanaConfig.DefaultPreference.type);
+            different = true;
+        }
+
+        if (!player.getManaPattern().equals(PentamanaConfig.DefaultPreference.pattern)) {
+            player.setManaPattern(PentamanaConfig.DefaultPreference.pattern.deepCopy());
+            different = true;
+        }
+
+        if (player.getManaPointsPerCharacter() != PentamanaConfig.DefaultPreference.pointsPerCharacter) {
+            player.setManaPointsPerCharacter(PentamanaConfig.DefaultPreference.pointsPerCharacter);
+            different = true;
+        }
+
+        if (player.isManaRenderCompressed() != PentamanaConfig.DefaultPreference.isCompressed) {
+            player.setManaRenderCompression(PentamanaConfig.DefaultPreference.isCompressed);
+            different = true;
+        }
+
+        if (player.getManaRenderCompressionSize() != PentamanaConfig.DefaultPreference.compressionSize) {
+            player.setManaRenderCompressionSize(PentamanaConfig.DefaultPreference.compressionSize);
+            different = true;
+        }
+
+        if (!player.getManaCharset().equals(PentamanaConfig.DefaultPreference.charset)) {
+            player.setManaCharset(PentamanaConfig.DefaultPreference.charset.deepCopy());
+            different = true;
+        }
+
+        if (player.getManaBarColor() != PentamanaConfig.DefaultPreference.color) {
+            player.setManaBarColor(PentamanaConfig.DefaultPreference.color);
+            different = true;
+        }
+
+        if (player.getManaBarStyle() != PentamanaConfig.DefaultPreference.style) {
+            player.setManaBarStyle(PentamanaConfig.DefaultPreference.style);
+            different = true;
+        }
+
+        if (different && player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+            player.putManaBarDisplay();
+        }
 
         source.sendFeedback(() -> Text.literal("Reset manabar options for player ").append(player.getDisplayName()).append("."), false);
         return 0;
@@ -424,55 +567,98 @@ public class ManaBarCommand {
 
     public static int executeResetVisibility(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setIsVisible(Pentamana.isVisible);
+
+        if (player.isManaBarVisible() != PentamanaConfig.DefaultPreference.isVisible) {
+            player.setManaBarVisibility(PentamanaConfig.DefaultPreference.isVisible);
+
+            if (!player.isManaBarSuppressed()) {
+                if (PentamanaConfig.DefaultPreference.isVisible) {
+                    player.putManaBarDisplay();
+                } else {
+                    player.removeManaBarDisplay();
+                }
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Reset manabar visibility for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
+    public static int executeResetSuppression(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+
+        if (player.isManaBarSuppressed() != PentamanaConfig.DefaultPreference.isSuppressed) {
+            player.setManaBarSuppression(PentamanaConfig.DefaultPreference.isSuppressed);
+
+            if (player.isManaBarVisible()) {
+                if (PentamanaConfig.DefaultPreference.isSuppressed) {
+                    player.removeManaBarDisplay();
+                } else {
+                    player.putManaBarDisplay();
+                }
+            }
+        }
+
+        source.sendFeedback(() -> Text.literal("Reset manabar suppression for player ").append(player.getDisplayName()).append("."), false);
+        return 1;
+    }
+
     public static int executeResetPosition(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setPosition(Pentamana.manaBarPosition);
+
+        if (player.getManaBarPosition() != PentamanaConfig.DefaultPreference.position) {
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.removeManaBarDisplay();
+                player.putManaBarDisplay(PentamanaConfig.DefaultPreference.position);
+            }
+
+            executeSetPosition(source, PentamanaConfig.DefaultPreference.position);
+        }
 
         source.sendFeedback(() -> Text.literal("Reset manabar position for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
-    public static int executeResetColor(ServerCommandSource source) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setColor(Pentamana.manaBarColor);
-
-        source.sendFeedback(() -> Text.literal("Reset manabar color for player ").append(player.getDisplayName()).append("."), false);
-        return 0;
-    }
-
-    public static int executeResetStyle(ServerCommandSource source) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().setStyle(Pentamana.manaBarStyle);
-
-        source.sendFeedback(() -> Text.literal("Reset manabar style for player ").append(player.getDisplayName()).append("."), false);
-        return 0;
-    }
-
-    public static int executeResetPattern(ServerCommandSource source) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().setPattern(Pentamana.manaPattern);
-
-        source.sendFeedback(() -> Text.literal("Reset manabar pattern for player ").append(player.getDisplayName()).append("."), false);
-        return 0;
-    }
-
     public static int executeResetType(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setType(Pentamana.manaRenderType);
+
+        if (player.getManaRenderType() != PentamanaConfig.DefaultPreference.type) {
+            player.setManaRenderType(PentamanaConfig.DefaultPreference.type);
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Reset manabar type for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 
+    public static int executeResetPattern(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+
+        if (!player.getManaPattern().equals(PentamanaConfig.DefaultPreference.pattern)) {
+            player.setManaPattern(PentamanaConfig.DefaultPreference.pattern.deepCopy());
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
+
+        source.sendFeedback(() -> Text.literal("Reset manabar pattern for player ").append(player.getDisplayName()).append("."), false);
+        return 0;
+    }
+
     public static int executeResetPointsPerCharacter(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setPointsPerCharacter(Pentamana.pointsPerCharacter);
+
+        if (player.getManaPointsPerCharacter() != PentamanaConfig.DefaultPreference.pointsPerCharacter) {
+            player.setManaPointsPerCharacter(PentamanaConfig.DefaultPreference.pointsPerCharacter);
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Reset points per character for player ").append(player.getDisplayName()).append("."), false);
         return 0;
@@ -480,7 +666,14 @@ public class ManaBarCommand {
 
     public static int executeResetCompression(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setIsCompression(Pentamana.isCompression);
+
+        if (player.isManaRenderCompressed() != PentamanaConfig.DefaultPreference.isCompressed) {
+            player.setManaRenderCompression(PentamanaConfig.DefaultPreference.isCompressed);
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Reset manabar compression for player ").append(player.getDisplayName()).append("."), false);
         return 0;
@@ -488,7 +681,14 @@ public class ManaBarCommand {
 
     public static int executeResetCompressionSize(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().setCompressionSize(Pentamana.compressionSize);
+
+        if (player.getManaRenderCompressionSize() != PentamanaConfig.DefaultPreference.compressionSize) {
+            player.setManaRenderCompressionSize(PentamanaConfig.DefaultPreference.compressionSize);
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Reset manabar compression size for player ").append(player.getDisplayName()).append("."), false);
         return 0;
@@ -496,9 +696,46 @@ public class ManaBarCommand {
 
     public static int executeResetCharacter(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar().getTextual().getRender().getCharset().setCharset(Pentamana.manaCharset.deepCopy().getCharset());
+
+        if (!player.getManaCharset().equals(PentamanaConfig.DefaultPreference.charset)) {
+            player.setManaCharset(PentamanaConfig.DefaultPreference.charset.deepCopy());
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
 
         source.sendFeedback(() -> Text.literal("Reset mana character for player ").append(player.getDisplayName()).append("."), false);
+        return 0;
+    }
+
+    public static int executeResetColor(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+
+        if (player.getManaBarColor() != PentamanaConfig.DefaultPreference.color) {
+            player.setManaBarColor(PentamanaConfig.DefaultPreference.color);
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
+
+        source.sendFeedback(() -> Text.literal("Reset manabar color for player ").append(player.getDisplayName()).append("."), false);
+        return 0;
+    }
+
+    public static int executeResetStyle(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+
+        if (player.getManaBarStyle() != PentamanaConfig.DefaultPreference.style) {
+            player.setManaBarStyle(PentamanaConfig.DefaultPreference.style);
+
+            if (player.isManaBarVisible() && !player.isManaBarSuppressed()) {
+                player.putManaBarDisplay();
+            }
+        }
+
+        source.sendFeedback(() -> Text.literal("Reset manabar style for player ").append(player.getDisplayName()).append("."), false);
         return 0;
     }
 }

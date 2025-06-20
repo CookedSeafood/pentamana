@@ -5,7 +5,6 @@ import java.util.Map;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtInt;
-import net.minecraft.registry.RegistryWrapper;
 
 /**
  * Tickable status effect.
@@ -24,6 +23,18 @@ public class CustomStatusEffect {
 
     public static CustomStatusEffect of(CustomStatusEffectIdentifier id) {
         return new CustomStatusEffect(id, 0, 0);
+    }
+
+    public boolean addTo(CustomStatusEffectPlaylist playlist) {
+        return playlist.add(this);
+    }
+
+    public boolean addTo(CustomStatusEffectManager manager) {
+        return manager.add(this);
+    }
+
+    public boolean setTo(CustomStatusEffectManager manager) {
+        return manager.set(this);
     }
 
     public void tick() {
@@ -109,20 +120,20 @@ public class CustomStatusEffect {
         return new CustomStatusEffect(this.id.deepCopy(), this.duration, this.amplifier);
     }
 
-    public static CustomStatusEffect fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+    public static CustomStatusEffect fromNbt(NbtCompound nbtCompound) {
         return new CustomStatusEffect(
-            CustomStatusEffectIdentifier.fromNbt(nbtCompound.getCompound("id"), wrapperLookup),
-            nbtCompound.getInt("duration"),
-            nbtCompound.getInt("amplifier")
+            CustomStatusEffectIdentifier.fromNbt(nbtCompound.getCompoundOrEmpty("id")),
+            nbtCompound.getInt("duration", 0),
+            nbtCompound.getInt("amplifier", 0)
         );
     }
 
-    public NbtCompound toNbt(RegistryWrapper.WrapperLookup wrapperLookup) {
+    public NbtCompound toNbt() {
         return new NbtCompound(
             new HashMap<>(
                 Map.<String, NbtElement>of(
                     "id",
-                    this.id.toNbt(wrapperLookup),
+                    this.id.toNbt(),
                     "duration",
                     NbtInt.of(this.duration),
                     "amplifier",

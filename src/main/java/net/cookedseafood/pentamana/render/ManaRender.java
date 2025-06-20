@@ -1,9 +1,10 @@
-package net.cookedseafood.pentamana.mana;
+package net.cookedseafood.pentamana.render;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import net.cookedseafood.pentamana.Pentamana;
+import net.cookedseafood.pentamana.data.PentamanaConfig;
+import net.cookedseafood.pentamana.data.PentamanaPreference;
 import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -19,14 +20,14 @@ public class ManaRender {
     private ManaRender.Type type;
     private ManaCharset charset;
     private int pointsPerCharacter;
-    private boolean isCompression;
+    private boolean isCompressed;
     private byte compressionSize;
 
-    public ManaRender(ManaRender.Type type, ManaCharset charset, int pointsPerCharacter, boolean isCompression, byte compressionSize) {
+    public ManaRender(ManaRender.Type type, ManaCharset charset, int pointsPerCharacter, boolean isCompressed, byte compressionSize) {
         this.type = type;
         this.charset = charset;
         this.pointsPerCharacter = pointsPerCharacter;
-        this.isCompression = isCompression;
+        this.isCompressed = isCompressed;
         this.compressionSize = compressionSize;
     }
 
@@ -43,22 +44,31 @@ public class ManaRender {
     }
 
     public Text toTextInCharacter(float manaCapacity, float manaSupply) {
-        int manaCapacityPoint = (int)(manaCapacity / Pentamana.manaPerPoint);
-        int manaSupplyPoint = (int)(manaSupply / Pentamana.manaPerPoint);
-        int manaCapacityPointTrimmed = manaCapacityPoint - manaCapacityPoint % pointsPerCharacter;
-        int manaPointTrimmed = manaSupplyPoint - manaSupplyPoint % pointsPerCharacter;
+        int manaCapacityPoint;
+        int manaSupplyPoint;
 
-        manaCapacityPointTrimmed = Math.min(manaCapacityPointTrimmed, Pentamana.manaPointLimit);
+        if (this.isCompressed) {
+            manaCapacityPoint = this.compressionSize * 2;
+            manaSupplyPoint = (int)(manaSupply / manaCapacity * manaCapacityPoint);
+        } else {
+            manaCapacityPoint = (int)(manaCapacity / PentamanaConfig.manaPerPoint);
+            manaSupplyPoint = (int)(manaSupply / PentamanaConfig.manaPerPoint);
+        }
+
+        int manaCapacityPointTrimmed = manaCapacityPoint - manaCapacityPoint % this.pointsPerCharacter;
+        int manaPointTrimmed = manaSupplyPoint - manaSupplyPoint % this.pointsPerCharacter;
+
+        manaCapacityPointTrimmed = Math.min(manaCapacityPointTrimmed, PentamanaConfig.manaPointLimit);
 
         MutableText text = Text.empty();
-        for (int manaPointIndex = 0; manaPointIndex < manaCapacityPointTrimmed; manaPointIndex += pointsPerCharacter) {
+        for (int manaPointIndex = 0; manaPointIndex < manaCapacityPointTrimmed; manaPointIndex += this.pointsPerCharacter) {
             int manaCharacterTypeIndex =
                 manaPointIndex < manaPointTrimmed ?
                 0 : manaPointIndex < manaSupplyPoint ?
-                manaSupplyPoint - manaPointIndex : pointsPerCharacter;
-            int manaCharacterIndex = manaPointIndex / pointsPerCharacter;
+                manaSupplyPoint - manaPointIndex : this.pointsPerCharacter;
+            int manaCharacterIndex = manaPointIndex / this.pointsPerCharacter;
 
-            Text SelectedManaCharacter = this.charset.getCharset().get(manaCharacterTypeIndex).get(manaCharacterIndex);
+            Text SelectedManaCharacter = this.charset.get(manaCharacterTypeIndex).get(manaCharacterIndex);
             text.append(SelectedManaCharacter);
         }
 
@@ -66,7 +76,7 @@ public class ManaRender {
     }
 
     public Text toTextInNumeric(float manaCapacity, float manaSupply) {
-        return Text.literal((int)(manaSupply / Pentamana.manaPerPoint) + "/" + (int)(manaCapacity / Pentamana.manaPerPoint)).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+        return Text.literal((int)(manaSupply / PentamanaConfig.manaPerPoint) + "/" + (int)(manaCapacity / PentamanaConfig.manaPerPoint)).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
     }
 
     public Text toTextInPercentage(float manaCapacity, float manaSupply) {
@@ -85,12 +95,22 @@ public class ManaRender {
         this.type = type;
     }
 
+    public ManaRender withType(ManaRender.Type type) {
+        this.setType(type);
+        return this;
+    }
+
     public ManaCharset getCharset() {
         return charset;
     }
 
     public void setCharset(ManaCharset charset) {
         this.charset = charset;
+    }
+
+    public ManaRender withCharset(ManaCharset charset) {
+        this.setCharset(charset);
+        return this;
     }
 
     public int getPointsPerCharacter() {
@@ -101,12 +121,22 @@ public class ManaRender {
         this.pointsPerCharacter = pointsPerCharacter;
     }
 
-    public boolean isCompression() {
-        return this.isCompression;
+    public ManaRender withPointsPerCharacter(int pointsPerCharacter) {
+        this.setPointsPerCharacter(pointsPerCharacter);
+        return this;
     }
 
-    public void setIsCompression(boolean isCompression) {
-        this.isCompression = isCompression;
+    public boolean isCompressed() {
+        return this.isCompressed;
+    }
+
+    public void setCompression(boolean isCompressed) {
+        this.isCompressed = isCompressed;
+    }
+
+    public ManaRender withCompression(boolean isCompressed) {
+        this.setCompression(isCompressed);
+        return this;
     }
 
     public byte getCompressionSize() {
@@ -117,6 +147,11 @@ public class ManaRender {
         this.compressionSize = compressionSize;
     }
 
+    public ManaRender withCompressionSize(byte compressionSize) {
+        this.setCompressionSize(compressionSize);
+        return this;
+    }
+
     /**
      * A shadow copy.
      * 
@@ -125,7 +160,7 @@ public class ManaRender {
      * @see #deepCopy()
      */
     public ManaRender copy() {
-        return new ManaRender(this.type, this.charset, this.pointsPerCharacter, this.isCompression, this.compressionSize);
+        return new ManaRender(this.type, this.charset, this.pointsPerCharacter, this.isCompressed, this.compressionSize);
     }
 
     /**
@@ -136,33 +171,38 @@ public class ManaRender {
      * @see #copy()
      */
     public ManaRender deepCopy() {
-        return new ManaRender(this.type, this.charset.deepCopy(), this.pointsPerCharacter, this.isCompression, this.compressionSize);
+        return new ManaRender(this.type, this.charset.deepCopy(), this.pointsPerCharacter, this.isCompressed, this.compressionSize);
+    }
+
+    public static ManaRender fromPreference(PentamanaPreference preference) {
+        return new ManaRender(
+            preference.type,
+            preference.charset,
+            preference.pointsPerCharacter,
+            preference.isCompressed,
+            preference.compressionSize
+        );
     }
 
     public static ManaRender fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
         return new ManaRender(
-            ManaRender.Type.byName(nbtCompound.getString("type")),
-            ManaCharset.fromNbt(nbtCompound.getList("charset", NbtElement.LIST_TYPE), wrapperLookup),
-            nbtCompound.getInt("pointsPerCharacter"),
-            nbtCompound.getBoolean("isCompression"),
-            nbtCompound.getByte("compressionSize")
+            nbtCompound.contains("type") ? ManaRender.Type.byName(nbtCompound.getString("type").get()) : PentamanaConfig.DefaultPreference.type,
+            ManaCharset.fromNbt(nbtCompound.getListOrEmpty("charset"), wrapperLookup),
+            nbtCompound.getInt("pointsPerCharacter", PentamanaConfig.DefaultPreference.pointsPerCharacter),
+            nbtCompound.getBoolean("isCompressed", PentamanaConfig.DefaultPreference.isCompressed),
+            nbtCompound.getByte("compressionSize", PentamanaConfig.DefaultPreference.compressionSize)
         );
     }
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup wrapperLookup) {
         return new NbtCompound(
             new HashMap<>(
-                Map.<String,NbtElement>of(
-                    "type",
-                    NbtString.of(this.type.name),
-                    "charset",
-                    this.charset.toNbt(wrapperLookup),
-                    "pointsPerCharacter",
-                    NbtInt.of(this.pointsPerCharacter),
-                    "isCompression",
-                    NbtByte.of(this.isCompression),
-                    "compressionSize",
-                    NbtByte.of(this.compressionSize)
+                Map.<String,NbtElement>ofEntries(
+                    Map.entry("type", NbtString.of(this.type.name)),
+                    Map.entry("charset", this.charset.toNbt(wrapperLookup)),
+                    Map.entry("pointsPerCharacter", NbtInt.of(this.pointsPerCharacter)),
+                    Map.entry("isCompressed", NbtByte.of(this.isCompressed)),
+                    Map.entry("compressionSize", NbtByte.of(this.compressionSize))
                 )
             )
         );

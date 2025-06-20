@@ -3,11 +3,7 @@ package net.cookedseafood.pentamana.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.cookedseafood.pentamana.Pentamana;
-import net.cookedseafood.pentamana.component.ManaPreferenceComponentInstance;
-import net.cookedseafood.pentamana.component.ServerManaBarComponentInstance;
-import net.cookedseafood.pentamana.mana.ServerManaBar;
+import net.cookedseafood.pentamana.data.PentamanaConfig;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -15,24 +11,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class ManaCommand {
-    private static final SimpleCommandExceptionType ALREADY_ENABLED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already enabled for that player."));
-    private static final SimpleCommandExceptionType ALREADY_DISABLED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. Mana is already disbaled for that player."));
-    private static final SimpleCommandExceptionType NOT_TOGGLEABLE_EXCEPTION =
-        new SimpleCommandExceptionType(Text.literal("Nothing changed. Toggling Mana is disabled in server."));
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
             CommandManager.literal("mana")
-            .then(
-                CommandManager.literal("disable")
-                .executes(context -> executeDisable(context.getSource()))
-            )
-            .then(
-                CommandManager.literal("enable")
-                .executes(context -> executeEnable(context.getSource()))
-            )
             .then(
                 CommandManager.literal("get")
                 .requires(source -> source.hasPermissionLevel(2))
@@ -65,88 +46,36 @@ public class ManaCommand {
                     .executes(context -> executeSubtract(context.getSource(), FloatArgumentType.getFloat(context, "amount")))
                 )
             )
-            .then(
-                CommandManager.literal("reload")
-                .requires(source -> source.hasPermissionLevel(2))
-                .executes(context -> executeReload(context.getSource()))
-            )
         );
-    }
-
-    public static int executeEnable(ServerCommandSource source) throws CommandSyntaxException {
-        if (!Pentamana.isEnabledToggleable) {
-            throw NOT_TOGGLEABLE_EXCEPTION.create();
-        }
-
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
-        if (manaPreference.isEnabled()) {
-            throw ALREADY_ENABLED_EXCEPTION.create();
-        }
-
-        manaPreference.setIsEnabled(true);
-
-        source.sendFeedback(() -> Text.literal("Enabled mana for player ").append(player.getDisplayName()).append("."), false);
-        return 1;
-    }
-
-    public static int executeDisable(ServerCommandSource source) throws CommandSyntaxException {
-        if (!Pentamana.isEnabledToggleable) {
-            throw NOT_TOGGLEABLE_EXCEPTION.create();
-        }
-
-        ServerPlayerEntity player = source.getPlayerOrThrow();
-        ManaPreferenceComponentInstance manaPreference = ManaPreferenceComponentInstance.MANA_PREFERENCE.get(player);
-        if (!manaPreference.isEnabled()) {
-            throw ALREADY_DISABLED_EXCEPTION.create();
-        }
-
-        manaPreference.setIsEnabled(false);
-
-        source.sendFeedback(() -> Text.literal("Disabled mana for player ").append(player.getDisplayName()).append("."), false);
-        if (Pentamana.isForceEnabled) {
-            source.sendFeedback(() -> Text.literal("Mana calculation will continue due to the force enabled mode is turned on in server."), false);
-        }
-
-        return 1;
     }
 
     public static int executeGet(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        float supply = serverManaBar.getSupply();
+        float supply = player.getMana();
         source.sendFeedback(() -> Text.literal(player.getNameForScoreboard() + " has " + supply + " mana."), false);
-        return (int)(supply / Pentamana.manaPerPoint);
+        return (int)(supply / PentamanaConfig.manaPerPoint);
     }
 
     public static int executeSet(ServerCommandSource source, float amount) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        serverManaBar.setSupply(amount);
+        player.setMana(amount);
         source.sendFeedback(() -> Text.literal("Set mana for player ").append(player.getDisplayName()).append(" to " + amount + "."), false);
-        return (int)(amount / Pentamana.manaPerPoint);
+        return (int)(amount / PentamanaConfig.manaPerPoint);
     }
 
     public static int executeAdd(ServerCommandSource source, float amount) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        float targetSupply = serverManaBar.getSupply() + amount;
-        serverManaBar.setSupply(targetSupply);
+        float targetSupply = player.getMana() + amount;
+        player.setMana(targetSupply);
         source.sendFeedback(() -> Text.literal("Added " + amount + " mana for player ").append(player.getDisplayName()).append("."), false);
-        return (int)(targetSupply / Pentamana.manaPerPoint);
+        return (int)(targetSupply / PentamanaConfig.manaPerPoint);
     }
 
     public static int executeSubtract(ServerCommandSource source, float amount) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayerOrThrow();
-        ServerManaBar serverManaBar = ServerManaBarComponentInstance.SERVER_MANA_BAR.get(player).getServerManaBar();
-        float targetSupply = serverManaBar.getSupply() - amount;
-        serverManaBar.setSupply(targetSupply);
+        float targetSupply = player.getMana() - amount;
+        player.setMana(targetSupply);
         source.sendFeedback(() -> Text.literal("Subtracted " + amount + " mana for player ").append(player.getDisplayName()).append("."), false);
-        return (int)(targetSupply / Pentamana.manaPerPoint);
-    }
-
-    public static int executeReload(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("Reloading Pentamana!"), true);
-        return Pentamana.reload(source.getServer());
+        return (int)(targetSupply / PentamanaConfig.manaPerPoint);
     }
 }

@@ -3,7 +3,8 @@
     "package": "net.cookedseafood.inferiordata.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
-        "ServerPlayerEntityMixin"
+        "ItemStackMixin",
+        "LivingEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

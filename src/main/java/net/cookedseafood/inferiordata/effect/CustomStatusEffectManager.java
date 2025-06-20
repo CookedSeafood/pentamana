@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import net.cookedseafood.genericregistry.registry.Registries;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * Tickable multi-id status effect container.
  */
 public class CustomStatusEffectManager {
-    private final Map<CustomStatusEffectIdentifier, CustomStatusEffectPlaylist> statusEffects;
+    protected final Map<CustomStatusEffectIdentifier, CustomStatusEffectPlaylist> statusEffects;
 
     public CustomStatusEffectManager(Map<CustomStatusEffectIdentifier, CustomStatusEffectPlaylist> statusEffects) {
         this.statusEffects = statusEffects;
@@ -30,10 +29,10 @@ public class CustomStatusEffectManager {
     }
 
     /**
-     * Get the highest presented amplifier of the status effect with the id.
+     * Get the highest amplifier of the presented status effects with the id.
      * 
      * @param id
-     * @return {@code -1} if there is no status effect with the id.
+     * @return {@code -1} if there is no status effect with the id
      */
     public int getActiveAmplifier(CustomStatusEffectIdentifier id) {
         CustomStatusEffectPlaylist playlist = this.get(id);
@@ -46,10 +45,10 @@ public class CustomStatusEffectManager {
     }
 
     /**
-     * Get the duration of the presented status effect with the id and the highest amplifier.
+     * Get the duration of the presented status effects with the id and the highest amplifier.
      * 
      * @param id
-     * @return {@code -1} if there is no status effect with the id.
+     * @return {@code -1} if there is no status effect with the id
      */
     public int getActiveDuration(CustomStatusEffectIdentifier id) {
         CustomStatusEffectPlaylist playlist = this.get(id);
@@ -59,6 +58,16 @@ public class CustomStatusEffectManager {
         }
 
         return playlist.getActiveDuration();
+    }
+
+    public boolean add(CustomStatusEffect statusEffect) {
+        return this.getOrPut(statusEffect.getId()).add(statusEffect);
+    }
+
+    public boolean set(CustomStatusEffect statusEffect) {
+        CustomStatusEffectPlaylist playlist = this.getOrPut(statusEffect.getId());
+        playlist.clear();
+        return playlist.add(statusEffect);
     }
 
     public void tick() {
@@ -72,10 +81,6 @@ public class CustomStatusEffectManager {
                 iterator.remove();
             }
         }
-    }
-
-    public boolean add(CustomStatusEffect statusEffect) {
-        return this.getOrPut(statusEffect.getId()).add(statusEffect);
     }
 
     public Map<CustomStatusEffectIdentifier, CustomStatusEffectPlaylist> getStatusEffects() {
@@ -191,22 +196,22 @@ public class CustomStatusEffectManager {
         );
     }
 
-    public static CustomStatusEffectManager fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+    public static CustomStatusEffectManager fromNbt(NbtCompound nbtCompound) {
         return new CustomStatusEffectManager(
             nbtCompound.entrySet().stream()
                 .map(entry -> Map.entry(
                     Registries.get(CustomStatusEffectIdentifier.class, Identifier.of(entry.getKey())),
-                    CustomStatusEffectPlaylist.fromNbt((NbtList)entry.getValue(), wrapperLookup)
+                    CustomStatusEffectPlaylist.fromNbt((NbtList)entry.getValue())
                 ))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
         );
     }
 
-    public NbtCompound toNbt(RegistryWrapper.WrapperLookup wrapperLookup) {
+    public NbtCompound toNbt() {
         return this.entrySet().stream()
             .map(entry -> Map.entry(
                 entry.getKey().getId().toString(),
-                entry.getValue().toNbt(wrapperLookup)
+                entry.getValue().toNbt()
             ))
         .<NbtCompound>collect(NbtCompound::new, (nbtCompound, entry) -> nbtCompound.put(entry.getKey(), entry.getValue()), (left, right) -> left.putAll(right));
     }

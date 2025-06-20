@@ -7,18 +7,23 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import net.cookedseafood.genericregistry.registry.Registries;
-import net.cookedseafood.inferiordata.component.CustomStatusEffectManagerComponentInstance;
 import net.cookedseafood.inferiordata.effect.CustomStatusEffect;
 import net.cookedseafood.inferiordata.effect.CustomStatusEffectIdentifier;
-import net.cookedseafood.inferiordata.effect.CustomStatusEffectManager;
+import net.cookedseafood.inferiordata.effect.ServerCustomStatusEffectManager;
 import net.cookedseafood.inferiordata.suggestion.CustomStatusEffectSuggestionProvider;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 public class CustomCommand {
@@ -30,9 +35,17 @@ public class CustomCommand {
             CommandManager.literal("custom")
             .then(
                 CommandManager.literal("effect")
+                .requires(source -> source.hasPermissionLevel(2))
+                .then(
+                    CommandManager.literal("list")
+                    .executes(context -> executeListEffect(context.getSource()))
+                    .then(
+                        CommandManager.argument("entities", EntityArgumentType.entity())
+                        .executes(context -> executeListEffect(context.getSource(), EntityArgumentType.getEntity(context, "entities")))
+                    )
+                )
                 .then(
                     CommandManager.literal("add")
-                    .requires(source -> source.hasPermissionLevel(2))
                     .then(
                         CommandManager.argument("entities", EntityArgumentType.entities())
                         .then(
@@ -60,7 +73,7 @@ public class CustomCommand {
                 )
                 .then(
                     CommandManager.literal("clear")
-                    .requires(source -> source.hasPermissionLevel(2))
+                    .executes(context -> executeClearEffect(context.getSource()))
                     .then(
                         CommandManager.argument("entities", EntityArgumentType.entities())
                         .executes(context -> executeClearEffect(context.getSource(), EntityArgumentType.getEntities(context, "entities")))
@@ -83,6 +96,35 @@ public class CustomCommand {
         );
     }
 
+    public static int executeListEffect(ServerCommandSource source) throws CommandSyntaxException {
+        return executeListEffect(source, source.getEntityOrThrow());
+    }
+
+    public static int executeListEffect(ServerCommandSource source, Entity target) {
+        if (!(target instanceof LivingEntity)) {
+            return 0;
+        }
+
+        ServerCustomStatusEffectManager manager = ((LivingEntity)target).getCustomStatusEffectManager();
+
+        if (manager.isEmpty()) {
+            source.sendFeedback(() -> Text.literal("The target does not have any custom status effect."), false);
+        }
+
+        MutableText feedback = MutableText.of(PlainTextContent.EMPTY);
+        feedback.append(Text.literal("The target has " + manager.size() + " status effects:"));
+
+        ((LivingEntity)target).getCustomStatusEffectManager().values().forEach(playlist -> {
+            feedback.append(Text.literal("\n" + playlist.getId().getId().toString()).formatted(Formatting.YELLOW));
+            feedback.append(Text.literal(" " + playlist.getActiveDuration()).formatted(Formatting.GREEN));
+            feedback.append(Text.literal(" " + playlist.getActiveAmplifier()).formatted(Formatting.LIGHT_PURPLE));
+            feedback.append(Text.literal(" " + playlist.getId().getColor()).formatted(Formatting.GRAY));
+        });
+
+        source.sendFeedback(() -> feedback, false);
+        return 0;
+    }
+
     public static int executeGiveEffect(ServerCommandSource source, Collection<? extends Entity> targets, String effect) throws CommandSyntaxException {
         return executeGiveEffect(source, targets, effect, 1, 0);
     }
@@ -101,7 +143,12 @@ public class CustomCommand {
 
         while (iterator.hasNext()) {
             Entity target = iterator.next();
-            CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(target).getStatusEffectManager().add(new CustomStatusEffect(effectId, duration, amplifier));
+
+            if (!(target instanceof LivingEntity)) {
+                continue;
+            }
+
+            ((LivingEntity)target).addCustomStatusEffect(new CustomStatusEffect(effectId, duration, amplifier));
         }
 
         int count = targets.size();
@@ -114,12 +161,25 @@ public class CustomCommand {
         return 1;
     }
 
+    public static int executeClearEffect(ServerCommandSource source) throws CommandSyntaxException {
+        return executeClearEffect(source, source.getEntityOrThrow());
+    }
+
+    public static int executeClearEffect(ServerCommandSource source, Entity target) {
+        return executeClearEffect(source, List.of(target));
+    }
+
     public static int executeClearEffect(ServerCommandSource source, Collection<? extends Entity> targets) {
         Iterator<? extends Entity> iterator = targets.iterator();
 
         while (iterator.hasNext()) {
             Entity target = iterator.next();
-            CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(target).getStatusEffectManager().clear();
+
+            if (!(target instanceof LivingEntity)) {
+                continue;
+            }
+
+            ((LivingEntity)target).clearCustomStatusEffect();
         }
 
         int count = targets.size();
@@ -142,7 +202,12 @@ public class CustomCommand {
 
         while (iterator.hasNext()) {
             Entity target = iterator.next();
-            CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(target).getStatusEffectManager().remove(effectId);
+
+            if (!(target instanceof LivingEntity)) {
+                continue;
+            }
+
+            ((LivingEntity)target).removeCustomStatusEffect(effectId);
         }
 
         int count = targets.size();
@@ -161,7 +226,7 @@ public class CustomCommand {
     }
 
     public static int executeResetEffect(ServerCommandSource source) throws CommandSyntaxException {
-        CustomStatusEffectManagerComponentInstance.CUSTOM_STATUS_EFFECT_MANAGER.get(source.getPlayerOrThrow()).setStatusEffectManager(new CustomStatusEffectManager());
+        source.getPlayerOrThrow().setCustomStatusEffects(new NbtCompound());
         return 1;
     }
 }

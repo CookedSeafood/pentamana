@@ -1,8 +1,9 @@
-package net.cookedseafood.pentamana.mana;
+package net.cookedseafood.pentamana.render;
 
 import java.util.HashMap;
 import java.util.Map;
 import net.cookedseafood.pentamana.Pentamana;
+import net.cookedseafood.pentamana.data.PentamanaPreference;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.RegistryWrapper;
@@ -40,12 +41,22 @@ public class ManaTextual {
         this.pattern = pattern;
     }
 
+    public ManaTextual withPattern(ManaPattern pattern) {
+        this.setPattern(pattern);
+        return this;
+    }
+
     public ManaRender getRender() {
         return render;
     }
 
     public void setRender(ManaRender render) {
         this.render = render;
+    }
+
+    public ManaTextual withRender(ManaRender render) {
+        this.setRender(render);
+        return this;
     }
 
     /**
@@ -70,21 +81,26 @@ public class ManaTextual {
         return new ManaTextual(this.pattern.deepCopy(), this.render.deepCopy());
     }
 
+    public static ManaTextual fromPreference(PentamanaPreference preference) {
+        return new ManaTextual(
+            preference.pattern,
+            ManaRender.fromPreference(preference)
+        );
+    }
+
     public static ManaTextual fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
         return new ManaTextual(
-            ManaPattern.fromNbt(nbtCompound.getList("pattern", NbtElement.STRING_TYPE), wrapperLookup),
-            ManaRender.fromNbt(nbtCompound.getCompound("render"), wrapperLookup)
+            ManaPattern.fromNbt(nbtCompound.getListOrEmpty("pattern"), wrapperLookup),
+            ManaRender.fromNbt(nbtCompound.getCompoundOrEmpty("render"), wrapperLookup)
         );
     }
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup wrapperLookup) {
         return new NbtCompound(
             new HashMap<>(
-                Map.<String,NbtElement>of(
-                    "pattern",
-                    this.pattern.toNbt(wrapperLookup),
-                    "render",
-                    this.render.toNbt(wrapperLookup)
+                Map.<String,NbtElement>ofEntries(
+                    Map.entry("pattern", this.pattern.toNbt(wrapperLookup)),
+                    Map.entry("render", this.render.toNbt(wrapperLookup))
                 )
             )
         );

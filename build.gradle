@@ -47,9 +47,6 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
-    modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
-
     modImplementation "maven.modrinth:generic-registry:${project.gr_version}"
 
     modImplementation "maven.modrinth:candy-wrapper:${project.cw_version}"
@@ -59,7 +56,7 @@ processResources {
     inputs.property "version", project.version
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand "version": inputs.properties.version
     }
 }
 
@@ -78,8 +75,10 @@ java {
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
+
     from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}"}
+        rename { "${it}_${inputs.properties.archivesName}"}
     }
 }
 

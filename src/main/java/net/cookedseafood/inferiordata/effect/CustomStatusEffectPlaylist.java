@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.RegistryWrapper;
 
 /**
  * Tickable single-id auto-ordering status effect container.
@@ -195,18 +194,18 @@ public class CustomStatusEffectPlaylist {
         );
     }
 
-    public static CustomStatusEffectPlaylist fromNbt(NbtList nbtList, RegistryWrapper.WrapperLookup wrapperLookup) {
+    public static CustomStatusEffectPlaylist fromNbt(NbtList nbtList) {
         return new CustomStatusEffectPlaylist(
             nbtList.stream()
                 .map(NbtCompound.class::cast)
-                .map(statusEffect -> CustomStatusEffect.fromNbt(statusEffect, wrapperLookup))
+                .map(CustomStatusEffect::fromNbt)
                 .collect(Collectors.toList())
         );
     }
 
-    public NbtList toNbt(RegistryWrapper.WrapperLookup wrapperLookup) {
+    public NbtList toNbt() {
         return this.stream()
-            .map(statusEffect -> statusEffect.toNbt(wrapperLookup))
+            .map(CustomStatusEffect::toNbt)
             .collect(NbtList::new, NbtList::add, NbtList::addAll);
     }
 }

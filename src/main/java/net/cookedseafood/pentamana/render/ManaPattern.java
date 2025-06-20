@@ -1,9 +1,10 @@
-package net.cookedseafood.pentamana.mana;
+package net.cookedseafood.pentamana.render;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -135,6 +136,7 @@ public class ManaPattern {
             nbtList.stream()
                 .map(NbtString.class::cast)
                 .map(NbtString::asString)
+                .map(Optional::get)
                 .map(text -> Text.Serialization.fromJson(text, wrapperLookup))
                 .map(Text.class::cast)
                 .collect(Collectors.toList())
