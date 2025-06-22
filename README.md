@@ -212,7 +212,7 @@ Modifiers can be added or removed from items using custom data components. They 
 ```txt
 [List] modifiers
 |- [Compound]
-   |- [String] attribute: Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration`, `pentamana:mana_consumption` and `pentamana:casting_damage`.
+   |- [String] attribute: `namespace:path`. Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration`, `pentamana:mana_consumption` and `pentamana:casting_damage`.
    |- [Double] base: Any.
    |- [String] id: Any.
    |- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
@@ -243,9 +243,9 @@ Status effects can be added or removed from items using custom data components. 
 ```txt
 [List] status_effects
 |- [Compound]
-   |- [String] id: Can be `pentamana:mana_boost`, `pentamana:mana_reduction`, `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.
-   |- [int] duration: value.
-   \- [int] amplifier: value.
+   |- [String] id: `namespace:path`. Can be `pentamana:mana_boost`, `pentamana:mana_reduction`, `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.
+   |- [int] duration: Any.
+   \- [int] amplifier: Any.
 ```
 
 Below is an example status effect which increase the mana regeneration by 16(![2_point_mana_char.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
