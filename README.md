@@ -139,7 +139,7 @@ castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
 
 ### `isVisible`
 
-True if manabar should be visible for the player.
+True if manabar should be visible.
 
 ### `isSuppressed`
 
@@ -167,11 +167,11 @@ Amount of mana points to be considered as 1 mana character.
 
 ### `isCompressed`
 
-True if fixed size should be used if `type` is `character` for the player.
+True if fixed size should be used if `type` is `character`.
 
 ### `compressionSize`
 
-The size in characters of compression for the player.
+The size in characters of compression.
 
 ### `color`
 
