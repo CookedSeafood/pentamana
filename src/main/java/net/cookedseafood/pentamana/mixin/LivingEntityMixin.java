@@ -2,7 +2,7 @@ package net.cookedseafood.pentamana.mixin;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.cookedseafood.inferiordata.effect.CustomStatusEffectManager;
+import net.cookedseafood.generalcustomdata.effect.CustomStatusEffectManager;
 import net.cookedseafood.pentamana.api.LivingEntityApi;
 import net.cookedseafood.pentamana.api.event.ConsumManaCallback;
 import net.cookedseafood.pentamana.api.event.RegenManaCallback;

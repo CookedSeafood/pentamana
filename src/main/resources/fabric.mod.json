@@ -21,12 +21,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "net.cookedseafood.inferiordata.InferiorData",
             "net.cookedseafood.pentamana.Pentamana"
         ]
     },
     "mixins": [
-        "inferiordata.mixins.json",
         "pentamana.mixins.json"
     ],
     "depends": {
@@ -43,11 +41,7 @@
     "custom": {
         "loom:injected_interfaces": {
             "net/minecraft/class_1309": [
-                "net/cookedseafood/inferiordata/api/LivingEntityApi",
                 "net/cookedseafood/pentamana/api/LivingEntityApi"
-            ],
-            "net/minecraft/class_1799": [
-                "net/cookedseafood/inferiordata/api/ItemStackApi"
             ],
             "net/minecraft/class_3222": [
                 "net/cookedseafood/pentamana/api/ServerPlayerEntityApi"

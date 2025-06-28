@@ -1,7 +1,7 @@
 package net.cookedseafood.pentamana.effect;
 
 import net.cookedseafood.genericregistry.registry.Registries;
-import net.cookedseafood.inferiordata.effect.CustomStatusEffectIdentifier;
+import net.cookedseafood.generalcustomdata.effect.CustomStatusEffectIdentifier;
 import net.cookedseafood.pentamana.Pentamana;
 import net.minecraft.util.Identifier;
 

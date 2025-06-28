@@ -19,7 +19,7 @@ If you'd like to add a feature, feel free to open an issue on [github issues](ht
 `gradle.properties`:
 
 ```properties
-pentamana_version=0.8.0
+pentamana_version=0.8.1
 ```
 
 `build.gradle`:
@@ -202,7 +202,7 @@ The commands below require premission level 2 to execute.
 - `/mana set` Set mana supply. Returns modified mana supply in point.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
-- `/custom effect give <entities> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power`, `pentamana.mana_sick`.
+- `/custom effect give <entities> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power` and `pentamana.mana_sick`.
 - `/custom effect clear <entities> [<effect>]` Clear custom status effect.
 
 ## Modifier
@@ -362,7 +362,7 @@ if (!player.consumMana(1.0f)) {
 
 ### Containing in mod packs
 
-Yes, As long as the download source is modrinth.
+Yes, as long as the download source is modrinth.
 
 ### Back porting / porting to other mod loaders
 
