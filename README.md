@@ -191,7 +191,7 @@ The style of bossbar which act as manabar.
 - `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the color of bossbar which act as manabar for player preference.
 - `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set style of bossbar which act as manabar for player preference.
 - `/manabar set points_per_character <value>` Set the character-point ratio for player preference.
-- `/manabar set character <text> [<character_type_index>] [<character_index>]` Set the `[<character_index>]` index `[<character_type_index>]` state character for player preference.
+- `/manabar set character <text> [<character_type_index>] [<character_index>]` Set the `character_index` index `character_type_index` state character for player preference.
 - `/manabar reset [<visibility|pattern|type|position|color|style|points_per_character|character>]` Reset player preference.
 - `/pentamana debug preference [<player>]` Print player preference.
 
@@ -202,12 +202,11 @@ The commands below require premission level 2 to execute.
 - `/mana set` Set mana supply. Returns modified mana supply in point.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
-- `/custom effect give <entities> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `<effect>` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power` and `pentamana.mana_sick`.
-- `/custom effect clear <entities> [<effect>]` Clear custom status effect.
+- `/custom effect give <entities> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `effect` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power` and `pentamana.mana_sick`.
 
 ## Modifier
 
-Modifiers can be added or removed from items using custom data components. They are active when equipped in the written slot.
+Modifiers can be added to or removed from items using custom data components. They are active when equipped in the written slot.
 
 ```txt
 [List] modifiers
@@ -238,7 +237,7 @@ Below is an example modifier which increase mana capacity by 120(![2_point_mana_
 
 ## Status Effect
 
-Status effects can be added or removed from items using custom data components. They are applied when the item is consumed.
+Status effects can be added to or removed from items using custom data components. They are applied when the item is consumed.
 
 ```txt
 [List] status_effects
@@ -264,14 +263,37 @@ Below is an example status effect which increase the mana regeneration by 16(![2
 ]
 ```
 
-- Mana Boost: Increase mana capacity by `level * statusEffectManaBoostBase`.
-- Mana Reduction: Decrease mana capacity by `level * statusEffectManaReductionBase`.
-- Instant Mana: Increase mana regeneration by `2 ^ level * statusEffectInstantManaBase`.
-- Instant Deplete: Decrease mana regeneration by `2 ^ level * statusEffectInstantDepleteBase`.
-- Mana Regeneration: Increase mana regeneration by `manaPerPoint / statusEffectManaRegenerationBase >> level`
-- Mana Inhibition: Decrease mana regeneration by `manaPerPoint / statusEffectManaInhibitionBase >> level`
-- Mana Power: Increase casting damage by `level * statusEffectManaPowerBase`.
-- Mana Sickness: Decrease casting damage by `level * statusEffectManaSicknessBase`.
+### Mana Boost
+
+Increase mana capacity by `level * statusEffectManaBoostBase`.
+
+### Mana Reduction
+
+Decrease mana capacity by `level * statusEffectManaReductionBase`.
+
+### Instant Mana
+
+Increase mana regeneration by `2 ^ level * statusEffectInstantManaBase`.
+
+### Instant Deplete
+
+Decrease mana regeneration by `2 ^ level * statusEffectInstantDepleteBase`.
+
+### Mana Regeneration
+
+Increase mana regeneration by `manaPerPoint / statusEffectManaRegenerationBase >> level`
+
+### Mana Inhibition
+
+Decrease mana regeneration by `manaPerPoint / statusEffectManaInhibitionBase >> level`
+
+### Mana Power
+
+Increase casting damage by `level * statusEffectManaPowerBase`.
+
+### Mana Sickness
+
+Decrease casting damage by `level * statusEffectManaSicknessBase`.
 
 ## Enchantment
 
