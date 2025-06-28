@@ -71,7 +71,7 @@ public class PentamanaPreference {
 
     public static PentamanaPreference fromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
         return new PentamanaPreference(
-            nbtCompound.getBoolean("isVisible", PentamanaConfig.DefaultPreference.isVisible),
+            nbtCompound.getBoolean("visibility", PentamanaConfig.DefaultPreference.isVisible),
             nbtCompound.getBoolean("suppression", PentamanaConfig.DefaultPreference.isSuppressed),
             nbtCompound.contains("position") ? ManaBar.Position.byName(nbtCompound.getString("position").get()) : PentamanaConfig.DefaultPreference.position,
             nbtCompound.contains("type") ? ManaRender.Type.byName(nbtCompound.getString("type").get()) : PentamanaConfig.DefaultPreference.type,
@@ -89,7 +89,7 @@ public class PentamanaPreference {
         return new NbtCompound(
             new HashMap<>(
                 Map.<String,NbtElement>ofEntries(
-                    Map.entry("isVisible", NbtByte.of(this.isVisible)),
+                    Map.entry("visibility", NbtByte.of(this.isVisible)),
                     Map.entry("suppression", NbtByte.of(this.isSuppressed)),
                     Map.entry("position", NbtString.of(this.position.getName())),
                     Map.entry("type", NbtString.of(this.type.getName())),
