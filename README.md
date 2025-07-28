@@ -308,7 +308,7 @@ Capacity adds extra mana capacity `level * enchantmentCapacityBase`.
 
 ### Stream
 
-- Maximum level: III
+- Maximum level: II
 - Primary items: Stick
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 5
@@ -324,14 +324,14 @@ Stream adds extra mana regeneration by `level * enchantmentStreamBase`.
 
 Potency adds the casting damage by `(level + 1) * enchantmentPotencyBase`.
 
-### Utilization
+### Mana Efficiency
 
 - Maximum level: V
 - Primary items: Stick
 - Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
 - Enchantment weight: 5
 
-Utilization reduces the mana cost of casting by `level * enchantmentUtilizationBase` percent.
+Mana Efficiency reduces the casting mana cost by `level * enchantmentUtilizationBase` percent.
 
 ## Tutorial: Create your very own magic weapon
 
