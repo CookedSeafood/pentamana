@@ -1,7 +1,7 @@
 {
   "anvil_cost": 1,
   "description": {
-    "text": "Utilization"
+    "text": "Mana Efficiency"
   },
   "max_cost": {
     "base": 51,
