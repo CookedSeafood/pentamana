@@ -30,7 +30,7 @@ public abstract class PentamanaConfig {
     public static final float MANA_REGENERATION_BASE = 0.0625f;
     public static final float ENCHANTMENT_CAPACITY_BASE = 2.0f;
     public static final float ENCHANTMENT_STREAM_BASE = 0.015625f;
-    public static final float ENCHANTMENT_UTILIZATION_BASE = 0.1f;
+    public static final float ENCHANTMENT_MANA_EFFICIENCY_BASE = 0.1f;
     public static final float ENCHANTMENT_POTENCY_BASE = 0.5f;
     public static final float STATUS_EFFECT_MANA_BOOST_BASE = 4.0f;
     public static final float STATUS_EFFECT_MANA_REDUCTION_BASE = 4.0f;
@@ -47,7 +47,7 @@ public abstract class PentamanaConfig {
     public static float manaRegenerationBase;
     public static float enchantmentCapacityBase;
     public static float enchantmentStreamBase;
-    public static float enchantmentUtilizationBase;
+    public static float enchantmentManaEfficiencyBase;
     public static float enchantmentPotencyBase;
     public static float statusEffectManaBoostBase;
     public static float statusEffectManaReductionBase;
@@ -120,11 +120,11 @@ public abstract class PentamanaConfig {
             enchantmentStreamBase = ENCHANTMENT_STREAM_BASE;
         }
 
-        if (config.has("enchantmentUtilizationBase")) {
-            enchantmentUtilizationBase = config.get("enchantmentUtilizationBase").getAsFloat();
+        if (config.has("enchantmentManaEfficiencyBase")) {
+            enchantmentManaEfficiencyBase = config.get("enchantmentManaEfficiencyBase").getAsFloat();
             counter.increment();
         } else {
-            enchantmentUtilizationBase = ENCHANTMENT_UTILIZATION_BASE;
+            enchantmentManaEfficiencyBase = ENCHANTMENT_MANA_EFFICIENCY_BASE;
         }
 
         if (config.has("enchantmentPotencyBase")) {
@@ -221,7 +221,7 @@ public abstract class PentamanaConfig {
         manaRegenerationBase = MANA_REGENERATION_BASE;
         enchantmentCapacityBase = ENCHANTMENT_CAPACITY_BASE;
         enchantmentStreamBase = ENCHANTMENT_STREAM_BASE;
-        enchantmentUtilizationBase = ENCHANTMENT_UTILIZATION_BASE;
+        enchantmentManaEfficiencyBase = ENCHANTMENT_MANA_EFFICIENCY_BASE;
         enchantmentPotencyBase = ENCHANTMENT_POTENCY_BASE;
         statusEffectManaBoostBase = STATUS_EFFECT_MANA_BOOST_BASE;
         statusEffectManaReductionBase = STATUS_EFFECT_MANA_REDUCTION_BASE;

@@ -130,7 +130,7 @@ public abstract class LivingEntityMixin implements LivingEntityApi {
         ConsumManaCallback.EVENT.invoker().interact(entity);
 
         float targetConsum = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, amount);
-        targetConsum *= 1 - PentamanaConfig.enchantmentUtilizationBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
+        targetConsum *= 1 - PentamanaConfig.enchantmentManaEfficiencyBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.MANA_EFFICIENCY);
 
         float targetSupply = this.getMana() - targetConsum;
         if (targetSupply < 0.0f) {

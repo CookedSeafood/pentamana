@@ -55,7 +55,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "manaRegenerationBase": 0.0625,
   "enchantmentCapacityBase": 2.0,
   "enchantmentStreamBase": 0.015625,
-  "enchantmentUtilizationBase": 0.1,
+  "enchantmentManaEfficiencyBase": 0.1,
   "enchantmentPotencyBase": 0.5,
   "statusEffectManaBoostBase": 4.0,
   "statusEffectManaReductionBase": 4.0,
@@ -113,13 +113,13 @@ regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_R
 regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? PentamanaConfig.manaPerPoint / (float)Math.max(1, PentamanaConfig.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0;
 ```
 
-### `enchantmentUtilizationBase`
+### `enchantmentManaEfficiencyBase`
 
 Is used by the formula below:
 
 ```java
 float targetConsum = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, amount);
-targetConsum *= 1 - PentamanaConfig.enchantmentUtilizationBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.UTILIZATION);
+targetConsum *= 1 - PentamanaConfig.enchantmentManaEfficiencyBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.MANA_EFFICIENCY);
 ```
 
 ### `enchantmentPotencyBase`, `statusEffectManaPowerBase`, `statusEffectManaSicknessBase`
@@ -315,6 +315,15 @@ Capacity adds extra mana capacity `level * enchantmentCapacityBase`.
 
 Stream adds extra mana regeneration by `level * enchantmentStreamBase`.
 
+### Mana Efficiency
+
+- Maximum level: V
+- Primary items: Stick
+- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
+- Enchantment weight: 5
+
+Mana Efficiency reduces the casting mana cost by `level * enchantmentManaEfficiencyBase` percent.
+
 ### Potency
 
 - Maximum level: V
@@ -323,15 +332,6 @@ Stream adds extra mana regeneration by `level * enchantmentStreamBase`.
 - Enchantment weight: 10
 
 Potency adds the casting damage by `(level + 1) * enchantmentPotencyBase`.
-
-### Mana Efficiency
-
-- Maximum level: V
-- Primary items: Stick
-- Secondary items: Axe, Hoe, Mace, Pickaxe, Shovel, Sword, Trident
-- Enchantment weight: 5
-
-Mana Efficiency reduces the casting mana cost by `level * enchantmentUtilizationBase` percent.
 
 ## Tutorial: Create your very own magic weapon
 
