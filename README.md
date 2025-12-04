@@ -1,48 +1,40 @@
 # Pentamana
 
-Pentamana is a very customizable mana library for storing, modifying, and displaying mana that runs server-side.
+Pentamana is a very customizable mana library handles storing, ticking, and displaying mana that runs server-side.
 
 If you'd like to add a feature, feel free to open an issue on [github issues](https://github.com/CookedSeafood/pentamana/issues).
 
-## Feature
+## Concept
 
-- 1 manabar (1 text pattern, 3 display position, 4 render type).
-- 4 attribute modifiers.
-- 4 enchantments.
-- 8 status effects.
-- Datapack interactable.
-- Very configurable.
-- Nothing presented unless turning on or generating by yourself.
+In pentamana, mana are stored and ticked on each living entity.
 
-## Installation
+![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **data**: Parent tag.  
+&ensp;|- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/float.png) **mana**: Any  
+&ensp;\\- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/float.png) **mana_capacity**: Any
 
-`gradle.properties`:
+While we have `mana` and `mana_capacity` stored, `mana_capacity` is stored for the displaying purpose solely. Value of `mana_capacity` and `mana_regeneration` are calculated before `mana` for various condition changings(enchantments, status effects, modifiers, etc).
 
-```properties
-pentamana_version=0.8.4
-```
+Mana can be measured in 3 ways:
 
-`build.gradle`:
+- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/float.png) Mana: For storing and calculating.
+- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) Mana Point: For displaying as number. Converted from `mana / manaPerPoint`.
+- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) Mana Character: For displaying as character status bar. Converted from `manaPoint / pointsPerCharacter`.
 
-```gradle
-repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        filter {
-            includeGroup "maven.modrinth"
-        }
-    }
-}
+Mana preferences are stored and manabars are generated and ticked on each player entity.
 
-dependencies {
-    modImplementation "maven.modrinth:pentamana:${project.pentamana_version}"
-}
-```
+![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **data**: Parent tag.  
+&ensp;\\- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **pentamana_preference**  
+&emsp;&emsp;|- ![Boolean](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/boolean.png) **visibility**: True if manabar should be visible.  
+&emsp;&emsp;|- ![Boolean](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/boolean.png) **suppression**: True if manabar display update should be suppressed.  
+&emsp;&emsp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **position**: Manabar position. Can be `actionbar`, `bossbar` and `siderbar`.  
+&emsp;&emsp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **type**: Manabar render type. Can be `character`, `numeric`, `percentage` and `none`.  
+&emsp;&emsp;|- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **pattern**: Manabar text pattern. Manabar render text is respresented by `$`.  
+&emsp;&emsp;|- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) **pointsPerCharacter**: Amount of mana points to be considered as 1 mana character.  
+&emsp;&emsp;|- ![Boolean](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/boolean.png) **compression**: True if fixed size should be used if `type` is `character`.  
+&emsp;&emsp;|- ![Byte](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/byte.png) **compression_size**: The size in characters of compression.  
+&emsp;&emsp;|- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **charset**: The 2-dim charset used if `type` is `character`. Can define mana-character with 128 index and 128 states. From 100% to 0% state, then from first index to last index.  
+&emsp;&emsp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **color**: The color of bossbar which act as manabar.  
+&emsp;&emsp;\\- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **style**: The style of bossbar which act as manabar.
 
 ## Configuration
 
@@ -73,113 +65,64 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
     "position": "actionbar",
     "type": "character",
     "pattern": [{"text":"$"}],
-    "charset": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]],
     "pointsPerCharacter": 2,
     "isCompressed": false,
     "compressionSize": 20,
+    "charset": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]],
     "color": "blue",
     "style": "progress"
   }
 }
 ```
 
-### `manaPerPoint`
-
-Amount of mana to be considered as 1 mana point.
-
-### `manaCapacityBase`, `enchantmentCapacityBase`, `statusEffectManaBoostBase`, `statusEffectManaReductionBase`, `shouldConvertExperienceLevel`, `experienceLevelConversionBase`
-
-Are used by the formula below:
+`manaCapacityBase`, `enchantmentCapacityBase`, `statusEffectManaBoostBase`, `statusEffectManaReductionBase`, `shouldConvertExperienceLevel`, `experienceLevelConversionBase` are used by the formula below:
 
 ```java
-float capacity = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, PentamanaConfig.manaCapacityBase);
-capacity += PentamanaConfig.enchantmentCapacityBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.CAPACITY);
-capacity += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? PentamanaConfig.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0;
-capacity -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? PentamanaConfig.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0;
-capacity += PentamanaConfig.shouldConvertExperienceLevel && entity instanceof ServerPlayerEntity ? PentamanaConfig.experienceLevelConversionBase * ((ServerPlayerEntity)entity).experienceLevel : 0;
-capacity = Math.max(capacity, 0.0f);
+MutableFloat capacity = new MutableFloat((float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, base));
+  livingEntity.getEnchantments(Enchantments.CAPACITY).forEach(entry -> capacity.setValue(capacity.floatValue() + PentamanaConfig.enchantmentCapacityBase * (entry.getIntValue() + 1)));
+  return Math.max(
+    capacity.floatValue()
+      + (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_BOOST) ? PentamanaConfig.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1) : 0)
+      - (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) ? PentamanaConfig.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1) : 0)
+      + (PentamanaConfig.shouldConvertExperienceLevel && livingEntity instanceof ServerPlayerEntity ? PentamanaConfig.experienceLevelConversionBase * ((ServerPlayerEntity)livingEntity).experienceLevel : 0),
+    0.0f
+  );
 ```
 
-### `manaRegenerationBase`, `enchantmentStreamBase`, `statusEffectInstantManaBase`, `statusEffectInstantDepleteBase`, `statusEffectManaRegenerationBase`, `statusEffectManaInhibitionBase`
-
-Are used by the formula below:
+`manaRegenerationBase`, `enchantmentStreamBase`, `statusEffectInstantManaBase`, `statusEffectInstantDepleteBase`, `statusEffectManaRegenerationBase`, `statusEffectManaInhibitionBase` are used by the formula below:
 
 ```java
-float regen = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, PentamanaConfig.manaRegenerationBase);
-regen += PentamanaConfig.enchantmentStreamBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.STREAM);
-regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? PentamanaConfig.statusEffectInstantManaBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0;
-regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? PentamanaConfig.statusEffectInstantDepleteBase * Math.pow(2, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0;
-regen += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? PentamanaConfig.manaPerPoint / (float)Math.max(1, PentamanaConfig.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0;
-regen -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? PentamanaConfig.manaPerPoint / (float)Math.max(1, PentamanaConfig.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0;
+MutableFloat regen = new MutableFloat((float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, base));
+livingEntity.getEnchantments(Enchantments.STREAM).forEach(entry -> regen.setValue(regen.floatValue() + PentamanaConfig.enchantmentStreamBase * (entry.getIntValue() + 1)));
+return regen.floatValue()
+  + (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_MANA) ? PentamanaConfig.statusEffectInstantManaBase * (float)Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA)) : 0)
+  - (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE) ? PentamanaConfig.statusEffectInstantDepleteBase * (float)Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)) : 0)
+  + (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_REGENERATION) ? PentamanaConfig.manaPerPoint / Math.max(1, PentamanaConfig.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)) : 0)
+  - (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_INHIBITION) ? PentamanaConfig.manaPerPoint / Math.max(1, PentamanaConfig.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)) : 0);
 ```
 
-### `enchantmentManaEfficiencyBase`
-
-Is used by the formula below:
+`enchantmentManaEfficiencyBase` is used by the formula below:
 
 ```java
-float targetConsum = (float)entity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, amount);
-targetConsum *= 1 - PentamanaConfig.enchantmentManaEfficiencyBase * entity.getWeaponStack().getEnchantments().getLevel(PentamanaEnchantmentIdentifiers.MANA_EFFICIENCY);
+MutableFloat consum = new MutableFloat((float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, amount));
+livingEntity.getEnchantments(Enchantments.MANA_EFFICIENCY).forEach(entry -> consum.setValue(consum.floatValue() * (1 - PentamanaConfig.enchantmentManaEfficiencyBase * (entry.getIntValue() + 1))));
 ```
 
-### `enchantmentPotencyBase`, `statusEffectManaPowerBase`, `statusEffectManaSicknessBase`
-
-Are used by the formula below:
+`enchantmentPotencyBase`, `statusEffectManaPowerBase`, `statusEffectManaSicknessBase` are used by the formula below:
 
 ```java
-float castingDamage = manaCapacity;
-castingDamage /= PentamanaConfig.manaCapacityBase;
-castingDamage *= (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, baseDamage);
-castingDamage += potencyLevel != 0 ? ++potencyLevel * PentamanaConfig.enchantmentPotencyBase / Integer.MAX_VALUE : 0;
-castingDamage += statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * PentamanaConfig.statusEffectManaPowerBase : 0;
-castingDamage -= statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * PentamanaConfig.statusEffectManaSicknessBase : 0;
-castingDamage = Math.max(castingDamage, 0.0f);
-castingDamage *= entity instanceof WitchEntity ? 0.15f : 1;
+MutableFloat damage = new MutableFloat(this.getManaCapacity() / PentamanaConfig.manaCapacityBase * (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, baseDamage));
+livingEntity.getEnchantments(Enchantments.POTENCY).forEach(entry -> damage.setValue(damage.floatValue() + PentamanaConfig.enchantmentPotencyBase * (entry.getIntValue() + 1)));
+return Math.max(
+  (
+    damage.floatValue()
+      + (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_POWER) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * PentamanaConfig.statusEffectManaPowerBase : 0)
+      - (statusEffectManager.containsKey(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * PentamanaConfig.statusEffectManaSicknessBase : 0)
+  )
+  * (entity instanceof WitchEntity ? 0.15f : 1),
+  0.0f
+);
 ```
-
-### `isVisible`
-
-True if manabar should be visible.
-
-### `isSuppressed`
-
-True if manabar display update should be suppressed.
-
-### `position`
-
-Manabar position. Can be `actionbar`, `bossbar` and `siderbar`.
-
-### `type`
-
-Manabar render type. Can be `character`, `numeric`, `percentage` and `none`.
-
-### `pattern`
-
-Manabar text pattern. Manabar render text is respresented by `$`.
-
-### `charset`
-
-The 2-dim charset used if `type` is `character`. Can define mana-character with 128 index and 128 states. From 100% to 0% state, then from first index to last index.
-
-### `pointsPerCharacter`
-
-Amount of mana points to be considered as 1 mana character.
-
-### `isCompressed`
-
-True if fixed size should be used if `type` is `character`.
-
-### `compressionSize`
-
-The size in characters of compression.
-
-### `color`
-
-The color of bossbar which act as manabar.
-
-### `style`
-
-The style of bossbar which act as manabar.
 
 ## Command
 
@@ -208,21 +151,20 @@ The commands below require premission level 2 to execute.
 
 Modifiers can be added to or removed from items using custom data components. They are active when equipped in the written slot.
 
-```txt
-[List] modifiers
-|- [Compound]
-   |- [String] attribute: `namespace:path`. Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration`, `pentamana:mana_consumption` and `pentamana:casting_damage`.
-   |- [Double] base: Any.
-   |- [String] id: Any.
-   |- [String] operation: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.
-   \- [String] slot: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest` and `head`.
-```
+![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **custom_data**: Parent tag.  
+&ensp;\\- ![List](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/list.png) **modifiers**  
+&emsp;&emsp;\\- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png)  
+&emsp;&emsp;&emsp;&ensp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **attribute**: `namespace:path`. Can be `pentamana:mana_capacity`, `pentamana:mana_regeneration`, `pentamana:mana_consumption` and `pentamana:casting_damage`.  
+&emsp;&emsp;&emsp;&ensp;|- ![Double](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/double.png) **base**: Any.  
+&emsp;&emsp;&emsp;&ensp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **id**: Any.  
+&emsp;&emsp;&emsp;&ensp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **operation**: Can be `add_value`, `add_multiplied_base` and `add_multiplied_total`.  
+&emsp;&emsp;&emsp;&ensp;\\- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **slot**: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest` and `head`.
 
 Below is an example modifier which increase mana capacity by 120(![2_point_mana_char.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×60) when held in offhand.
 
 ```component
 [
-  minecraft:custom_data={
+  custom_data={
     modifiers: [
       {
         attribute: "pentamana:mana_capacity",
@@ -239,19 +181,18 @@ Below is an example modifier which increase mana capacity by 120(![2_point_mana_
 
 Status effects can be added to or removed from items using custom data components. They are applied when the item is consumed.
 
-```txt
-[List] status_effects
-|- [Compound]
-   |- [String] id: `namespace:path`. Can be `pentamana:mana_boost`, `pentamana:mana_reduction`, `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.
-   |- [int] duration: Any.
-   \- [int] amplifier: Any.
-```
+![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **custom_data**: Parent tag.  
+&ensp;\\- ![List](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/list.png) **status_effects**  
+&emsp;&emsp;\\- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png)  
+&emsp;&emsp;&emsp;&ensp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/string.png) **id**: `namespace:path`. Can be `pentamana:mana_boost`, `pentamana:mana_reduction`, `pentamana:instant_mana`, `pentamana:instant_deplete`, `pentamana:mana_regeneration`, `pentamana:mana_inhibition`, `pentamana:mana_power` and `pentamana:mana_sickness`.  
+&emsp;&emsp;&emsp;&ensp;|- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) **duration**: Any.  
+&emsp;&emsp;&emsp;&ensp;\\- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) **amplifier**: Any.
 
 Below is an example status effect which increase the mana regeneration by 16(![2_point_mana_char.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
 
 ```component
 [
-  minecraft:custom_data={
+  custom_data={
     status_effects: [
       {
         id: "pentamana:instant_mana",
@@ -333,9 +274,41 @@ Mana Efficiency reduces the casting mana cost by `level * enchantmentManaEfficie
 
 Potency adds the casting damage by `(level + 1) * enchantmentPotencyBase`.
 
-## Tutorial: Create your very own magic weapon
+## Tutorial
 
 Codes in this tutorial are licenced under CC-0.
+
+### Installation
+
+`gradle.properties`:
+
+```properties
+pentamana_version=1.0.0
+```
+
+`build.gradle`:
+
+```gradle
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    modImplementation "maven.modrinth:pentamana:${project.pentamana_version}"
+}
+```
+
+### Create an item that consumes mana
 
 Let's say we want a right-click weapon named `Magik Wand` that consumes 1(![1_point_mana_char.png](https://cdn.modrinth.com/data/UgFKzdOy/images/d943f1772f350c1645aef349b1c0dcd86a90296c.png)) mana per use when held in mainhand.
 
@@ -381,10 +354,6 @@ if (!player.consumMana(1.0f)) {
 - `ConsumeManaCallback` Called at the head of mana consumption.
 
 ## FAQ
-
-### Containing in mod packs
-
-Yes, as long as the download source is modrinth.
 
 ### Back porting / porting to other mod loaders
 

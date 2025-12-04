@@ -3,7 +3,7 @@
     "id": "pentamana",
     "version": "${version}",
     "name": "Pentamana",
-    "description": "A very customizable mana library for storing, modifying, and displaying mana.",
+    "description": "Very customizable mana library handles storing, ticking, and displaying mana.",
     "authors": [
         {
             "name": "CookedSeafood",
@@ -21,20 +21,27 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "net.cookedseafood.pentamana.Pentamana"
+            "net.hederamc.pentamana.Pentamana"
+        ],
+        "client": [
+            "net.hederamc.pentamana.PentamanaClient"
         ]
     },
     "mixins": [
-        "pentamana.mixins.json"
+        "pentamana.mixins.json",
+        {
+            "config": "pentamana.client.mixins.json",
+            "environment": "client"
+        }
     ],
     "depends": {
-        "fabricloader": ">=0.16.14",
-        "minecraft": "~1.21.5",
+        "fabricloader": ">=0.18.1",
+        "minecraft": "~1.21.6",
         "java": ">=21",
         "fabric-api": "*",
-        "generic-registry": ">=1.0.0",
-        "candy-wrapper": ">=0.7.5",
-        "general-custom-data": ">=0.1.6"
+        "generic-registry": ">=2.0.0",
+        "candy-wrapper": ">=2.0.2",
+        "general-custom-data": ">=1.0.1"
     },
     "suggests": {
         "another-mod": "*"
@@ -42,10 +49,13 @@
     "custom": {
         "loom:injected_interfaces": {
             "net/minecraft/class_1309": [
-                "net/cookedseafood/pentamana/api/LivingEntityApi"
+                "net/hederamc/pentamana/api/LivingEntityApi"
+            ],
+            "net/minecraft/class_1893": [
+                "net/hederamc/pentamana/api/EnchantmentsApi"
             ],
             "net/minecraft/class_3222": [
-                "net/cookedseafood/pentamana/api/ServerPlayerEntityApi"
+                "net/hederamc/pentamana/api/ServerPlayerEntityApi"
             ]
         }
     },

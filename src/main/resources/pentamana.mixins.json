@@ -1,8 +1,9 @@
 {
     "required": true,
-    "package": "net.cookedseafood.pentamana.mixin",
+    "package": "net.hederamc.pentamana.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
+        "EnchantmentsMixin",
         "LivingEntityMixin",
         "ServerPlayerEntityMixin"
     ],
