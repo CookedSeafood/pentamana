@@ -20,7 +20,7 @@ Mana can be measured in 3 ways:
 - ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) Mana Point: For displaying as number. Converted from `mana / manaPerPoint`.
 - ![Int](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/int.png) Mana Character: For displaying as character status bar. Converted from `manaPoint / pointsPerCharacter`.
 
-Mana preferences are stored and manabars are generated and ticked on each player entity.
+Manabar preferences are stored and manabars are generated and ticked on each player entity.
 
 ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **data**: Parent tag.  
 &ensp;\\- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/62168868b43a6a67da11d3520f804ab003c01457/compound.png) **pentamana_preference**  
