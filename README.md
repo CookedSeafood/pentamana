@@ -108,14 +108,14 @@ The commands below require premission level 2 to execute.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
 - `/pentamana reload` Reload server config file.
-- `/pentamana set ... <...>` Set server config and save to file.
-- `/pentamana reset [...]` Set server config to default and save to file.
+- `/pentamana set ... <...>` Set server config and save to config file.
+- `/pentamana reset [...]` Set server config to default and save to config file.
 - `/custom effect give <entities> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `effect` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power` and `pentamana.mana_sick`.
 
 ### Client Command
 
-- `/manabar set ... <...>` Set manabar config and save to file.
-- `/manabar reset [...]` Set manabar config to default and save to file.
+- `/manabar set ... <...>` Set manabar config and save to config file.
+- `/manabar reset [...]` Set manabar config to default and save to config file.
 
 ## Modifier
 
