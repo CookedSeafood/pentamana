@@ -12,33 +12,11 @@ In pentamana, mana are stored and ticked on each living entity.
 &ensp;|- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana**: Any  
 &ensp;\\- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana_capacity**: Any
 
-While we have `mana` and `mana_capacity` stored, `mana_capacity` is stored for the displaying purpose solely. Value of `mana_capacity` and `mana_regeneration` are calculated before `mana` for various condition changings(enchantments, status effects, modifiers, etc).
-
-Mana can be measured in 3 ways:
-
-- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) Mana: For storing and calculating.
-- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/int.png) Mana Point: For displaying as number. Converted from `mana / manaPerPoint`.
-- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/int.png) Mana Character: For displaying as character status bar. Converted from `manaPoint / pointsPerCharacter`.
-
-Manabar preferences are stored and manabars are generated and ticked on each player entity.
-
-![Compound](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/compound.png) **data**: Parent tag.  
-&ensp;\\- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/compound.png) **pentamana_preference**  
-&emsp;&emsp;|- ![Boolean](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/boolean.png) **visibility**: True if manabar should be visible.  
-&emsp;&emsp;|- ![Boolean](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/boolean.png) **suppression**: True if manabar display update should be suppressed.  
-&emsp;&emsp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/string.png) **position**: Manabar position. Can be `actionbar`, `bossbar` and `siderbar`.  
-&emsp;&emsp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/string.png) **type**: Manabar render type. Can be `character`, `numeric`, `percentage` and `none`.  
-&emsp;&emsp;|- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/compound.png) **pattern**: Manabar text pattern. Manabar render text is respresented by `$`.  
-&emsp;&emsp;|- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/int.png) **pointsPerCharacter**: Amount of mana points to be considered as 1 mana character.  
-&emsp;&emsp;|- ![Boolean](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/boolean.png) **compression**: True if fixed size should be used if `type` is `character`.  
-&emsp;&emsp;|- ![Byte](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/byte.png) **compression_size**: The size in characters of compression.  
-&emsp;&emsp;|- ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/compound.png) **charset**: The 2-dim charset used if `type` is `character`. Can define mana-character with 128 index and 128 states. From 100% to 0% state, then from first index to last index.  
-&emsp;&emsp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/string.png) **color**: The color of bossbar which act as manabar.  
-&emsp;&emsp;\\- ![String](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/string.png) **style**: The style of bossbar which act as manabar.
+`mana_capacity` is stored for the displaying purpose solely. Value of `mana_capacity` and `mana_regeneration` are calculated before `mana` for various condition changings(enchantments, status effects, modifiers, etc).
 
 ## Configuration
 
-Here is a template configuration file `config/pentamana.json` filled with default values. You may only need to write the lines you would like to modify.
+`config/pentamana/server.json`:
 
 ```json
 {
@@ -58,20 +36,7 @@ Here is a template configuration file `config/pentamana.json` filled with defaul
   "statusEffectManaRegenerationBase": 50,
   "statusEffectManaInhibitionBase": 40,
   "shouldConvertExperienceLevel": false,
-  "experienceLevelConversionBase": 0.5,
-  "default_preference": {
-    "isVisible": true,
-    "isSuppressed": false,
-    "position": "actionbar",
-    "type": "character",
-    "pattern": [{"text":"$"}],
-    "pointsPerCharacter": 2,
-    "isCompressed": false,
-    "compressionSize": 20,
-    "charset": [[{"text":"★","color":"aqua"}],[{"text":"⯪","color":"aqua"}],[{"text":"☆","color":"black"}]],
-    "color": "blue",
-    "style": "progress"
-  }
+  "experienceLevelConversionBase": 0.5
 }
 ```
 
@@ -124,28 +89,33 @@ return Math.max(
 );
 ```
 
+`config/pentamana/client.json`:
+
+```json
+{
+  "manabarMaxStars": 20
+}
+```
+
 ## Command
 
-- `/manabar set visibility <false|true>` Set the manabar visibility for player preference.
-- `/manabar set suppression <false|true>` Set the manabar suppression for player preference.
-- `/manabar set pattern <text>` Set the manabar text pattern for player preference. Manabar render text is respresented by `$`. Text which not in `extra` is ignored.
-- `/manabar set type <character|numeric|percentage|none>` Set the manabar render type for player preference.
-- `/manabar set position <actionbar|bossbar|siderbar>` Set the manabar position for player preference.
-- `/manabar set color <pink|blue|red|green|yellow|purple|white>` Set the color of bossbar which act as manabar for player preference.
-- `/manabar set style <progress|notched_6|notched_10|notched_12|notched_20>` Set style of bossbar which act as manabar for player preference.
-- `/manabar set points_per_character <value>` Set the character-point ratio for player preference.
-- `/manabar set character <text> [<character_type_index>] [<character_index>]` Set the `character_index` index `character_type_index` state character for player preference.
-- `/manabar reset [<visibility|pattern|type|position|color|style|points_per_character|character>]` Reset player preference.
-- `/pentamana debug preference [<player>]` Print player preference.
+### Server Command
 
 The commands below require premission level 2 to execute.
 
-- `/mana reload` Reload config file.
 - `/mana get` Print mana supply. Returns mana supply in point.
 - `/mana set` Set mana supply. Returns modified mana supply in point.
 - `/mana add` Add mana supply. Returns modified mana supply in point.
 - `/mana subtract` Subtract mana supply. Returns modified mana supply in point.
+- `/pentamana reload` Reload server config file.
+- `/pentamana set ... <...>` Set server config and save to file.
+- `/pentamana reset [...]` Set server config to default and save to file.
 - `/custom effect give <entities> <effect> [<duration|infinite>] [<amplifier>]` Give custom status effect. `effect` can be `pentamana.mana_boost`, `pentamana.mana_reduction`, `pentamana.instant_mana`, `pentamana.instant_deplete`, `pentamana.mana_regeneration`, `pentamana.mana_inhibition`, `pentamana.mana_power` and `pentamana.mana_sick`.
+
+### Client Command
+
+- `/manabar set ... <...>` Set manabar config and save to file.
+- `/manabar reset [...]` Set manabar config to default and save to file.
 
 ## Modifier
 
@@ -283,7 +253,7 @@ Codes in this tutorial are licenced under CC-0.
 `gradle.properties`:
 
 ```properties
-pentamana_version=1.0.0
+pentamana_version=2.0.0-alpha.1
 ```
 
 `build.gradle`:

@@ -1,8 +1,8 @@
 package net.hederamc.pentamana.api;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
-public interface LivingEntityApi {
+public interface ManaHolder {
     default void tickMana() {
     }
 

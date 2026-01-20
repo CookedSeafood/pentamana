@@ -1,9 +1,9 @@
 package net.hederamc.pentamana.mixin;
 
-import net.hederamc.pentamana.api.EnchantmentsApi;
-import net.minecraft.enchantment.Enchantments;
+import net.hederamc.pentamana.api.PentamanaEnchantments;
+import net.minecraft.world.item.enchantment.Enchantments;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Enchantments.class)
-public abstract class EnchantmentsMixin implements EnchantmentsApi {
+public abstract class EnchantmentsMixin implements PentamanaEnchantments {
 }

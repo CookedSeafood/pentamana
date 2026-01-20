@@ -14,7 +14,8 @@
     ],
     "contact": {
         "homepage": "https://modrinth.com/mod/pentamana",
-        "sources": "https://github.com/CookedSeafood/pentamana"
+        "sources": "https://github.com/CookedSeafood/pentamana",
+        "issues": "https://github.com/CookedSeafood/pentamana/issues"
     },
     "license": "GNU-GPL-3.0",
     "icon": "assets/pentamana/icon.png",
@@ -25,6 +26,9 @@
         ],
         "client": [
             "net.hederamc.pentamana.PentamanaClient"
+        ],
+        "modmenu": [
+            "net.hederamc.pentamana.client.config.ModMenuIntegration"
         ]
     },
     "mixins": [
@@ -35,29 +39,16 @@
         }
     ],
     "depends": {
-        "fabricloader": ">=0.18.1",
-        "minecraft": "~1.21.6",
-        "java": ">=21",
+        "fabricloader": ">=0.18.4",
+        "minecraft": "~26.1-",
+        "java": ">=25",
         "fabric-api": "*",
-        "generic-registry": ">=2.0.0",
-        "candy-wrapper": ">=2.0.2",
-        "general-custom-data": ">=1.0.1"
+        "generic-registry": "~4.0.0-",
+        "fishbone-trehalose": "~4.0.0-",
+        "general-custom-data": "~2.0.0-",
+        "yet_another_config_lib_v3": ">=3.8.1"
     },
-    "suggests": {
-        "another-mod": "*"
-    },
-    "custom": {
-        "loom:injected_interfaces": {
-            "net/minecraft/class_1309": [
-                "net/hederamc/pentamana/api/LivingEntityApi"
-            ],
-            "net/minecraft/class_1893": [
-                "net/hederamc/pentamana/api/EnchantmentsApi"
-            ],
-            "net/minecraft/class_3222": [
-                "net/hederamc/pentamana/api/ServerPlayerEntityApi"
-            ]
-        }
-    },
-    "accessWidener": "pentamana.accesswidener"
+    "suggests": {},
+    "custom": {},
+    "accessWidener": "pentamana.classtweaker"
 }

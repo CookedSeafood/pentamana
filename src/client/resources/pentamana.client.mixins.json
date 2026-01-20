@@ -1,8 +1,10 @@
 {
     "required": true,
-    "package": "net.hederamc.pentamana.mixin.client",
-    "compatibilityLevel": "JAVA_21",
-    "client": [],
+    "package": "net.hederamc.pentamana.client.mixin",
+    "compatibilityLevel": "JAVA_25",
+    "client": [
+        "GuiMixin"
+    ],
     "injectors": {
         "defaultRequire": 1
     }

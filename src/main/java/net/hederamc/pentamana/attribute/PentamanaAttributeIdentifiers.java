@@ -1,7 +1,7 @@
 package net.hederamc.pentamana.attribute;
 
 import net.hederamc.pentamana.Pentamana;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public abstract class PentamanaAttributeIdentifiers {
     public static final String MANA_CAPACITY = Pentamana.MOD_ID + Identifier.NAMESPACE_SEPARATOR + "mana_capacity";
