@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.hederamc.pentamana.PentamanaClient;
 import net.hederamc.pentamana.client.config.PentamanaConfig;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -36,28 +37,23 @@ public class ManaBarCommand {
     }
 
     public static int executeSetMaxStars(CommandSourceStack source, int maxStars) throws CommandSyntaxException {
-        PentamanaConfig config = PentamanaConfig.HANDLER.instance();
-        config.manabarMaxStars = maxStars;
+        PentamanaClient.CONFIG.manabarMaxStars = maxStars;
         PentamanaConfig.HANDLER.save();
         source.sendSuccess(() -> Component.literal("Manabar maxStars is now set to: " + maxStars), false);
         return Command.SINGLE_SUCCESS;
     }
 
     public static int executeReset(CommandSourceStack source) {
-        PentamanaConfig config = PentamanaConfig.HANDLER.instance();
-        PentamanaConfig defaultConfig = PentamanaConfig.HANDLER.defaults();
-        config.manabarMaxStars = defaultConfig.manabarMaxStars;
+        PentamanaClient.CONFIG.manabarMaxStars = PentamanaClient.DEFAULTS.manabarMaxStars;
         PentamanaConfig.HANDLER.save();
         source.sendSuccess(() -> Component.literal("Manabar is now set to defaults."), false);
         return Command.SINGLE_SUCCESS;
     }
 
     public static int executeResetMaxStars(CommandSourceStack source) {
-        PentamanaConfig config = PentamanaConfig.HANDLER.instance();
-        PentamanaConfig defaultConfig = PentamanaConfig.HANDLER.defaults();
-        config.manabarMaxStars = defaultConfig.manabarMaxStars;
+        PentamanaClient.CONFIG.manabarMaxStars = PentamanaClient.DEFAULTS.manabarMaxStars;
         PentamanaConfig.HANDLER.save();
-        source.sendSuccess(() -> Component.literal("Manabar maxStars is now set to default: " + defaultConfig.manabarMaxStars), false);
+        source.sendSuccess(() -> Component.literal("Manabar maxStars is now set to default: " + PentamanaClient.DEFAULTS.manabarMaxStars), false);
         return Command.SINGLE_SUCCESS;
     }
 }

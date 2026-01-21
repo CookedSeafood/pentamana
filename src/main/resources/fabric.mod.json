@@ -22,7 +22,8 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "net.hederamc.pentamana.Pentamana"
+            "net.hederamc.pentamana.Pentamana",
+            "net.hederamc.pentamanaextra.PentamanaExtra"
         ],
         "client": [
             "net.hederamc.pentamana.PentamanaClient"
@@ -33,6 +34,7 @@
     },
     "mixins": [
         "pentamana.mixins.json",
+        "pentamana-extra.mixins.json",
         {
             "config": "pentamana.client.mixins.json",
             "environment": "client"

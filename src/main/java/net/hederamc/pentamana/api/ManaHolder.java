@@ -14,7 +14,7 @@ public interface ManaHolder {
         return false;
     }
 
-    default boolean consumMana(float amount) {
+    default boolean consumeMana(float amount) {
         return false;
     }
 

@@ -1,4 +1,4 @@
-package net.hederamc.pentamana.api;
+package net.hederamc.pentamanaextra.api;
 
 import net.hederamc.pentamana.Pentamana;
 import net.minecraft.core.registries.Registries;

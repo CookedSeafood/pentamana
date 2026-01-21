@@ -1,9 +1,10 @@
 package net.hederamc.pentamana;
 
-import net.hederamc.pentamana.command.ManaCommand;
-import net.hederamc.pentamana.command.PentamanaCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.hederamc.pentamana.command.ManaCommand;
+import net.hederamc.pentamana.command.PentamanaCommand;
+import net.hederamc.pentamana.config.PentamanaConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,6 +16,8 @@ public class Pentamana implements ModInitializer {
     // It is considered best practice to use your mod id as the logger's name.
     // That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static final PentamanaConfig CONFIG = PentamanaConfig.HANDLER.instance();
+    public static final PentamanaConfig DEFAULTS = PentamanaConfig.HANDLER.defaults();
 
     @Override
     public void onInitialize() {

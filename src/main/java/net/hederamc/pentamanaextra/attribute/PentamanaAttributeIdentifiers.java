@@ -1,4 +1,4 @@
-package net.hederamc.pentamana.attribute;
+package net.hederamc.pentamanaextra.attribute;
 
 import net.hederamc.pentamana.Pentamana;
 import net.minecraft.resources.Identifier;

@@ -1,4 +1,4 @@
-package net.hederamc.pentamana.effect;
+package net.hederamc.pentamanaextra.effect;
 
 import net.hederamc.generalcustomdata.effect.CustomStatusEffectIdentifier;
 import net.hederamc.genericregistry.registry.Registries;

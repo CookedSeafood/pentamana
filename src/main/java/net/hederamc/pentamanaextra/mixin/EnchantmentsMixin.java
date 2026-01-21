@@ -1,6 +1,6 @@
-package net.hederamc.pentamana.mixin;
+package net.hederamc.pentamanaextra.mixin;
 
-import net.hederamc.pentamana.api.PentamanaEnchantments;
+import net.hederamc.pentamanaextra.api.PentamanaEnchantments;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.spongepowered.asm.mixin.Mixin;
 
