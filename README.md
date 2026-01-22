@@ -2,11 +2,15 @@
 
 Pentamana is a mana API providing mana calculation hooks and mana rendering.
 
-Pentamana stores and ticks mana in `custom-data` on each living entity:
+Pentamana stores and ticks mana in `custom-data` on each living entity.
 
 ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/compound.png) **data**: Parent tag.  
 &ensp;|- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana**: Any  
 &ensp;\\- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana_capacity**: Any
+
+Pentamana renders manabar with a built-in resource pack. Client-side installation is optional.
+
+![Manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/724fd2c42a77a81c9a9ed95c3a79bb5ece80d873.png)
 
 ## Configuration
 
@@ -164,7 +168,7 @@ Modifiers can be added to or removed from items using custom data components. Th
 &emsp;&emsp;&emsp;&ensp;|- ![String](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/string.png) **operation**: Can be `add_value`, `add_multiplied_base`, `add_multiplied_total`.  
 &emsp;&emsp;&emsp;&ensp;\\- ![String](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/string.png) **slot**: Can be `mainhand`, `offhand`, `feet`, `legs`, `chest`, `head`.
 
-Below is an example modifier which increase mana capacity by 120(![2_point_mana_char.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×60) when held in offhand.
+Below is an example modifier which increase mana capacity by 120 when held in offhand.
 
 ```component
 [
@@ -194,7 +198,7 @@ Status effects can be added to or removed from items using custom data component
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;|- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/int.png) **amplifier**: Any.  
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;\\- ![Int](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/int.png) **duration**: Any.
 
-Below is an example status effect which increase the mana regeneration by 16(![2_point_mana_char.png](https://cdn.modrinth.com/data/UgFKzdOy/images/a26007574007d784e65c79cb957c3e0d3e94be6f.png)×8) when the item is consumed.
+Below is an example status effect which increase the mana regeneration by 16 when the item is consumed.
 
 ```component
 [
