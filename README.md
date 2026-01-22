@@ -119,6 +119,8 @@ for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantment
 ```java
 float f = 0.0f;
 
+f += livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, damage.doubleValue());
+
 for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.POTENCY)) {
     f += CONFIG.enchantmentPotencyBase * (entry.getIntValue() + 1);
 }
