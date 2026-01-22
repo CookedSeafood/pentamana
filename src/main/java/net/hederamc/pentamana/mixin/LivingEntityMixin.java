@@ -2,14 +2,16 @@ package net.hederamc.pentamana.mixin;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hederamc.pentamana.Pentamana;
 import net.hederamc.pentamana.api.ManaHolder;
 import net.hederamc.pentamana.api.event.ManaEvents;
-import net.hederamc.pentamana.config.PentamanaConfig;
+import net.hederamc.pentamana.network.protocol.common.ManaS2CPayload;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.component.CustomData;
@@ -26,33 +28,53 @@ public abstract class LivingEntityMixin implements ManaHolder {
         at = @At("TAIL")
     )
     private void tickMana(CallbackInfo info) {
+        if (((LivingEntity)(Object)this).level().isClientSide()) {
+            return;
+        }
+
         this.tickMana();
     }
 
     @Override
     public void tickMana() {
+        boolean changed = false;
         float capacity = this.getModifiedManaCapacityBase(Pentamana.CONFIG.manaCapacityBase);
 
         if (this.getManaCapacity() != capacity) {
             this.setManaCapacity(capacity);
+            changed = true;
         }
 
-        float supply = this.getMana();
+        float mana = this.getMana();
 
-        if (supply < capacity && supply >= 0.0f) {
-            this.regenMana();
-        } else if (supply > capacity) {
+        if (mana < capacity && mana >= 0.0f) {
+            changed = this.regenMana();
+        } else if (mana > capacity) {
             this.setMana(capacity);
-        } else if (supply < 0) {
+            changed = true;
+        } else if (mana < 0) {
             this.setMana(0.0f);
+            changed = true;
+        }
+
+        if (changed) {
+            LivingEntity livingEntity = (LivingEntity)(Object)this;
+
+            if (livingEntity instanceof ServerPlayer) {
+                ServerPlayer player = (ServerPlayer)livingEntity;
+
+                if (player.connection.canConnectPentamana()) {
+                    ServerPlayNetworking.send(player, new ManaS2CPayload(this.getMana(), capacity));
+                }
+            }
         }
     }
 
     /**
-     * Add {@code amount} to mana. Then cap mana at capacity and 0.
+     * Regenerate and cap mana at capacity and 0.
      *
      * @param amount of regeneration
-     * @return {@code true} if supply changed
+     * @return {@code true} if mana changed
      *
      * @see #regenMana()
      */
@@ -68,10 +90,9 @@ public abstract class LivingEntityMixin implements ManaHolder {
     }
 
     /**
-     * Add modified {@link PentamanaConfig#manaRegenerationBase} to mana.
-     * Then cap mana at capacity and 0.
+     * Regenerate and cap mana at capacity and 0.
      *
-     * @return {@code true} if supply changed
+     * @return {@code true} if mana changed
      *
      * @see #regenMana(float)
      */
@@ -81,10 +102,10 @@ public abstract class LivingEntityMixin implements ManaHolder {
     }
 
     /**
-     * Substract modified {@code amount} from mana if {@code amount <= mana}.
+     * Consume if {@code amount <= mana}.
      *
      * @param amount of consumption
-     * @return true if successful
+     * @return {@code true} if successful
      */
     @Override
     public boolean consumeMana(float amount) {

@@ -4,43 +4,46 @@ import net.minecraft.world.entity.Entity;
 
 public interface ManaHolder {
     default void tickMana() {
+        throw new UnsupportedOperationException();
     }
 
     default boolean regenMana(float amount) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     default boolean regenMana() {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     default boolean consumeMana(float amount) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     default float getModifiedManaCapacityBase(float base) {
-        return 0.0f;
+        throw new UnsupportedOperationException();
     }
 
     default float getModifiedManaRegenerationBase(float base) {
-        return 0.0f;
+        throw new UnsupportedOperationException();
     }
 
     default float getMana() {
-        return 0.0f;
+        throw new UnsupportedOperationException();
     }
 
     default void setMana(float value) {
+        throw new UnsupportedOperationException();
     }
 
     default float getManaCapacity() {
-        return 0.0f;
+        throw new UnsupportedOperationException();
     }
 
     default void setManaCapacity(float value) {
+        throw new UnsupportedOperationException();
     }
 
     default float getCastingDamageAgainst(Entity entity, float baseDamage) {
-        return 0.0f;
+        throw new UnsupportedOperationException();
     }
 }

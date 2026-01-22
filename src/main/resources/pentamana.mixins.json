@@ -3,7 +3,8 @@
     "package": "net.hederamc.pentamana.mixin",
     "compatibilityLevel": "JAVA_25",
     "mixins": [
-        "LivingEntityMixin"
+        "LivingEntityMixin",
+        "ServerGamePacketListenerImplMixin"
     ],
     "injectors": {
         "defaultRequire": 1
