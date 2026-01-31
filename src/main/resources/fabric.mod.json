@@ -22,8 +22,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "net.hederamc.pentamana.Pentamana",
-            "net.hederamc.pentamanaextra.PentamanaExtra"
+            "net.hederamc.pentamana.Pentamana"
         ],
         "client": [
             "net.hederamc.pentamana.PentamanaClient"
@@ -34,7 +33,6 @@
     },
     "mixins": [
         "pentamana.mixins.json",
-        "pentamana-extra.mixins.json",
         {
             "config": "pentamana.client.mixins.json",
             "environment": "client"
@@ -45,12 +43,8 @@
         "minecraft": "~26.1-",
         "java": ">=25",
         "fabric-api": "*",
-        "generic-registry": "~4.0.0-",
         "fishbone-trehalose": "~4.0.0-",
-        "general-custom-data": "~2.0.0-",
-        "yet_another_config_lib_v3": ">=3.8.1"
+        "yet_another_config_lib_v3": ">=3.8.2"
     },
-    "suggests": {},
-    "custom": {},
     "accessWidener": "pentamana.classtweaker"
 }

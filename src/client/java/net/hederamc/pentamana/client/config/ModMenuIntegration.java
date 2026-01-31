@@ -21,7 +21,7 @@ public class ModMenuIntegration implements ModMenuApi {
                         .name(Component.literal("Miscellaneous"))
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.literal("Max Stars"))
-                                .description(OptionDescription.of(Component.literal("Limit the manabar length so it doesn't overflow the screen. Mana displayed will be scaled accordingly if overflowed.")))
+                                .description(OptionDescription.of(Component.literal("Limit the manabar length so it doesn't overflow the screen. Mana displayed will be scaled accordingly.")))
                                 .binding(20,
                                         () -> {
                                             PentamanaConfig config = PentamanaConfig.HANDLER.instance();

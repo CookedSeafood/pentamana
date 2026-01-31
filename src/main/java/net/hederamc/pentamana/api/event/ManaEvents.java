@@ -3,6 +3,7 @@ package net.hederamc.pentamana.api.event;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
@@ -51,9 +52,9 @@ public interface ManaEvents {
     );
 
     Event<CalculateDamageCallback> CALCULATE_DAMAGE = EventFactory.createArrayBacked(CalculateDamageCallback.class,
-        (listeners) -> (livingEntity, damage) -> {
+        (listeners) -> (livingEntity, entity, damage) -> {
             for (CalculateDamageCallback listener : listeners) {
-                InteractionResult result = listener.calculateDamage(livingEntity, damage);
+                InteractionResult result = listener.calculateDamage(livingEntity, entity, damage);
 
                 if (result != InteractionResult.PASS) {
                     return result;
@@ -85,6 +86,6 @@ public interface ManaEvents {
     @FunctionalInterface
     public interface CalculateDamageCallback {
         @Nullable
-        InteractionResult calculateDamage(LivingEntity livingEntity, MutableFloat mana);
+        InteractionResult calculateDamage(LivingEntity livingEntity, Entity entity, MutableFloat mana);
     }
 }

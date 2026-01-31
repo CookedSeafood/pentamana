@@ -179,7 +179,7 @@ public abstract class LivingEntityMixin implements ManaHolder {
     @Override
     public float getCastingDamageAgainst(Entity entity, float baseDamage) {
         MutableFloat damage = new MutableFloat(baseDamage);
-        ManaEvents.CALCULATE_DAMAGE.invoker().calculateDamage((LivingEntity)(Object)this, damage);
+        ManaEvents.CALCULATE_DAMAGE.invoker().calculateDamage((LivingEntity)(Object)this, entity, damage);
         return this.getManaCapacity() / Pentamana.CONFIG.manaCapacityBase * damage.floatValue();
     }
 }

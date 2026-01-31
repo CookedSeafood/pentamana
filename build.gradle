@@ -61,11 +61,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    implementation "maven.modrinth:generic-registry:${project.generic_registry_version}"
-
     implementation "maven.modrinth:fishbone-trehalose:${project.fishbone_trehalose_version}"
-
-    implementation "maven.modrinth:general-custom-data:${project.general_custom_data_version}"
 
     implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 

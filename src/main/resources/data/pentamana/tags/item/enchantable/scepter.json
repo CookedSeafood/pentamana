@@ -1,9 +1,0 @@
-{
-  "values": [
-    "#minecraft:enchantable/mining",
-    "#minecraft:enchantable/weapon",
-    "minecraft:mace",
-    "minecraft:stick",
-    "minecraft:trident"
-  ]
-}
