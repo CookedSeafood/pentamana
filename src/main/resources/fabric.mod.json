@@ -3,7 +3,7 @@
     "id": "pentamana",
     "version": "${version}",
     "name": "Pentamana",
-    "description": "A mana API providing mana calculation hooks and mana rendering.",
+    "description": "Mana API providing mana calculation hooks and mana rendering.",
     "authors": [
         {
             "name": "CookedSeafood",

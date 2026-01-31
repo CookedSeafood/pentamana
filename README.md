@@ -1,14 +1,10 @@
 # Pentamana
 
-Pentamana is a mana API providing mana calculation hooks and mana rendering.
-
-Pentamana stores and ticks mana in `custom-data` on each living entity.
+Pentamana is a library adds non-registered mana status for living entities.
 
 ![Compound](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/compound.png) **data**: Parent tag.  
 &ensp;|- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana**: Any  
 &ensp;\\- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana_capacity**: Any
-
-Pentamana renders manabar with a built-in resource pack. Client-side installation is optional.
 
 ![Manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/724fd2c42a77a81c9a9ed95c3a79bb5ece80d873.png)
 
