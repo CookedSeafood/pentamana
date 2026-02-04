@@ -6,7 +6,7 @@ Pentamana is a library adds non-registered mana status for living entities.
 &ensp;|- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana**: Any  
 &ensp;\\- ![Float](https://github.com/CookedSeafood/nbtsheet/raw/0cfc19cc5644a82c921d39f9c40729aca3dea33d/float.png) **mana_capacity**: Any
 
-![Manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/724fd2c42a77a81c9a9ed95c3a79bb5ece80d873.png)
+![Manabar.png](https://cdn.modrinth.com/data/UgFKzdOy/images/f3cd7c3f727aa816cea812bd654485bc743dda71.png)
 
 ## Configuration
 
@@ -55,7 +55,7 @@ Codes in this tutorial are licenced under CC-0.
 `gradle.properties`:
 
 ```properties
-pentamana_version=2.0.0-alpha.6
+pentamana_version=2.0.0-alpha.7
 ```
 
 `build.gradle`:
