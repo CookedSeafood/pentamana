@@ -27,7 +27,7 @@ public class PentamanaClient implements ClientModInitializer {
             player.setMana(payload.mana());
             player.setManaCapacity(payload.capacity());
         });
-        ClientPlayConnectionEvents.JOIN.register((listener, sender, client) -> ClientPlayNetworking.send(new PentamanaConnectionInitializerC2SPayload(true)));
+        ClientPlayConnectionEvents.JOIN.register((listener, sender, client) -> ClientPlayNetworking.send(PentamanaConnectionInitializerC2SPayload.INSTANCE));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ManaBarCommand.register(dispatcher, registryAccess));
     }
 }
