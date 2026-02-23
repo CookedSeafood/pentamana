@@ -10,29 +10,29 @@ import org.jspecify.annotations.Nullable;
 
 public interface ManaHolder extends CustomDataHolder {
     default float getMana() {
-        return this.getCustomDataOrEmpty().tag().getFloatOr("mana", 0.0f);
+        return this.getCustomDataOrEmpty().getTag().getFloatOr("mana", 0.0f);
     }
 
     default void setMana(float value) {
-        this.getOrCreateCustomData().tag().putFloat("mana", value);
+        this.getOrCreateCustomData().getTag().putFloat("mana", value);
     }
 
     @Nullable
     default FloatTag removeMana() {
-        return (FloatTag)this.getCustomDataOrEmpty().tag().remove("mana");
+        return (FloatTag)this.getCustomDataOrEmpty().getTag().remove("mana");
     }
 
     default float getManaCapacity() {
-        return this.getCustomDataOrEmpty().tag().getFloatOr("mana_capacity", 0.0f);
+        return this.getCustomDataOrEmpty().getTag().getFloatOr("mana_capacity", 0.0f);
     }
 
     default void setManaCapacity(float value) {
-        this.getOrCreateCustomData().tag().putFloat("mana_capacity", value);
+        this.getOrCreateCustomData().getTag().putFloat("mana_capacity", value);
     }
 
     @Nullable
     default FloatTag removeManaCapacity() {
-        return (FloatTag)this.getCustomDataOrEmpty().tag().remove("mana_capacity");
+        return (FloatTag)this.getCustomDataOrEmpty().getTag().remove("mana_capacity");
     }
 
     default void tickMana() {
