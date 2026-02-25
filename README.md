@@ -55,7 +55,7 @@ Codes in this tutorial are licenced under CC-0.
 `gradle.properties`:
 
 ```properties
-pentamana_version=2.0.0-alpha.9
+pentamana_version=2.0.0-alpha.10
 ```
 
 `build.gradle`:

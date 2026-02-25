@@ -4,7 +4,8 @@
     "compatibilityLevel": "JAVA_25",
     "mixins": [
         "LivingEntityMixin",
-        "ServerGamePacketListenerImplMixin"
+        "ServerGamePacketListenerImplMixin",
+        "ServerPlayerMixin"
     ],
     "injectors": {
         "defaultRequire": 1

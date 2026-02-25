@@ -48,7 +48,7 @@ public interface ManaHolder extends CustomDataHolder {
             this.regenMana();
         } else if (mana > capacity) {
             this.setMana(capacity);
-        } else if (mana < 0) {
+        } else if (mana < 0.0f) {
             this.setMana(0.0f);
         }
     }
