@@ -55,7 +55,7 @@ Codes in this tutorial are licenced under CC-0.
 `gradle.properties`:
 
 ```properties
-pentamana_version=2.0.0-alpha.10
+pentamana_version=2.0.0-alpha.11
 ```
 
 `build.gradle`:
@@ -76,7 +76,7 @@ repositories {
 }
 
 dependencies {
-    modImplementation "maven.modrinth:pentamana:${project.pentamana_version}"
+    implementation "maven.modrinth:pentamana:${project.pentamana_version}"
 }
 ```
 
