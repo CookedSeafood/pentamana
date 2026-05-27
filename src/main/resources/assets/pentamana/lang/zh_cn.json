@@ -1,0 +1,19 @@
+{
+    "config.category.manaBar": "魔法条",
+    "config.group.offset": "位移",
+    "config.group.properties": "属性",
+    "config.option.x": "X",
+    "config.option.y": "Y",
+    "config.option.direction": "方向",
+    "config.option.alignment": "对齐",
+    "config.option.max_stars": "最大星星数",
+    "config.description.offset": "相对于GUI的中间底部。",
+    "config.description.max_stars": "限制魔法条的长度使它不溢出屏幕。魔法量的显示会对应缩放。",
+    "config.controller.right": "右",
+    "config.controller.up": "上",
+    "config.controller.left": "左",
+    "config.controller.down": "下",
+    "config.controller.beginning": "开始",
+    "config.controller.middle": "中间",
+    "config.controller.end": "结束"
+}

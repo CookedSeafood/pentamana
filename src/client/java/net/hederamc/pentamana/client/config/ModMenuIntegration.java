@@ -7,9 +7,13 @@ import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.OptionGroup;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import net.hederamc.fishbonetrehalose.api.Text;
 import net.hederamc.pentamana.PentamanaClient;
+import net.hederamc.pentamana.client.gui.ManaBarAlignment;
+import net.hederamc.pentamana.math.Direction2D;
 
 public class ModMenuIntegration implements ModMenuApi {
     @Override
@@ -17,19 +21,79 @@ public class ModMenuIntegration implements ModMenuApi {
         return parentScreen -> YetAnotherConfigLib.createBuilder()
                 .title(Text.literal("Pentamana"))
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.literal("Manabar"))
+                        .name(Text.fromTranslatable("config.category.manaBar"))
                         .group(OptionGroup.createBuilder()
-                                .name(Text.literal("Miscellaneous"))
+                                .name(Text.fromTranslatable("config.group.offset"))
+                                .description(OptionDescription.of(Text.fromTranslatable("config.description.offset")))
                                 .option(Option.<Integer>createBuilder()
-                                        .name(Text.literal("Max Stars"))
-                                        .description(OptionDescription.of(Text.literal("Limit the manabar length so it doesn't overflow the screen. Mana displayed will be scaled accordingly.")))
+                                        .name(Text.fromTranslatable("config.option.x"))
                                         .binding(
-                                                PentamanaClient.DEFAULTS.manabarMaxStars,
+                                                PentamanaClient.DEFAULTS.manaBarOffsetX,
                                                 () -> {
-                                                    return PentamanaClient.CONFIG.manabarMaxStars;
+                                                    return PentamanaClient.CONFIG.manaBarOffsetX;
                                                 },
                                                 newVal -> {
-                                                    PentamanaClient.CONFIG.manabarMaxStars = newVal;
+                                                    PentamanaClient.CONFIG.manaBarOffsetX = newVal;
+                                                })
+                                        .controller(
+                                                opt -> IntegerFieldControllerBuilder.create(opt))
+                                        .build())
+                                .option(Option.<Integer>createBuilder()
+                                        .name(Text.fromTranslatable("config.option.y"))
+                                        .binding(
+                                                PentamanaClient.DEFAULTS.manaBarOffsetY,
+                                                () -> {
+                                                    return PentamanaClient.CONFIG.manaBarOffsetY;
+                                                },
+                                                newVal -> {
+                                                    PentamanaClient.CONFIG.manaBarOffsetY = newVal;
+                                                })
+                                        .controller(
+                                                opt -> IntegerFieldControllerBuilder.create(opt))
+                                        .build())
+                                .build())
+                        .group(OptionGroup.createBuilder()
+                                .name(Text.fromTranslatable("config.group.properties"))
+                                .option(Option.<Direction2D>createBuilder()
+                                        .name(Text.fromTranslatable("config.option.direction"))
+                                        .binding(
+                                                PentamanaClient.DEFAULTS.manaBarDirection,
+                                                () -> {
+                                                    return PentamanaClient.CONFIG.manaBarDirection;
+                                                },
+                                                newVal -> {
+                                                    PentamanaClient.CONFIG.manaBarDirection = newVal;
+                                                })
+                                        .controller(
+                                                opt -> EnumControllerBuilder.create(opt)
+                                                        .enumClass(Direction2D.class)
+                                                        .formatValue(val -> Text.fromTranslatable("config.controller." + val.getName())))
+                                        .build())
+                                .option(Option.<ManaBarAlignment>createBuilder()
+                                        .name(Text.fromTranslatable("config.option.alignment"))
+                                        .binding(
+                                                PentamanaClient.DEFAULTS.manaBarAlignment,
+                                                () -> {
+                                                    return PentamanaClient.CONFIG.manaBarAlignment;
+                                                },
+                                                newVal -> {
+                                                    PentamanaClient.CONFIG.manaBarAlignment = newVal;
+                                                })
+                                        .controller(
+                                                opt -> EnumControllerBuilder.create(opt)
+                                                        .enumClass(ManaBarAlignment.class)
+                                                        .formatValue(val -> Text.fromTranslatable("config.controller." + val.getName())))
+                                        .build())
+                                .option(Option.<Integer>createBuilder()
+                                        .name(Text.fromTranslatable("config.option.max_stars"))
+                                        .description(OptionDescription.of(Text.fromTranslatable("config.description.max_stars")))
+                                        .binding(
+                                                PentamanaClient.DEFAULTS.manaBarMaxStars,
+                                                () -> {
+                                                    return PentamanaClient.CONFIG.manaBarMaxStars;
+                                                },
+                                                newVal -> {
+                                                    PentamanaClient.CONFIG.manaBarMaxStars = newVal;
                                                 })
                                         .controller(
                                                 opt -> IntegerSliderControllerBuilder.create(opt)

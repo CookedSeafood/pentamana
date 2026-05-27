@@ -1,0 +1,19 @@
+{
+    "config.category.manaBar": "Mana Bar",
+    "config.group.offset": "Offset",
+    "config.group.properties": "Properties",
+    "config.option.x": "X",
+    "config.option.y": "Y",
+    "config.option.direction": "Direction",
+    "config.option.alignment": "Alignment",
+    "config.option.max_stars": "Max Stars",
+    "config.description.offset": "Relative to bottom-mid of GUI.",
+    "config.description.max_stars": "Limit the manabar length so it doesn't overflow the screen. Mana displayed will be scaled accordingly.",
+    "config.controller.right": "Right",
+    "config.controller.up": "Up",
+    "config.controller.left": "Left",
+    "config.controller.down": "Down",
+    "config.controller.beginning": "Beginning",
+    "config.controller.middle": "Middle",
+    "config.controller.end": "End"
+}

@@ -9,12 +9,13 @@ import net.minecraft.resources.Identifier;
 
 public final class PentamanaConfig {
     public static ConfigClassHandler<PentamanaConfig> HANDLER = ConfigClassHandler.createBuilder(PentamanaConfig.class)
-        .id(Identifier.fromNamespaceAndPath(Pentamana.MOD_NAMESPACE, "server_config"))
-        .serializer(config -> GsonConfigSerializerBuilder.create(config)
-            .setPath(FabricLoader.getInstance().getConfigDir().resolve("pentamana/server.json"))
-            .build()
-        )
-        .build();
+            .id(Identifier.fromNamespaceAndPath(Pentamana.MOD_NAMESPACE, "server_config"))
+            .serializer(
+                    config -> GsonConfigSerializerBuilder.create(config)
+                            .setPath(FabricLoader.getInstance().getConfigDir().resolve("pentamana/server.json"))
+                            .build()
+            )
+            .build();
     @SerialEntry public float manaCapacityBase = 20.0f;
     @SerialEntry public float manaRegenerationBase = 0.0625f;
 }

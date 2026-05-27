@@ -38,7 +38,7 @@ public class ManaBarCommand {
     }
 
     public static int executeSetMaxStars(CommandSourceStack source, int maxStars) throws CommandSyntaxException {
-        PentamanaClient.CONFIG.manabarMaxStars = maxStars;
+        PentamanaClient.CONFIG.manaBarMaxStars = maxStars;
         PentamanaConfig.HANDLER.save();
         source.sendSuccess(
                 () -> Text.literal("Manabar maxStars is now set to: " + maxStars),
@@ -47,7 +47,7 @@ public class ManaBarCommand {
     }
 
     public static int executeReset(CommandSourceStack source) {
-        PentamanaClient.CONFIG.manabarMaxStars = PentamanaClient.DEFAULTS.manabarMaxStars;
+        PentamanaClient.CONFIG.manaBarMaxStars = PentamanaClient.DEFAULTS.manaBarMaxStars;
         PentamanaConfig.HANDLER.save();
         source.sendSuccess(
                 () -> Text.literal("Manabar is now set to defaults."),
@@ -56,10 +56,10 @@ public class ManaBarCommand {
     }
 
     public static int executeResetMaxStars(CommandSourceStack source) {
-        PentamanaClient.CONFIG.manabarMaxStars = PentamanaClient.DEFAULTS.manabarMaxStars;
+        PentamanaClient.CONFIG.manaBarMaxStars = PentamanaClient.DEFAULTS.manaBarMaxStars;
         PentamanaConfig.HANDLER.save();
         source.sendSuccess(
-                () -> Text.literal("Manabar maxStars is now set to default: " + PentamanaClient.DEFAULTS.manabarMaxStars),
+                () -> Text.literal("Manabar maxStars is now set to default: " + PentamanaClient.DEFAULTS.manaBarMaxStars),
                 false);
         return Command.SINGLE_SUCCESS;
     }

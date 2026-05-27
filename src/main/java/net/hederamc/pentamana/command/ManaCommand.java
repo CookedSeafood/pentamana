@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public class ManaCommand {
-    public static final SimpleCommandExceptionType REQUIRES_LIVING_ENTITY_EXCEPTION = new SimpleCommandExceptionType(
+    private static final SimpleCommandExceptionType REQUIRES_LIVING_ENTITY_EXCEPTION = new SimpleCommandExceptionType(
             Text.literal("A living entity is required to run this command here"));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {

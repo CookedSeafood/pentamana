@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,14 +34,18 @@ public abstract class GuiMixin implements ManaBarGui {
         float mana = client.player.getMana();
 
         PentamanaConfig config = PentamanaConfig.HANDLER.instance();
-        int maxContainers = config.manabarMaxStars;
+        int offsetX = config.manaBarOffsetX;
+        int offsetY = config.manaBarOffsetY;
+        int maxContainers = config.manaBarMaxStars;
+        Vector2i normal = config.manaBarDirection.getNormal();
+        float alignmentPercent = config.manaBarAlignment.getPercent();
 
-        int middleX = context.guiWidth() / 2;
-        int containers = Math.min((int)manaCapacity / 2, maxContainers);
-        int manaPoints = (int)(mana / manaCapacity * containers * 2);
-        int width = containers * 8;
-        int x = middleX - (width / 2);
-        int y = context.guiHeight() - 69;
+        int containers = Math.min((int) manaCapacity / 2, maxContainers);
+        int manaPoints = (int) (mana / manaCapacity * containers * 2);
+        int length = containers * 8;
+        int alignmentOffset = (int) (length * alignmentPercent);
+        int x = context.guiWidth() / 2 + offsetX + (int) (normal.x * alignmentOffset);
+        int y = context.guiHeight() + offsetY + (int) (normal.y * alignmentOffset);
         for (int i = 0; i < containers; i++) {
             context.blitSprite(RenderPipelines.GUI_TEXTURED, MANA_CONTAINER_SPRITE, x, y, 9, 9);
 
@@ -51,7 +56,8 @@ public abstract class GuiMixin implements ManaBarGui {
             }
 
             manaPoints -= 2;
-            x += 8;
+            x += 8 * normal.x;
+            y -= 8 * normal.y;
         }
     }
 }
